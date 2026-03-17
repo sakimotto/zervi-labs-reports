@@ -5,6 +5,7 @@ import {
   Truck,
   Users,
   BookOpen,
+  ClipboardList,
   ChevronLeft,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
