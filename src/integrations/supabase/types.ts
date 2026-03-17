@@ -14,7 +14,263 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      samples: {
+        Row: {
+          application: string | null
+          base_type: Database["public"]["Enums"]["base_type"] | null
+          batch_number: string | null
+          color: string | null
+          composition: string | null
+          created_at: string
+          fabric_type: string | null
+          id: string
+          oem_brand: string | null
+          overall_judgment: Database["public"]["Enums"]["judgment"] | null
+          priority: Database["public"]["Enums"]["priority_level"] | null
+          product_name: string
+          received_date: string | null
+          requested_by: string | null
+          sample_id: string
+          standard_requirement: string | null
+          status: Database["public"]["Enums"]["sample_status"] | null
+          supplier_name: string | null
+          technical_regulation: string | null
+          test_conditions: string | null
+          test_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          application?: string | null
+          base_type?: Database["public"]["Enums"]["base_type"] | null
+          batch_number?: string | null
+          color?: string | null
+          composition?: string | null
+          created_at?: string
+          fabric_type?: string | null
+          id?: string
+          oem_brand?: string | null
+          overall_judgment?: Database["public"]["Enums"]["judgment"] | null
+          priority?: Database["public"]["Enums"]["priority_level"] | null
+          product_name: string
+          received_date?: string | null
+          requested_by?: string | null
+          sample_id: string
+          standard_requirement?: string | null
+          status?: Database["public"]["Enums"]["sample_status"] | null
+          supplier_name?: string | null
+          technical_regulation?: string | null
+          test_conditions?: string | null
+          test_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          application?: string | null
+          base_type?: Database["public"]["Enums"]["base_type"] | null
+          batch_number?: string | null
+          color?: string | null
+          composition?: string | null
+          created_at?: string
+          fabric_type?: string | null
+          id?: string
+          oem_brand?: string | null
+          overall_judgment?: Database["public"]["Enums"]["judgment"] | null
+          priority?: Database["public"]["Enums"]["priority_level"] | null
+          product_name?: string
+          received_date?: string | null
+          requested_by?: string | null
+          sample_id?: string
+          standard_requirement?: string | null
+          status?: Database["public"]["Enums"]["sample_status"] | null
+          supplier_name?: string | null
+          technical_regulation?: string | null
+          test_conditions?: string | null
+          test_date?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      test_items: {
+        Row: {
+          aging_condition: string | null
+          category: string
+          created_at: string
+          direction_required: boolean | null
+          display_order: number | null
+          equipment_required: string | null
+          id: number
+          is_active: boolean | null
+          multiple_samples: boolean | null
+          name: string
+          sample_count: number | null
+          testing_standard: string | null
+          unit: string | null
+        }
+        Insert: {
+          aging_condition?: string | null
+          category: string
+          created_at?: string
+          direction_required?: boolean | null
+          display_order?: number | null
+          equipment_required?: string | null
+          id?: number
+          is_active?: boolean | null
+          multiple_samples?: boolean | null
+          name: string
+          sample_count?: number | null
+          testing_standard?: string | null
+          unit?: string | null
+        }
+        Update: {
+          aging_condition?: string | null
+          category?: string
+          created_at?: string
+          direction_required?: boolean | null
+          display_order?: number | null
+          equipment_required?: string | null
+          id?: number
+          is_active?: boolean | null
+          multiple_samples?: boolean | null
+          name?: string
+          sample_count?: number | null
+          testing_standard?: string | null
+          unit?: string | null
+        }
+        Relationships: []
+      }
+      test_requirements: {
+        Row: {
+          created_at: string
+          direction: string | null
+          id: number
+          is_active: boolean | null
+          max_value: number | null
+          min_value: number | null
+          oem_brand: string | null
+          requirement_text: string | null
+          standard_code: string | null
+          target_value: number | null
+          test_item_id: number | null
+        }
+        Insert: {
+          created_at?: string
+          direction?: string | null
+          id?: number
+          is_active?: boolean | null
+          max_value?: number | null
+          min_value?: number | null
+          oem_brand?: string | null
+          requirement_text?: string | null
+          standard_code?: string | null
+          target_value?: number | null
+          test_item_id?: number | null
+        }
+        Update: {
+          created_at?: string
+          direction?: string | null
+          id?: number
+          is_active?: boolean | null
+          max_value?: number | null
+          min_value?: number | null
+          oem_brand?: string | null
+          requirement_text?: string | null
+          standard_code?: string | null
+          target_value?: number | null
+          test_item_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_requirements_test_item_id_fkey"
+            columns: ["test_item_id"]
+            isOneToOne: false
+            referencedRelation: "test_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_results: {
+        Row: {
+          average_value: number | null
+          comments: string | null
+          created_at: string
+          direction: string | null
+          equipment_used: string | null
+          id: number
+          judgment: Database["public"]["Enums"]["judgment"] | null
+          max_value: number | null
+          result_text: string | null
+          sample_1: number | null
+          sample_2: number | null
+          sample_3: number | null
+          sample_4: number | null
+          sample_5: number | null
+          sample_6: number | null
+          sample_id: string | null
+          test_item_id: number | null
+          tested_by: string | null
+          tested_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          average_value?: number | null
+          comments?: string | null
+          created_at?: string
+          direction?: string | null
+          equipment_used?: string | null
+          id?: number
+          judgment?: Database["public"]["Enums"]["judgment"] | null
+          max_value?: number | null
+          result_text?: string | null
+          sample_1?: number | null
+          sample_2?: number | null
+          sample_3?: number | null
+          sample_4?: number | null
+          sample_5?: number | null
+          sample_6?: number | null
+          sample_id?: string | null
+          test_item_id?: number | null
+          tested_by?: string | null
+          tested_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          average_value?: number | null
+          comments?: string | null
+          created_at?: string
+          direction?: string | null
+          equipment_used?: string | null
+          id?: number
+          judgment?: Database["public"]["Enums"]["judgment"] | null
+          max_value?: number | null
+          result_text?: string | null
+          sample_1?: number | null
+          sample_2?: number | null
+          sample_3?: number | null
+          sample_4?: number | null
+          sample_5?: number | null
+          sample_6?: number | null
+          sample_id?: string | null
+          test_item_id?: number | null
+          tested_by?: string | null
+          tested_date?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_results_sample_id_fkey"
+            columns: ["sample_id"]
+            isOneToOne: false
+            referencedRelation: "samples"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_results_test_item_id_fkey"
+            columns: ["test_item_id"]
+            isOneToOne: false
+            referencedRelation: "test_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +279,10 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      base_type: "Solvent" | "Water-Based"
+      judgment: "OK" | "NG" | "Pending"
+      priority_level: "Normal" | "Urgent" | "Critical"
+      sample_status: "Pending" | "In Progress" | "Completed" | "Approved"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +409,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      base_type: ["Solvent", "Water-Based"],
+      judgment: ["OK", "NG", "Pending"],
+      priority_level: ["Normal", "Urgent", "Critical"],
+      sample_status: ["Pending", "In Progress", "Completed", "Approved"],
+    },
   },
 } as const
