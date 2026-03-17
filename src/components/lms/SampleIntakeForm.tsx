@@ -57,24 +57,19 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="h-12 flex items-center justify-between px-4 border-b bg-card shadow-card">
+      <div className="flex items-center justify-between px-4 py-2 border-b bg-card">
         <div className="flex items-center gap-3">
           <button onClick={onBack} className="p-1 hover:bg-muted rounded transition-colors">
             <ArrowLeft className="h-4 w-4" />
           </button>
-          <FlaskConical className="h-5 w-5 text-primary" />
-          <span className="text-sm font-semibold tracking-tight">ZERVI ASIA LABORATORY</span>
-          <span className="text-xs text-muted-foreground">/ New Sample</span>
+          <span className="text-sm font-semibold">New Sample</span>
         </div>
-        <button
-          onClick={handleSubmit}
-          disabled={createSample.isPending}
-          className="h-8 px-4 flex items-center gap-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
-        >
+        <button onClick={handleSubmit} disabled={createSample.isPending}
+          className="h-8 px-4 flex items-center gap-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50">
           <Save className="h-3.5 w-3.5" />
           {createSample.isPending ? 'Saving...' : 'Create Sample'}
         </button>
-      </header>
+      </div>
 
       <div className="max-w-3xl mx-auto px-4 py-6">
         <div className="bg-card rounded-lg shadow-card p-6">

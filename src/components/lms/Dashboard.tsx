@@ -24,17 +24,6 @@ export function Dashboard({ onSelectSample, onNewSample }: DashboardProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="h-12 flex items-center justify-between px-4 border-b bg-card shadow-card">
-        <div className="flex items-center gap-2">
-          <FlaskConical className="h-5 w-5 text-primary" />
-          <span className="text-sm font-semibold tracking-tight">ZERVI ASIA LABORATORY</span>
-          <span className="text-xs text-muted-foreground ml-1">LMS</span>
-        </div>
-        <div className="flex items-center gap-3 text-xs">
-          <kbd className="px-1.5 py-0.5 bg-muted rounded-sm font-mono text-muted-foreground">N</kbd>
-          <span className="text-muted-foreground">New Sample</span>
-        </div>
-      </header>
 
       <div className="max-w-7xl mx-auto px-4 py-5">
         <div className="grid grid-cols-4 gap-3 mb-5">
