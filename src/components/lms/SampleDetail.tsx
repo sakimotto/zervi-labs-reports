@@ -52,6 +52,13 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
     }
   }, [dbResults]);
 
+  // Filter test items by program assignment (null = show all)
+  const testItems = useMemo(() => {
+    if (!assignedItemIds) return allTestItems;
+    const idSet = new Set(assignedItemIds);
+    return allTestItems.filter(item => idSet.has(item.id));
+  }, [allTestItems, assignedItemIds]);
+
   const categories = useMemo(() => {
     const cats = new Map<string, typeof testItems>();
     testItems.forEach(item => {
