@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      customers: {
+        Row: {
+          address: string | null
+          contact_person: string | null
+          created_at: string
+          customer_type: string
+          email: string | null
+          id: string
+          is_active: boolean
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          contact_person?: string | null
+          created_at?: string
+          customer_type?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          contact_person?: string | null
+          created_at?: string
+          customer_type?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       samples: {
         Row: {
           application: string | null
@@ -85,6 +124,127 @@ export type Database = {
           technical_regulation?: string | null
           test_conditions?: string | null
           test_date?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sop_versions: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          change_notes: string | null
+          content: string
+          created_at: string
+          equipment_settings: string | null
+          id: string
+          prepared_by: string | null
+          safety_notes: string | null
+          sop_id: string
+          version_number: number
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          change_notes?: string | null
+          content?: string
+          created_at?: string
+          equipment_settings?: string | null
+          id?: string
+          prepared_by?: string | null
+          safety_notes?: string | null
+          sop_id: string
+          version_number?: number
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          change_notes?: string | null
+          content?: string
+          created_at?: string
+          equipment_settings?: string | null
+          id?: string
+          prepared_by?: string | null
+          safety_notes?: string | null
+          sop_id?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sop_versions_sop_id_fkey"
+            columns: ["sop_id"]
+            isOneToOne: false
+            referencedRelation: "sops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sops: {
+        Row: {
+          created_at: string
+          current_version: number
+          id: string
+          status: string
+          test_item_id: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_version?: number
+          id?: string
+          status?: string
+          test_item_id?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_version?: number
+          id?: string
+          status?: string
+          test_item_id?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sops_test_item_id_fkey"
+            columns: ["test_item_id"]
+            isOneToOne: false
+            referencedRelation: "test_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suppliers: {
+        Row: {
+          contact_person: string | null
+          created_at: string
+          email: string | null
+          id: string
+          is_active: boolean
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          contact_person?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          contact_person?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          phone?: string | null
           updated_at?: string
         }
         Relationships: []
