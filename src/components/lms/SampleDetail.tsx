@@ -1,11 +1,13 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { useSample } from '@/hooks/useSamples';
+import { useSample, useUpdateSample } from '@/hooks/useSamples';
 import { useTestItems, useTestRequirements, useTestResults, useUpsertTestResult, autoJudge } from '@/hooks/useTestData';
 import type { DbTestResult, DbTestRequirement } from '@/hooks/useTestData';
 import { JudgmentDot } from './JudgmentDot';
 import { StatusBadge } from './StatusBadge';
 import { SpecBar } from './SpecBar';
-import { ArrowLeft, FlaskConical, Save, Loader2 } from 'lucide-react';
+import { PrintableReport } from './PrintableReport';
+import { DeleteSampleDialog } from './DeleteSampleDialog';
+import { ArrowLeft, FlaskConical, Save, Loader2, Printer, Pencil, Trash2, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface SampleDetailProps {
