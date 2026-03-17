@@ -48,10 +48,31 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
       return;
     }
     try {
+      const { test_program_id, ...sampleData } = form;
       const result = await createSample.mutateAsync({
         sample_id: nextId || `ZV-LAB-${Date.now()}`,
-        ...form,
+        ...sampleData,
+        ...(test_program_id ? { test_program_id } : {}),
       } as DbSampleInsert);
+
+      // If a test program is selected, copy program items to sample_test_items
+      if (test_program_id) {
+        const { data: programItems } = await supabase
+          .from('test_program_items')
+          .select('test_item_id, display_order')
+          .eq('program_id', test_program_id)
+          .order('display_order');
+        if (programItems && programItems.length > 0) {
+          await supabase.from('sample_test_items').insert(
+            programItems.map(pi => ({
+              sample_id: result.id,
+              test_item_id: pi.test_item_id,
+              display_order: pi.display_order,
+            }))
+          );
+        }
+      }
+
       toast.success(`Sample ${result.sample_id} created`);
       onCreated(result.id);
     } catch (err: any) {
