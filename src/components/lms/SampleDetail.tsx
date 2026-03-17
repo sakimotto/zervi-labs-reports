@@ -177,6 +177,7 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
           testItems={testItems}
           requirements={requirements}
           results={dbResults}
+          testProgram={testProgram || undefined}
           onClose={() => setShowPrint(false)}
         />
       )}
