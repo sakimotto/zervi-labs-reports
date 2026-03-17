@@ -1,11 +1,13 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { useSample } from '@/hooks/useSamples';
+import { useSample, useUpdateSample } from '@/hooks/useSamples';
 import { useTestItems, useTestRequirements, useTestResults, useUpsertTestResult, autoJudge } from '@/hooks/useTestData';
 import type { DbTestResult, DbTestRequirement } from '@/hooks/useTestData';
 import { JudgmentDot } from './JudgmentDot';
 import { StatusBadge } from './StatusBadge';
 import { SpecBar } from './SpecBar';
-import { ArrowLeft, FlaskConical, Save, Loader2 } from 'lucide-react';
+import { PrintableReport } from './PrintableReport';
+import { DeleteSampleDialog } from './DeleteSampleDialog';
+import { ArrowLeft, FlaskConical, Save, Loader2, Printer, Pencil, Trash2, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface SampleDetailProps {
@@ -19,10 +21,15 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
   const { data: requirements = [] } = useTestRequirements(sample?.oem_brand || undefined);
   const { data: dbResults = [] } = useTestResults(sampleId);
   const upsertResult = useUpsertTestResult();
+  const updateSample = useUpdateSample();
 
   // Local editable state seeded from DB
   const [localResults, setLocalResults] = useState<Map<string, LocalResult>>(new Map());
   const [dirty, setDirty] = useState(false);
+  const [showPrint, setShowPrint] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
+  const [editingInfo, setEditingInfo] = useState(false);
+  const [editForm, setEditForm] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (dbResults.length > 0) {
@@ -121,18 +128,57 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
   if (!sample) return null;
 
   const infoFields = [
-    { label: 'Sample ID', value: sample.sample_id, mono: true },
-    { label: 'Product', value: sample.product_name },
-    { label: 'Composition', value: sample.composition },
-    { label: 'Color', value: sample.color },
-    { label: 'Base Type', value: sample.base_type },
-    { label: 'OEM / Brand', value: sample.oem_brand },
-    { label: 'Application', value: sample.application },
-    { label: 'Test Conditions', value: sample.test_conditions },
+    { label: 'Sample ID', key: 'sample_id', value: sample.sample_id, mono: true, readonly: true },
+    { label: 'Product', key: 'product_name', value: sample.product_name },
+    { label: 'Composition', key: 'composition', value: sample.composition },
+    { label: 'Color', key: 'color', value: sample.color },
+    { label: 'Base Type', key: 'base_type', value: sample.base_type },
+    { label: 'OEM / Brand', key: 'oem_brand', value: sample.oem_brand },
+    { label: 'Application', key: 'application', value: sample.application },
+    { label: 'Test Conditions', key: 'test_conditions', value: sample.test_conditions },
+    { label: 'Tech. Regulation', key: 'technical_regulation', value: sample.technical_regulation },
+    { label: 'Standard Req.', key: 'standard_requirement', value: sample.standard_requirement },
+    { label: 'Batch Number', key: 'batch_number', value: sample.batch_number },
+    { label: 'Requested By', key: 'requested_by', value: sample.requested_by },
   ];
+
+  const startEditInfo = () => {
+    const form: Record<string, string> = {};
+    infoFields.forEach(f => { form[f.key] = (f.value as string) || ''; });
+    setEditForm(form);
+    setEditingInfo(true);
+  };
+
+  const saveInfoEdit = async () => {
+    try {
+      await updateSample.mutateAsync({ id: sampleId, ...editForm } as any);
+      setEditingInfo(false);
+      toast.success('Sample info updated');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
+      {showPrint && (
+        <PrintableReport
+          sample={sample}
+          testItems={testItems}
+          requirements={requirements}
+          results={dbResults}
+          onClose={() => setShowPrint(false)}
+        />
+      )}
+      {showDelete && (
+        <DeleteSampleDialog
+          sampleId={sampleId}
+          sampleLabel={sample.sample_id}
+          onClose={() => setShowDelete(false)}
+          onDeleted={onBack}
+        />
+      )}
+
       <header className="h-12 flex items-center justify-between px-4 border-b bg-card shadow-card">
         <div className="flex items-center gap-3">
           <button onClick={onBack} className="p-1 hover:bg-muted rounded transition-colors">
@@ -144,6 +190,19 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
         </div>
         <div className="flex items-center gap-2">
           <StatusBadge status={sample.status || 'Pending'} />
+          <button
+            onClick={() => setShowPrint(true)}
+            className="h-8 px-3 flex items-center gap-1.5 text-xs font-medium bg-muted text-muted-foreground rounded-md hover:bg-muted/80 transition-colors"
+          >
+            <Printer className="h-3.5 w-3.5" />
+            Print
+          </button>
+          <button
+            onClick={() => setShowDelete(true)}
+            className="h-8 px-2 flex items-center text-xs font-medium text-destructive hover:bg-destructive/10 rounded-md transition-colors"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
           <button
             onClick={handleSave}
             disabled={!dirty || upsertResult.isPending}
@@ -158,11 +217,36 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
 
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="bg-card rounded-lg shadow-card p-4 mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Sample Information</div>
+            {editingInfo ? (
+              <div className="flex gap-1">
+                <button onClick={saveInfoEdit} disabled={updateSample.isPending} className="h-6 px-2 text-xs font-medium bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors disabled:opacity-50">
+                  {updateSample.isPending ? 'Saving...' : 'Save'}
+                </button>
+                <button onClick={() => setEditingInfo(false)} className="h-6 px-2 text-xs font-medium text-muted-foreground hover:bg-muted rounded transition-colors">
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ) : (
+              <button onClick={startEditInfo} className="h-6 px-2 flex items-center gap-1 text-xs font-medium text-muted-foreground hover:bg-muted rounded transition-colors">
+                <Pencil className="h-3 w-3" /> Edit
+              </button>
+            )}
+          </div>
           <div className="grid grid-cols-4 gap-x-6 gap-y-2">
             {infoFields.map(f => (
               <div key={f.label}>
                 <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{f.label}</div>
-                <div className={`text-sm font-medium ${f.mono ? 'font-mono' : ''}`}>{f.value || '—'}</div>
+                {editingInfo && !f.readonly ? (
+                  <input
+                    value={editForm[f.key] || ''}
+                    onChange={e => setEditForm(prev => ({ ...prev, [f.key]: e.target.value }))}
+                    className="w-full h-7 px-2 text-sm bg-background border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  />
+                ) : (
+                  <div className={`text-sm font-medium ${f.mono ? 'font-mono' : ''}`}>{f.value || '—'}</div>
+                )}
               </div>
             ))}
           </div>

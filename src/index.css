@@ -129,3 +129,30 @@
     );
   }
 }
+
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .print\\:hidden {
+    display: none !important;
+  }
+  .print\\:static {
+    position: static !important;
+  }
+  .print\\:overflow-visible {
+    overflow: visible !important;
+  }
+  .print\\:p-6 {
+    padding: 1.5rem !important;
+  }
+  .print\\:max-w-none {
+    max-width: none !important;
+  }
+  .print\\:text-black {
+    color: black !important;
+  }
+}

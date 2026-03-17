@@ -51,6 +51,37 @@ export function useCreateSample() {
   });
 }
 
+export function useUpdateSample() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<DbSample> & { id: string }) => {
+      const { data, error } = await supabase
+        .from('samples')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ['samples'] });
+      qc.invalidateQueries({ queryKey: ['samples', data.id] });
+    },
+  });
+}
+
+export function useDeleteSample() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('samples').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['samples'] }),
+  });
+}
+
 export function useNextSampleId() {
   return useQuery({
     queryKey: ['next-sample-id'],
