@@ -7,8 +7,8 @@ interface TestProgramMeta {
   report_header_notes?: string | null;
   report_footer_notes?: string | null;
   show_signatures?: boolean | null;
-  signature_roles?: string[] | null;
-  report_columns?: string[] | null;
+  signature_roles?: unknown;
+  report_columns?: unknown;
 }
 
 interface PrintableReportProps {
