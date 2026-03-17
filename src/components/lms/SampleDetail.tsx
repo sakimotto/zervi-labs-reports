@@ -21,10 +21,15 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
   const { data: requirements = [] } = useTestRequirements(sample?.oem_brand || undefined);
   const { data: dbResults = [] } = useTestResults(sampleId);
   const upsertResult = useUpsertTestResult();
+  const updateSample = useUpdateSample();
 
   // Local editable state seeded from DB
   const [localResults, setLocalResults] = useState<Map<string, LocalResult>>(new Map());
   const [dirty, setDirty] = useState(false);
+  const [showPrint, setShowPrint] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
+  const [editingInfo, setEditingInfo] = useState(false);
+  const [editForm, setEditForm] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (dbResults.length > 0) {
