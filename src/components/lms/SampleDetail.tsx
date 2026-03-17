@@ -22,6 +22,7 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
   const { data: requirements = [] } = useTestRequirements(sample?.oem_brand || undefined);
   const { data: dbResults = [] } = useTestResults(sampleId);
   const { data: assignedItemIds } = useSampleTestItems(sampleId, sample?.test_program_id);
+  const { data: testProgram } = useTestProgram(sample?.test_program_id || null);
   const upsertResult = useUpsertTestResult();
   const updateSample = useUpdateSample();
 
