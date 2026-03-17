@@ -7,6 +7,7 @@ import { Layout } from "@/components/Layout";
 import DashboardPage from "./pages/DashboardPage";
 import SamplesPage from "./pages/SamplesPage";
 import TestMethodsPage from "./pages/TestMethodsPage";
+import TestProgramsPage from "./pages/TestProgramsPage";
 import SuppliersPage from "./pages/SuppliersPage";
 import CustomersPage from "./pages/CustomersPage";
 import SOPsPage from "./pages/SOPsPage";
