@@ -18,9 +18,11 @@ interface SampleDetailProps {
 
 export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
   const { data: sample, isLoading: sampleLoading } = useSample(sampleId);
-  const { data: testItems = [] } = useTestItems();
+  const { data: allTestItems = [] } = useTestItems();
   const { data: requirements = [] } = useTestRequirements(sample?.oem_brand || undefined);
   const { data: dbResults = [] } = useTestResults(sampleId);
+  const { data: assignedItemIds } = useSampleTestItems(sampleId, sample?.test_program_id);
+  const upsertResult = useUpsertTestResult();
   const upsertResult = useUpsertTestResult();
   const updateSample = useUpdateSample();
 
