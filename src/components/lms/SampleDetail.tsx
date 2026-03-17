@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useSample, useUpdateSample } from '@/hooks/useSamples';
 import { useTestItems, useTestRequirements, useTestResults, useUpsertTestResult, autoJudge } from '@/hooks/useTestData';
-import { useSampleTestItems } from '@/hooks/useTestPrograms';
+import { useSampleTestItems, useTestProgram } from '@/hooks/useTestPrograms';
 import type { DbTestResult, DbTestRequirement } from '@/hooks/useTestData';
 import { JudgmentDot } from './JudgmentDot';
 import { StatusBadge } from './StatusBadge';
@@ -22,6 +22,7 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
   const { data: requirements = [] } = useTestRequirements(sample?.oem_brand || undefined);
   const { data: dbResults = [] } = useTestResults(sampleId);
   const { data: assignedItemIds } = useSampleTestItems(sampleId, sample?.test_program_id);
+  const { data: testProgram } = useTestProgram(sample?.test_program_id || null);
   const upsertResult = useUpsertTestResult();
   const updateSample = useUpdateSample();
 
@@ -176,6 +177,7 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
           testItems={testItems}
           requirements={requirements}
           results={dbResults}
+          testProgram={testProgram || undefined}
           onClose={() => setShowPrint(false)}
         />
       )}
