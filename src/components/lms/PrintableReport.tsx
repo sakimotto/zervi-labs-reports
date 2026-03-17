@@ -155,7 +155,7 @@ export function PrintableReport({ sample, testItems, requirements, results, onCl
                         <td className="px-1 py-0.5 border-r border-gray-300 text-center font-mono">{res?.result_text ?? (res?.sample_1 ?? '')}</td>
                         <td className="px-1 py-0.5 border-r border-gray-300 text-center font-mono">{res?.result_text ? '' : res?.sample_2 ?? ''}</td>
                         <td className="px-1 py-0.5 border-r border-gray-300 text-center font-mono">{res?.result_text ? '' : res?.sample_3 ?? ''}</td>
-                        <td className="px-1 py-0.5 border-r border-gray-300 text-center font-mono font-semibold">{res?.result_text || res?.average_value ?? ''}</td>
+                        <td className="px-1 py-0.5 border-r border-gray-300 text-center font-mono font-semibold">{res?.result_text ?? (res?.average_value ?? '')}</td>
                         <td className={`px-1 py-0.5 text-center font-semibold ${res?.judgment === 'NG' ? 'text-red-600' : ''}`}>{judgmentLabel(res?.judgment || null)}</td>
                       </tr>
                     );
