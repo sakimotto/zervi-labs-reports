@@ -53,6 +53,45 @@ export type Database = {
         }
         Relationships: []
       }
+      sample_test_items: {
+        Row: {
+          display_order: number | null
+          id: string
+          include_in_report: boolean | null
+          sample_id: string
+          test_item_id: number
+        }
+        Insert: {
+          display_order?: number | null
+          id?: string
+          include_in_report?: boolean | null
+          sample_id: string
+          test_item_id: number
+        }
+        Update: {
+          display_order?: number | null
+          id?: string
+          include_in_report?: boolean | null
+          sample_id?: string
+          test_item_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sample_test_items_sample_id_fkey"
+            columns: ["sample_id"]
+            isOneToOne: false
+            referencedRelation: "samples"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sample_test_items_test_item_id_fkey"
+            columns: ["test_item_id"]
+            isOneToOne: false
+            referencedRelation: "test_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       samples: {
         Row: {
           application: string | null
@@ -76,6 +115,7 @@ export type Database = {
           technical_regulation: string | null
           test_conditions: string | null
           test_date: string | null
+          test_program_id: string | null
           updated_at: string
         }
         Insert: {
@@ -100,6 +140,7 @@ export type Database = {
           technical_regulation?: string | null
           test_conditions?: string | null
           test_date?: string | null
+          test_program_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -124,9 +165,18 @@ export type Database = {
           technical_regulation?: string | null
           test_conditions?: string | null
           test_date?: string | null
+          test_program_id?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "samples_test_program_id_fkey"
+            columns: ["test_program_id"]
+            isOneToOne: false
+            referencedRelation: "test_programs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sop_versions: {
         Row: {
@@ -294,6 +344,96 @@ export type Database = {
           sample_count?: number | null
           testing_standard?: string | null
           unit?: string | null
+        }
+        Relationships: []
+      }
+      test_program_items: {
+        Row: {
+          display_order: number | null
+          id: string
+          include_in_report: boolean | null
+          notes: string | null
+          program_id: string
+          test_item_id: number
+        }
+        Insert: {
+          display_order?: number | null
+          id?: string
+          include_in_report?: boolean | null
+          notes?: string | null
+          program_id: string
+          test_item_id: number
+        }
+        Update: {
+          display_order?: number | null
+          id?: string
+          include_in_report?: boolean | null
+          notes?: string | null
+          program_id?: string
+          test_item_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_program_items_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "test_programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_program_items_test_item_id_fkey"
+            columns: ["test_item_id"]
+            isOneToOne: false
+            referencedRelation: "test_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_programs: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          material_type: string | null
+          name: string
+          report_columns: Json | null
+          report_footer_notes: string | null
+          report_header_notes: string | null
+          report_title: string | null
+          show_signatures: boolean | null
+          signature_roles: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          material_type?: string | null
+          name: string
+          report_columns?: Json | null
+          report_footer_notes?: string | null
+          report_header_notes?: string | null
+          report_title?: string | null
+          show_signatures?: boolean | null
+          signature_roles?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          material_type?: string | null
+          name?: string
+          report_columns?: Json | null
+          report_footer_notes?: string | null
+          report_header_notes?: string | null
+          report_title?: string | null
+          show_signatures?: boolean | null
+          signature_roles?: Json | null
+          updated_at?: string | null
         }
         Relationships: []
       }

@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useCreateSample, useNextSampleId } from '@/hooks/useSamples';
+import { useTestPrograms } from '@/hooks/useTestPrograms';
+import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, FlaskConical, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import type { DbSampleInsert } from '@/hooks/useSamples';
@@ -18,6 +20,7 @@ const APPLICATIONS = ['Main Seat', 'Doortrim', 'Headlining', 'Awning & Canopy', 
 export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
   const { data: nextId } = useNextSampleId();
   const createSample = useCreateSample();
+  const { data: programs = [] } = useTestPrograms();
 
   const [form, setForm] = useState({
     product_name: '',
@@ -34,6 +37,7 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
     standard_requirement: '',
     priority: 'Normal' as typeof PRIORITIES[number],
     requested_by: '',
+    test_program_id: '',
   });
 
   const set = (key: string, value: string) => setForm(prev => ({ ...prev, [key]: value }));
@@ -44,10 +48,31 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
       return;
     }
     try {
+      const { test_program_id, ...sampleData } = form;
       const result = await createSample.mutateAsync({
         sample_id: nextId || `ZV-LAB-${Date.now()}`,
-        ...form,
+        ...sampleData,
+        ...(test_program_id ? { test_program_id } : {}),
       } as DbSampleInsert);
+
+      // If a test program is selected, copy program items to sample_test_items
+      if (test_program_id) {
+        const { data: programItems } = await supabase
+          .from('test_program_items')
+          .select('test_item_id, display_order')
+          .eq('program_id', test_program_id)
+          .order('display_order');
+        if (programItems && programItems.length > 0) {
+          await supabase.from('sample_test_items').insert(
+            programItems.map(pi => ({
+              sample_id: result.id,
+              test_item_id: pi.test_item_id,
+              display_order: pi.display_order,
+            }))
+          );
+        }
+      }
+
       toast.success(`Sample ${result.sample_id} created`);
       onCreated(result.id);
     } catch (err: any) {
@@ -89,6 +114,16 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
             <Field label="Supplier Name" value={form.supplier_name} onChange={v => set('supplier_name', v)} />
             <SelectField label="Application" value={form.application} options={APPLICATIONS} onChange={v => set('application', v)} />
             <SelectField label="Priority" value={form.priority} options={[...PRIORITIES]} onChange={v => set('priority', v)} />
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Test Program</label>
+              <select value={form.test_program_id} onChange={e => set('test_program_id', e.target.value)}
+                className="w-full h-9 px-3 text-sm bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50">
+                <option value="">None (all tests)</option>
+                {programs.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}{p.material_type ? ` — ${p.material_type}` : ''}</option>
+                ))}
+              </select>
+            </div>
             <Field label="Test Conditions" value={form.test_conditions} onChange={v => set('test_conditions', v)} placeholder="e.g. Temp 27°C RH 53%" />
             <Field label="Requested By" value={form.requested_by} onChange={v => set('requested_by', v)} />
             <Field label="Technical Regulation" value={form.technical_regulation} onChange={v => set('technical_regulation', v)} placeholder="e.g. ES-X-83217" />

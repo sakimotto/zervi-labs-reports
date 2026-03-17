@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useSample, useUpdateSample } from '@/hooks/useSamples';
 import { useTestItems, useTestRequirements, useTestResults, useUpsertTestResult, autoJudge } from '@/hooks/useTestData';
+import { useSampleTestItems } from '@/hooks/useTestPrograms';
 import type { DbTestResult, DbTestRequirement } from '@/hooks/useTestData';
 import { JudgmentDot } from './JudgmentDot';
 import { StatusBadge } from './StatusBadge';
@@ -17,9 +18,10 @@ interface SampleDetailProps {
 
 export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
   const { data: sample, isLoading: sampleLoading } = useSample(sampleId);
-  const { data: testItems = [] } = useTestItems();
+  const { data: allTestItems = [] } = useTestItems();
   const { data: requirements = [] } = useTestRequirements(sample?.oem_brand || undefined);
   const { data: dbResults = [] } = useTestResults(sampleId);
+  const { data: assignedItemIds } = useSampleTestItems(sampleId, sample?.test_program_id);
   const upsertResult = useUpsertTestResult();
   const updateSample = useUpdateSample();
 
@@ -48,6 +50,13 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
       setLocalResults(map);
     }
   }, [dbResults]);
+
+  // Filter test items by program assignment (null = show all)
+  const testItems = useMemo(() => {
+    if (!assignedItemIds) return allTestItems;
+    const idSet = new Set(assignedItemIds);
+    return allTestItems.filter(item => idSet.has(item.id));
+  }, [allTestItems, assignedItemIds]);
 
   const categories = useMemo(() => {
     const cats = new Map<string, typeof testItems>();
