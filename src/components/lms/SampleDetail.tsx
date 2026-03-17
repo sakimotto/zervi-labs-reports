@@ -1,10 +1,12 @@
-import { useState, useMemo } from 'react';
-import { mockSamples, mockTestItems, mockRequirements, mockResults, autoJudge } from '@/data/mockData';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useSample } from '@/hooks/useSamples';
+import { useTestItems, useTestRequirements, useTestResults, useUpsertTestResult, autoJudge } from '@/hooks/useTestData';
+import type { DbTestResult, DbTestRequirement } from '@/hooks/useTestData';
 import { JudgmentDot } from './JudgmentDot';
 import { StatusBadge } from './StatusBadge';
 import { SpecBar } from './SpecBar';
-import { ArrowLeft, FlaskConical, Save } from 'lucide-react';
-import type { Judgment, TestResult } from '@/types/lms';
+import { ArrowLeft, FlaskConical, Save, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface SampleDetailProps {
   sampleId: string;
@@ -12,56 +14,125 @@ interface SampleDetailProps {
 }
 
 export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
-  const sample = mockSamples.find(s => s.id === sampleId);
-  const [results, setResults] = useState<TestResult[]>(mockResults);
+  const { data: sample, isLoading: sampleLoading } = useSample(sampleId);
+  const { data: testItems = [] } = useTestItems();
+  const { data: requirements = [] } = useTestRequirements(sample?.oem_brand || undefined);
+  const { data: dbResults = [] } = useTestResults(sampleId);
+  const upsertResult = useUpsertTestResult();
+
+  // Local editable state seeded from DB
+  const [localResults, setLocalResults] = useState<Map<string, LocalResult>>(new Map());
+  const [dirty, setDirty] = useState(false);
+
+  useEffect(() => {
+    if (dbResults.length > 0) {
+      const map = new Map<string, LocalResult>();
+      dbResults.forEach(r => {
+        const key = `${r.test_item_id}-${r.direction || ''}`;
+        map.set(key, {
+          id: r.id,
+          test_item_id: r.test_item_id!,
+          direction: r.direction || undefined,
+          samples: [r.sample_1, r.sample_2, r.sample_3],
+          average: r.average_value,
+          judgment: (r.judgment as 'OK' | 'NG' | 'Pending') || 'Pending',
+        });
+      });
+      setLocalResults(map);
+    }
+  }, [dbResults]);
 
   const categories = useMemo(() => {
-    const cats = new Map<string, typeof mockTestItems>();
-    mockTestItems.forEach(item => {
+    const cats = new Map<string, typeof testItems>();
+    testItems.forEach(item => {
       const list = cats.get(item.category) || [];
       list.push(item);
       cats.set(item.category, list);
     });
     return cats;
-  }, []);
+  }, [testItems]);
+
+  const getReq = useCallback((testItemId: number, direction?: string): DbTestRequirement | undefined => {
+    return requirements.find(r =>
+      r.test_item_id === testItemId && (!direction || r.direction === direction)
+    );
+  }, [requirements]);
+
+  const getLocal = (testItemId: number, direction?: string) => {
+    return localResults.get(`${testItemId}-${direction || ''}`);
+  };
+
+  const updateSampleValue = (testItemId: number, direction: string | undefined, sampleIndex: number, value: string) => {
+    const key = `${testItemId}-${direction || ''}`;
+    setLocalResults(prev => {
+      const next = new Map(prev);
+      const existing = next.get(key) || {
+        test_item_id: testItemId,
+        direction,
+        samples: [null, null, null],
+        average: null,
+        judgment: 'Pending' as const,
+      };
+      const newSamples = [...existing.samples];
+      newSamples[sampleIndex] = value === '' ? null : parseFloat(value);
+      const valid = newSamples.filter((v): v is number => v !== null);
+      const avg = valid.length > 0
+        ? Math.round((valid.reduce((a, b) => a + b, 0) / valid.length) * 100) / 100
+        : null;
+      const req = getReq(testItemId, direction);
+      const judgment = autoJudge(avg, req);
+      next.set(key, { ...existing, samples: newSamples, average: avg, judgment });
+      return next;
+    });
+    setDirty(true);
+  };
+
+  const handleSave = async () => {
+    if (!sample) return;
+    try {
+      const promises = Array.from(localResults.values()).map(r =>
+        upsertResult.mutateAsync({
+          sample_id: sampleId,
+          test_item_id: r.test_item_id,
+          direction: r.direction || null,
+          sample_1: r.samples[0],
+          sample_2: r.samples[1],
+          sample_3: r.samples[2],
+          average_value: r.average,
+          judgment: r.judgment,
+        })
+      );
+      await Promise.all(promises);
+      setDirty(false);
+      toast.success('Results saved');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to save');
+    }
+  };
+
+  if (sampleLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   if (!sample) return null;
 
-  const getResult = (testItemId: number, direction?: string) =>
-    results.find(r => r.testItemId === testItemId && r.direction === direction);
-
-  const getReq = (testItemId: number, direction?: string) =>
-    mockRequirements.find(r => r.testItemId === testItemId && (!direction || r.direction === direction));
-
-  const updateSampleValue = (resultId: number, sampleIndex: number, value: string) => {
-    setResults(prev => prev.map(r => {
-      if (r.id !== resultId) return r;
-      const newSamples = [...r.samples];
-      newSamples[sampleIndex] = value === '' ? null : parseFloat(value);
-      const validSamples = newSamples.filter((v): v is number => v !== null);
-      const avg = validSamples.length > 0
-        ? Math.round((validSamples.reduce((a, b) => a + b, 0) / validSamples.length) * 100) / 100
-        : null;
-      const req = getReq(r.testItemId, r.direction);
-      const judgment = autoJudge(avg, req);
-      return { ...r, samples: newSamples, average: avg, judgment };
-    }));
-  };
-
   const infoFields = [
-    { label: 'Sample ID', value: sample.sampleId, mono: true },
-    { label: 'Product', value: sample.productName },
+    { label: 'Sample ID', value: sample.sample_id, mono: true },
+    { label: 'Product', value: sample.product_name },
     { label: 'Composition', value: sample.composition },
     { label: 'Color', value: sample.color },
-    { label: 'Base Type', value: sample.baseType },
-    { label: 'OEM / Brand', value: sample.oemBrand },
+    { label: 'Base Type', value: sample.base_type },
+    { label: 'OEM / Brand', value: sample.oem_brand },
     { label: 'Application', value: sample.application },
-    { label: 'Test Conditions', value: sample.testConditions },
+    { label: 'Test Conditions', value: sample.test_conditions },
   ];
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Top Bar */}
       <header className="h-12 flex items-center justify-between px-4 border-b bg-card shadow-card">
         <div className="flex items-center gap-3">
           <button onClick={onBack} className="p-1 hover:bg-muted rounded transition-colors">
@@ -69,20 +140,23 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
           </button>
           <FlaskConical className="h-5 w-5 text-primary" />
           <span className="text-sm font-semibold tracking-tight">ZERVI ASIA LABORATORY</span>
-          <span className="text-xs text-muted-foreground">/ {sample.sampleId}</span>
+          <span className="text-xs text-muted-foreground">/ {sample.sample_id}</span>
         </div>
         <div className="flex items-center gap-2">
-          <StatusBadge status={sample.status} />
-          <button className="h-8 px-3 flex items-center gap-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
+          <StatusBadge status={sample.status || 'Pending'} />
+          <button
+            onClick={handleSave}
+            disabled={!dirty || upsertResult.isPending}
+            className="h-8 px-3 flex items-center gap-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
+          >
             <Save className="h-3.5 w-3.5" />
-            Save
+            {upsertResult.isPending ? 'Saving...' : 'Save'}
             <kbd className="ml-1 px-1 py-0.5 bg-primary-foreground/20 rounded text-[10px] font-mono">⌘↵</kbd>
           </button>
         </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4 py-4">
-        {/* Sample Info Header */}
         <div className="bg-card rounded-lg shadow-card p-4 mb-4">
           <div className="grid grid-cols-4 gap-x-6 gap-y-2">
             {infoFields.map(f => (
@@ -94,7 +168,6 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
           </div>
         </div>
 
-        {/* Test Results Grid */}
         {Array.from(categories.entries()).map(([category, items]) => (
           <div key={category} className="mb-4">
             <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 px-1">
@@ -117,18 +190,17 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
                 </thead>
                 <tbody>
                   {items.map(item => {
-                    if (item.directionRequired) {
-                      const directions = ['Warp', 'Filling'];
-                      if (item.id === 12) directions.splice(0, 2, 'Warp', 'Weft');
+                    if (item.direction_required) {
+                      const directions = item.name.includes('Flame') ? ['Warp', 'Weft'] : ['Warp', 'Filling'];
                       return directions.map((dir, di) => (
                         <TestResultRow
                           key={`${item.id}-${dir}`}
                           itemName={di === 0 ? item.name : ''}
                           direction={dir}
-                          unit={di === 0 ? item.unit : ''}
-                          result={getResult(item.id, dir)}
+                          unit={di === 0 ? (item.unit || '') : ''}
+                          localResult={getLocal(item.id, dir)}
                           requirement={getReq(item.id, dir)}
-                          onUpdateSample={updateSampleValue}
+                          onUpdateSample={(si, val) => updateSampleValue(item.id, dir, si, val)}
                           isSubRow={di > 0}
                         />
                       ));
@@ -137,10 +209,10 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
                       <TestResultRow
                         key={item.id}
                         itemName={item.name}
-                        unit={item.unit}
-                        result={getResult(item.id)}
+                        unit={item.unit || ''}
+                        localResult={getLocal(item.id)}
                         requirement={getReq(item.id)}
-                        onUpdateSample={updateSampleValue}
+                        onUpdateSample={(si, val) => updateSampleValue(item.id, undefined, si, val)}
                       />
                     );
                   })}
@@ -154,67 +226,65 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
   );
 }
 
+interface LocalResult {
+  id?: number;
+  test_item_id: number;
+  direction?: string;
+  samples: (number | null)[];
+  average: number | null;
+  judgment: 'OK' | 'NG' | 'Pending';
+}
+
 interface TestResultRowProps {
   itemName: string;
   direction?: string;
   unit: string;
-  result?: TestResult;
-  requirement?: { minValue?: number; maxValue?: number; requirementText?: string };
-  onUpdateSample: (resultId: number, sampleIndex: number, value: string) => void;
+  localResult?: LocalResult;
+  requirement?: DbTestRequirement;
+  onUpdateSample: (sampleIndex: number, value: string) => void;
   isSubRow?: boolean;
 }
 
-function TestResultRow({ itemName, direction, unit, result, requirement, onUpdateSample, isSubRow }: TestResultRowProps) {
+function TestResultRow({ itemName, direction, unit, localResult, requirement, onUpdateSample, isSubRow }: TestResultRowProps) {
   const reqDisplay = requirement
-    ? requirement.requirementText || [
-        requirement.minValue !== undefined ? `≥${requirement.minValue}` : '',
-        requirement.maxValue !== undefined ? `≤${requirement.maxValue}` : '',
+    ? requirement.requirement_text || [
+        requirement.min_value !== null ? `≥${requirement.min_value}` : '',
+        requirement.max_value !== null ? `≤${requirement.max_value}` : '',
       ].filter(Boolean).join(' ')
     : '—';
 
-  const isNG = result?.judgment === 'NG';
+  const isNG = localResult?.judgment === 'NG';
 
   return (
     <tr className={`border-b last:border-b-0 h-10 group ${isNG ? 'bg-destructive/5' : ''}`}>
-      <td className="px-3 py-1 text-sm font-medium" style={{ textWrap: 'balance' as any }}>
-        {itemName}
-      </td>
+      <td className="px-3 py-1 text-sm font-medium">{itemName}</td>
       <td className="px-3 py-1 text-xs text-muted-foreground">{direction || ''}</td>
       <td className="px-3 py-1 text-xs text-muted-foreground">{unit}</td>
       <td className="px-3 py-1 text-xs text-center font-mono text-muted-foreground">{reqDisplay}</td>
       {[0, 1, 2].map(i => (
         <td key={i} className="px-1 py-1">
-          {result ? (
-            <div className="relative">
-              <input
-                type="number"
-                step="any"
-                value={result.samples[i] ?? ''}
-                onChange={e => onUpdateSample(result.id, i, e.target.value)}
-                className="w-full h-8 px-2 text-sm tabular-nums text-center bg-transparent rounded-sm border-0 focus:bg-card focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
-              />
-              {requirement && (
-                <SpecBar value={result.samples[i]} min={requirement.minValue} max={requirement.maxValue} />
-              )}
-            </div>
-          ) : (
+          <div className="relative">
             <input
               type="number"
               step="any"
+              value={localResult?.samples[i] ?? ''}
+              onChange={e => onUpdateSample(i, e.target.value)}
               className="w-full h-8 px-2 text-sm tabular-nums text-center bg-transparent rounded-sm border-0 focus:bg-card focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
-              placeholder="—"
             />
-          )}
+            {requirement && localResult?.samples[i] != null && (
+              <SpecBar value={localResult.samples[i]} min={requirement.min_value} max={requirement.max_value} />
+            )}
+          </div>
         </td>
       ))}
       <td className="px-3 py-1 text-center">
         <span className="tabular-nums text-sm font-medium">
-          {result?.average ?? '—'}
+          {localResult?.average ?? '—'}
         </span>
       </td>
       <td className="px-3 py-1">
         <div className="flex justify-center">
-          <JudgmentDot judgment={result?.judgment || 'Pending'} showLabel={false} />
+          <JudgmentDot judgment={localResult?.judgment || 'Pending'} showLabel={false} />
         </div>
       </td>
     </tr>
