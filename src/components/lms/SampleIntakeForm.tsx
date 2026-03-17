@@ -114,6 +114,16 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
             <Field label="Supplier Name" value={form.supplier_name} onChange={v => set('supplier_name', v)} />
             <SelectField label="Application" value={form.application} options={APPLICATIONS} onChange={v => set('application', v)} />
             <SelectField label="Priority" value={form.priority} options={[...PRIORITIES]} onChange={v => set('priority', v)} />
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Test Program</label>
+              <select value={form.test_program_id} onChange={e => set('test_program_id', e.target.value)}
+                className="w-full h-9 px-3 text-sm bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50">
+                <option value="">None (all tests)</option>
+                {programs.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}{p.material_type ? ` — ${p.material_type}` : ''}</option>
+                ))}
+              </select>
+            </div>
             <Field label="Test Conditions" value={form.test_conditions} onChange={v => set('test_conditions', v)} placeholder="e.g. Temp 27°C RH 53%" />
             <Field label="Requested By" value={form.requested_by} onChange={v => set('requested_by', v)} />
             <Field label="Technical Regulation" value={form.technical_regulation} onChange={v => set('technical_regulation', v)} placeholder="e.g. ES-X-83217" />
