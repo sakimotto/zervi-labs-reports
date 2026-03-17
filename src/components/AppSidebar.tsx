@@ -27,6 +27,7 @@ import {
 const mainNav = [
   { title: 'Dashboard', url: '/', icon: LayoutDashboard },
   { title: 'Samples', url: '/samples', icon: FlaskConical },
+  { title: 'Test Programs', url: '/test-programs', icon: ClipboardList },
   { title: 'Test Methods', url: '/test-methods', icon: TestTubes },
   { title: 'SOPs', url: '/sops', icon: BookOpen },
 ];
