@@ -152,7 +152,7 @@ export function PrintableReport({ sample, testItems, requirements, results, onCl
                         <td className="px-1 py-0.5 border-r border-gray-300 text-center">—</td>
                         <td className="px-1 py-0.5 border-r border-gray-300 text-center">{item.unit || ''}</td>
                         <td className="px-1 py-0.5 border-r border-gray-300 text-center font-mono">{formatReq(req)}</td>
-                        <td className="px-1 py-0.5 border-r border-gray-300 text-center font-mono">{res?.result_text || res?.sample_1 ?? ''}</td>
+                        <td className="px-1 py-0.5 border-r border-gray-300 text-center font-mono">{res?.result_text ?? (res?.sample_1 ?? '')}</td>
                         <td className="px-1 py-0.5 border-r border-gray-300 text-center font-mono">{res?.result_text ? '' : res?.sample_2 ?? ''}</td>
                         <td className="px-1 py-0.5 border-r border-gray-300 text-center font-mono">{res?.result_text ? '' : res?.sample_3 ?? ''}</td>
                         <td className="px-1 py-0.5 border-r border-gray-300 text-center font-mono font-semibold">{res?.result_text || res?.average_value ?? ''}</td>
