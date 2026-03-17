@@ -23,7 +23,6 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
   const { data: dbResults = [] } = useTestResults(sampleId);
   const { data: assignedItemIds } = useSampleTestItems(sampleId, sample?.test_program_id);
   const upsertResult = useUpsertTestResult();
-  const upsertResult = useUpsertTestResult();
   const updateSample = useUpdateSample();
 
   // Local editable state seeded from DB
