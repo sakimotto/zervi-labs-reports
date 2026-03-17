@@ -179,41 +179,28 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
         />
       )}
 
-      <header className="h-12 flex items-center justify-between px-4 border-b bg-card shadow-card">
+      <div className="flex items-center justify-between px-4 py-2 border-b bg-card">
         <div className="flex items-center gap-3">
           <button onClick={onBack} className="p-1 hover:bg-muted rounded transition-colors">
             <ArrowLeft className="h-4 w-4" />
           </button>
-          <FlaskConical className="h-5 w-5 text-primary" />
-          <span className="text-sm font-semibold tracking-tight">ZERVI ASIA LABORATORY</span>
-          <span className="text-xs text-muted-foreground">/ {sample.sample_id}</span>
+          <span className="text-sm font-semibold">{sample.sample_id}</span>
+          <StatusBadge status={sample.status || 'Pending'} />
         </div>
         <div className="flex items-center gap-2">
-          <StatusBadge status={sample.status || 'Pending'} />
-          <button
-            onClick={() => setShowPrint(true)}
-            className="h-8 px-3 flex items-center gap-1.5 text-xs font-medium bg-muted text-muted-foreground rounded-md hover:bg-muted/80 transition-colors"
-          >
-            <Printer className="h-3.5 w-3.5" />
-            Print
+          <button onClick={() => setShowPrint(true)} className="h-8 px-3 flex items-center gap-1.5 text-xs font-medium bg-muted text-muted-foreground rounded-md hover:bg-muted/80 transition-colors">
+            <Printer className="h-3.5 w-3.5" /> Print
           </button>
-          <button
-            onClick={() => setShowDelete(true)}
-            className="h-8 px-2 flex items-center text-xs font-medium text-destructive hover:bg-destructive/10 rounded-md transition-colors"
-          >
+          <button onClick={() => setShowDelete(true)} className="h-8 px-2 flex items-center text-xs font-medium text-destructive hover:bg-destructive/10 rounded-md transition-colors">
             <Trash2 className="h-3.5 w-3.5" />
           </button>
-          <button
-            onClick={handleSave}
-            disabled={!dirty || upsertResult.isPending}
-            className="h-8 px-3 flex items-center gap-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
-          >
+          <button onClick={handleSave} disabled={!dirty || upsertResult.isPending}
+            className="h-8 px-3 flex items-center gap-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50">
             <Save className="h-3.5 w-3.5" />
             {upsertResult.isPending ? 'Saving...' : 'Save'}
-            <kbd className="ml-1 px-1 py-0.5 bg-primary-foreground/20 rounded text-[10px] font-mono">⌘↵</kbd>
           </button>
         </div>
-      </header>
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="bg-card rounded-lg shadow-card p-4 mb-4">
