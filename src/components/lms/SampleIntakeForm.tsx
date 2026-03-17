@@ -20,6 +20,7 @@ const APPLICATIONS = ['Main Seat', 'Doortrim', 'Headlining', 'Awning & Canopy', 
 export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
   const { data: nextId } = useNextSampleId();
   const createSample = useCreateSample();
+  const { data: programs = [] } = useTestPrograms();
 
   const [form, setForm] = useState({
     product_name: '',
@@ -36,6 +37,7 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
     standard_requirement: '',
     priority: 'Normal' as typeof PRIORITIES[number],
     requested_by: '',
+    test_program_id: '',
   });
 
   const set = (key: string, value: string) => setForm(prev => ({ ...prev, [key]: value }));
