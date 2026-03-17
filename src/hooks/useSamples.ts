@@ -101,21 +101,3 @@ export function useNextSampleId() {
     },
   });
 }
-  return useQuery({
-    queryKey: ['next-sample-id'],
-    queryFn: async () => {
-      const year = new Date().getFullYear();
-      const { data } = await supabase
-        .from('samples')
-        .select('sample_id')
-        .like('sample_id', `ZV-LAB-${year}-%`)
-        .order('sample_id', { ascending: false })
-        .limit(1);
-      
-      const lastNum = data?.[0]
-        ? parseInt(data[0].sample_id.split('-').pop() || '0', 10)
-        : 0;
-      return `ZV-LAB-${year}-${String(lastNum + 1).padStart(4, '0')}`;
-    },
-  });
-}
