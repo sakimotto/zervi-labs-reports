@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useSample, useUpdateSample } from '@/hooks/useSamples';
 import { useTestItems, useTestRequirements, useTestResults, useUpsertTestResult, autoJudge } from '@/hooks/useTestData';
+import { useSampleTestItems } from '@/hooks/useTestPrograms';
 import type { DbTestResult, DbTestRequirement } from '@/hooks/useTestData';
 import { JudgmentDot } from './JudgmentDot';
 import { StatusBadge } from './StatusBadge';
