@@ -51,7 +51,56 @@ export function useCreateSample() {
   });
 }
 
+export function useUpdateSample() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<DbSample> & { id: string }) => {
+      const { data, error } = await supabase
+        .from('samples')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ['samples'] });
+      qc.invalidateQueries({ queryKey: ['samples', data.id] });
+    },
+  });
+}
+
+export function useDeleteSample() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('samples').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['samples'] }),
+  });
+}
+
 export function useNextSampleId() {
+  return useQuery({
+    queryKey: ['next-sample-id'],
+    queryFn: async () => {
+      const year = new Date().getFullYear();
+      const { data } = await supabase
+        .from('samples')
+        .select('sample_id')
+        .like('sample_id', `ZV-LAB-${year}-%`)
+        .order('sample_id', { ascending: false })
+        .limit(1);
+      
+      const lastNum = data?.[0]
+        ? parseInt(data[0].sample_id.split('-').pop() || '0', 10)
+        : 0;
+      return `ZV-LAB-${year}-${String(lastNum + 1).padStart(4, '0')}`;
+    },
+  });
+}
   return useQuery({
     queryKey: ['next-sample-id'],
     queryFn: async () => {
