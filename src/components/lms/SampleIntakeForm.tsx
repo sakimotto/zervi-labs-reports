@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useCreateSample, useNextSampleId } from '@/hooks/useSamples';
+import { useTestPrograms } from '@/hooks/useTestPrograms';
+import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, FlaskConical, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import type { DbSampleInsert } from '@/hooks/useSamples';
