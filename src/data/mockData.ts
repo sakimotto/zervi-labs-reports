@@ -1,4 +1,4 @@
-import type { Sample, TestItem, TestRequirement, TestResult } from '@/types/lms';
+import type { Sample, TestItem, TestRequirement, TestResult, Judgment } from '@/types/lms';
 
 export const mockSamples: Sample[] = [
   {
