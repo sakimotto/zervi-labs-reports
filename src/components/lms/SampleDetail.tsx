@@ -8,13 +8,25 @@ import { StatusBadge } from './StatusBadge';
 import { SpecBar } from './SpecBar';
 import { PrintableReport } from './PrintableReport';
 import { DeleteSampleDialog } from './DeleteSampleDialog';
-import { ArrowLeft, FlaskConical, Save, Loader2, Printer, Pencil, Trash2, X } from 'lucide-react';
+import { ArrowLeft, FlaskConical, Save, Loader2, Printer, Pencil, Trash2, X, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface SampleDetailProps {
   sampleId: string;
   onBack: () => void;
 }
+
+const STATUS_FLOW: Record<string, string> = {
+  'Pending': 'In Progress',
+  'In Progress': 'Completed',
+  'Completed': 'Approved',
+};
+
+const STATUS_ACTION_LABELS: Record<string, string> = {
+  'Pending': '▶ Start Testing',
+  'In Progress': '✓ Mark Complete',
+  'Completed': '✓ Approve',
+};
 
 export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
   const { data: sample, isLoading: sampleLoading } = useSample(sampleId);
@@ -26,7 +38,6 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
   const upsertResult = useUpsertTestResult();
   const updateSample = useUpdateSample();
 
-  // Local editable state seeded from DB
   const [localResults, setLocalResults] = useState<Map<string, LocalResult>>(new Map());
   const [dirty, setDirty] = useState(false);
   const [showPrint, setShowPrint] = useState(false);
@@ -52,7 +63,6 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
     }
   }, [dbResults]);
 
-  // Filter test items by program assignment (null = show all)
   const testItems = useMemo(() => {
     if (!assignedItemIds) return allTestItems;
     const idSet = new Set(assignedItemIds);
@@ -104,6 +114,17 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
     setDirty(true);
   };
 
+  // Calculate overall judgment from all results
+  const computeOverallJudgment = (): 'OK' | 'NG' | 'Pending' => {
+    const allResults = Array.from(localResults.values());
+    if (allResults.length === 0) return 'Pending';
+    const hasNG = allResults.some(r => r.judgment === 'NG');
+    if (hasNG) return 'NG';
+    const allOK = allResults.every(r => r.judgment === 'OK');
+    if (allOK && allResults.length >= testItems.length) return 'OK';
+    return 'Pending';
+  };
+
   const handleSave = async () => {
     if (!sample) return;
     try {
@@ -120,10 +141,48 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
         })
       );
       await Promise.all(promises);
+
+      // Auto-calculate overall judgment
+      const overall = computeOverallJudgment();
+      if (overall !== sample.overall_judgment) {
+        await updateSample.mutateAsync({ id: sampleId, overall_judgment: overall } as any);
+      }
+
+      // Auto-advance status from Pending to In Progress when first results entered
+      if (sample.status === 'Pending' && localResults.size > 0) {
+        await updateSample.mutateAsync({ id: sampleId, status: 'In Progress' } as any);
+      }
+
       setDirty(false);
       toast.success('Results saved');
     } catch (err: any) {
       toast.error(err.message || 'Failed to save');
+    }
+  };
+
+  const handleStatusAdvance = async () => {
+    if (!sample) return;
+    const nextStatus = STATUS_FLOW[sample.status || 'Pending'];
+    if (!nextStatus) return;
+
+    // Validation: don't complete if there are pending results
+    if (nextStatus === 'Completed') {
+      const overall = computeOverallJudgment();
+      if (overall === 'Pending') {
+        toast.error('Cannot complete: some tests are still pending');
+        return;
+      }
+    }
+
+    try {
+      const updates: Record<string, any> = { id: sampleId, status: nextStatus };
+      if (nextStatus === 'In Progress' && !sample.test_date) {
+        updates.test_date = new Date().toISOString().split('T')[0];
+      }
+      await updateSample.mutateAsync(updates as any);
+      toast.success(`Status updated to ${nextStatus}`);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to update status');
     }
   };
 
@@ -137,6 +196,9 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
 
   if (!sample) return null;
 
+  const nextStatus = STATUS_FLOW[sample.status || 'Pending'];
+  const statusAction = STATUS_ACTION_LABELS[sample.status || 'Pending'];
+
   const infoFields = [
     { label: 'Sample ID', key: 'sample_id', value: sample.sample_id, mono: true, readonly: true },
     { label: 'Product', key: 'product_name', value: sample.product_name },
@@ -145,10 +207,10 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
     { label: 'Base Type', key: 'base_type', value: sample.base_type },
     { label: 'OEM / Brand', key: 'oem_brand', value: sample.oem_brand },
     { label: 'Application', key: 'application', value: sample.application },
-    { label: 'Test Conditions', key: 'test_conditions', value: sample.test_conditions },
-    { label: 'Tech. Regulation', key: 'technical_regulation', value: sample.technical_regulation },
-    { label: 'Standard Req.', key: 'standard_requirement', value: sample.standard_requirement },
+    { label: 'Supplier', key: 'supplier_name', value: sample.supplier_name },
     { label: 'Batch Number', key: 'batch_number', value: sample.batch_number },
+    { label: 'Received', key: 'received_date', value: sample.received_date },
+    { label: 'Test Date', key: 'test_date', value: sample.test_date },
     { label: 'Requested By', key: 'requested_by', value: sample.requested_by },
   ];
 
@@ -197,8 +259,18 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
           </button>
           <span className="text-sm font-semibold">{sample.sample_id}</span>
           <StatusBadge status={sample.status || 'Pending'} />
+          {sample.overall_judgment && sample.overall_judgment !== 'Pending' && (
+            <JudgmentDot judgment={sample.overall_judgment} showLabel />
+          )}
         </div>
         <div className="flex items-center gap-2">
+          {nextStatus && statusAction && (
+            <button onClick={handleStatusAdvance}
+              className="h-8 px-3 flex items-center gap-1.5 text-xs font-medium bg-accent text-accent-foreground rounded-md hover:bg-accent/80 transition-colors">
+              {statusAction}
+              <ChevronRight className="h-3 w-3" />
+            </button>
+          )}
           <button onClick={() => setShowPrint(true)} className="h-8 px-3 flex items-center gap-1.5 text-xs font-medium bg-muted text-muted-foreground rounded-md hover:bg-muted/80 transition-colors">
             <Printer className="h-3.5 w-3.5" /> Print
           </button>
