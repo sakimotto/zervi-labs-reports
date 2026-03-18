@@ -288,7 +288,7 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="bg-card rounded-lg shadow-card p-4 mb-4">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Sample Information</div>
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Test Information</div>
             {editingInfo ? (
               <div className="flex gap-1">
                 <button onClick={saveInfoEdit} disabled={updateSample.isPending} className="h-6 px-2 text-xs font-medium bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors disabled:opacity-50">

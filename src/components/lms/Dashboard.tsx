@@ -27,7 +27,7 @@ export function Dashboard({ onSelectSample, onNewSample }: DashboardProps) {
 
       <div className="max-w-7xl mx-auto px-4 py-5">
         <div className="grid grid-cols-4 gap-3 mb-5">
-          <StatCard label="Total Samples" value={samples.length} />
+          <StatCard label="Total Tests" value={samples.length} />
           <StatCard label="Pending" value={pending} variant="warning" />
           <StatCard label="In Progress" value={inProgress} variant="primary" />
           <StatCard label="Completed" value={completed} variant="success" />
@@ -38,7 +38,7 @@ export function Dashboard({ onSelectSample, onNewSample }: DashboardProps) {
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search samples..."
+              placeholder="Search tests..."
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               className="w-full h-9 pl-8 pr-3 text-sm bg-card border rounded-md shadow-card focus:outline-none focus:ring-2 focus:ring-primary/50"
@@ -49,7 +49,7 @@ export function Dashboard({ onSelectSample, onNewSample }: DashboardProps) {
             className="h-9 px-3 flex items-center gap-1.5 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
           >
             <Plus className="h-3.5 w-3.5" />
-            New Sample
+            New Test
           </button>
         </div>
 
@@ -62,7 +62,7 @@ export function Dashboard({ onSelectSample, onNewSample }: DashboardProps) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/50">
-                  <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Sample ID</th>
+                  <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Test ID</th>
                   <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Product</th>
                   <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">OEM</th>
                   <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Type</th>
@@ -78,7 +78,7 @@ export function Dashboard({ onSelectSample, onNewSample }: DashboardProps) {
                 {filtered.length === 0 && (
                   <tr>
                     <td colSpan={7} className="px-3 py-8 text-center text-muted-foreground">
-                      No samples found
+                      No tests found
                     </td>
                   </tr>
                 )}

@@ -22,7 +22,7 @@ export default function SamplesPage() {
     return (
       <SampleIntakeForm
         onBack={() => setMode('list')}
-        onCreated={(newId) => navigate(`/samples/${newId}`)}
+        onCreated={(newId) => navigate(`/tests/${newId}`)}
       />
     );
   }

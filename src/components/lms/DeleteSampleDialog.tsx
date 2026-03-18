@@ -14,7 +14,7 @@ export function DeleteSampleDialog({ sampleId, sampleLabel, onClose, onDeleted }
   const handleDelete = async () => {
     try {
       await deleteSample.mutateAsync(sampleId);
-      toast.success(`Sample ${sampleLabel} deleted`);
+      toast.success(`Test ${sampleLabel} deleted`);
       onDeleted();
     } catch (err: any) {
       toast.error(err.message || 'Failed to delete');

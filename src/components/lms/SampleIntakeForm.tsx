@@ -126,7 +126,7 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
       toast.success(`Test ${result.sample_id} created`);
       onCreated(result.id);
     } catch (err: any) {
-      toast.error(err.message || 'Failed to create sample');
+      toast.error(err.message || 'Failed to create test');
     }
   };
 
