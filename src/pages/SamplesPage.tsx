@@ -13,7 +13,7 @@ export default function SamplesPage() {
     return (
       <SampleDetail
         sampleId={id}
-        onBack={() => navigate('/samples')}
+        onBack={() => navigate('/tests')}
       />
     );
   }
@@ -22,14 +22,14 @@ export default function SamplesPage() {
     return (
       <SampleIntakeForm
         onBack={() => setMode('list')}
-        onCreated={(newId) => navigate(`/samples/${newId}`)}
+        onCreated={(newId) => navigate(`/tests/${newId}`)}
       />
     );
   }
 
   return (
     <Dashboard
-      onSelectSample={(sId) => navigate(`/samples/${sId}`)}
+      onSelectSample={(sId) => navigate(`/tests/${sId}`)}
       onNewSample={() => setMode('new')}
     />
   );

@@ -200,7 +200,7 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
   const statusAction = STATUS_ACTION_LABELS[sample.status || 'Pending'];
 
   const infoFields = [
-    { label: 'Sample ID', key: 'sample_id', value: sample.sample_id, mono: true, readonly: true },
+    { label: 'Test ID', key: 'sample_id', value: sample.sample_id, mono: true, readonly: true },
     { label: 'Product', key: 'product_name', value: sample.product_name },
     { label: 'Composition', key: 'composition', value: sample.composition },
     { label: 'Color', key: 'color', value: sample.color },
@@ -225,7 +225,7 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
     try {
       await updateSample.mutateAsync({ id: sampleId, ...editForm } as any);
       setEditingInfo(false);
-      toast.success('Sample info updated');
+      toast.success('Test info updated');
     } catch (err: any) {
       toast.error(err.message || 'Failed to update');
     }
@@ -288,7 +288,7 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="bg-card rounded-lg shadow-card p-4 mb-4">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Sample Information</div>
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Test Information</div>
             {editingInfo ? (
               <div className="flex gap-1">
                 <button onClick={saveInfoEdit} disabled={updateSample.isPending} className="h-6 px-2 text-xs font-medium bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors disabled:opacity-50">

@@ -97,7 +97,7 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
     try {
       const { test_program_id, material_id, supplier_id, oem_specification_id, ...sampleData } = form;
       const result = await createSample.mutateAsync({
-        sample_id: nextId || `ZV-LAB-${Date.now()}`,
+        sample_id: nextId || `ZV-TR-${Date.now()}`,
         ...sampleData,
         ...(test_program_id ? { test_program_id } : {}),
         ...(material_id ? { material_id } : {}),
@@ -123,10 +123,10 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
         }
       }
 
-      toast.success(`Sample ${result.sample_id} created`);
+      toast.success(`Test ${result.sample_id} created`);
       onCreated(result.id);
     } catch (err: any) {
-      toast.error(err.message || 'Failed to create sample');
+      toast.error(err.message || 'Failed to create test');
     }
   };
 
@@ -140,19 +140,19 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
           <button onClick={onBack} className="p-1 hover:bg-muted rounded transition-colors">
             <ArrowLeft className="h-4 w-4" />
           </button>
-          <span className="text-sm font-semibold">New Sample</span>
+          <span className="text-sm font-semibold">New Test</span>
         </div>
         <button onClick={handleSubmit} disabled={createSample.isPending}
           className="h-8 px-4 flex items-center gap-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50">
           <Save className="h-3.5 w-3.5" />
-          {createSample.isPending ? 'Saving...' : 'Create Sample'}
+          {createSample.isPending ? 'Saving...' : 'Create Test'}
         </button>
       </div>
 
       <div className="max-w-3xl mx-auto px-4 py-6">
         <div className="bg-card rounded-lg shadow-card p-6">
           <div className="mb-5">
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Sample ID</div>
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Test ID</div>
             <div className="text-lg font-mono font-bold text-primary">{nextId || '...'}</div>
           </div>
 

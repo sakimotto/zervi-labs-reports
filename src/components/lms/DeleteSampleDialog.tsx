@@ -14,7 +14,7 @@ export function DeleteSampleDialog({ sampleId, sampleLabel, onClose, onDeleted }
   const handleDelete = async () => {
     try {
       await deleteSample.mutateAsync(sampleId);
-      toast.success(`Sample ${sampleLabel} deleted`);
+      toast.success(`Test ${sampleLabel} deleted`);
       onDeleted();
     } catch (err: any) {
       toast.error(err.message || 'Failed to delete');
@@ -24,7 +24,7 @@ export function DeleteSampleDialog({ sampleId, sampleLabel, onClose, onDeleted }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-card rounded-lg shadow-elevated p-6 max-w-sm w-full mx-4">
-        <h3 className="text-sm font-semibold mb-2">Delete Sample</h3>
+        <h3 className="text-sm font-semibold mb-2">Delete Test</h3>
         <p className="text-sm text-muted-foreground mb-4">
           Are you sure you want to delete <span className="font-mono font-medium text-foreground">{sampleLabel}</span>? This action cannot be undone.
         </p>

@@ -136,7 +136,7 @@ export function PrintableReport({ sample, testItems, requirements, results, test
           <table className="w-full border border-gray-400" style={{ fontSize: '9px' }}>
             <tbody>
               {[
-                ['Sample ID', sample.sample_id, 'Product Name', sample.product_name],
+                ['Test ID', sample.sample_id, 'Product Name', sample.product_name],
                 ['Composition', sample.composition || '—', 'Color', sample.color || '—'],
                 ['Base Type', sample.base_type || '—', 'Fabric Type', sample.fabric_type || '—'],
                 ['OEM / Brand', sample.oem_brand || '—', 'Application', sample.application || '—'],
