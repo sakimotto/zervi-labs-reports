@@ -152,7 +152,7 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
       <div className="max-w-3xl mx-auto px-4 py-6">
         <div className="bg-card rounded-lg shadow-card p-6">
           <div className="mb-5">
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Sample ID</div>
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Test ID</div>
             <div className="text-lg font-mono font-bold text-primary">{nextId || '...'}</div>
           </div>
 
