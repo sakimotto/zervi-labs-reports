@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useTestItems } from '@/hooks/useTestData';
+import { useStandards } from '@/hooks/useReferenceData';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { Search, Plus, Pencil, Trash2, X, Check, Filter, Loader2 } from 'lucide-react';
@@ -9,6 +10,7 @@ const CATEGORIES = ['Physical', 'Mechanical', 'Durability', 'Chemical', 'Safety'
 
 export default function TestMethodsPage() {
   const { data: items = [], isLoading } = useTestItems();
+  const { data: standards = [] } = useStandards();
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
@@ -18,7 +20,7 @@ export default function TestMethodsPage() {
   const [newForm, setNewForm] = useState({
     name: '', category: 'Physical', unit: '', direction_required: false,
     multiple_samples: true, sample_count: 3, testing_standard: '', equipment_required: '',
-    aging_condition: '', display_order: 0,
+    aging_condition: '', display_order: 0, standard_id: '',
   });
 
   const filtered = useMemo(() => {
@@ -36,6 +38,12 @@ export default function TestMethodsPage() {
     return counts;
   }, [items]);
 
+  const standardsMap = useMemo(() => {
+    const map = new Map<string, string>();
+    standards.forEach(s => map.set(s.id, `${s.code}${s.version ? `:${s.version}` : ''}`));
+    return map;
+  }, [standards]);
+
   const startEdit = (item: typeof items[0]) => {
     setEditingId(item.id);
     setEditForm({
@@ -43,13 +51,15 @@ export default function TestMethodsPage() {
       direction_required: item.direction_required, multiple_samples: item.multiple_samples,
       sample_count: item.sample_count, testing_standard: item.testing_standard || '',
       equipment_required: item.equipment_required || '', aging_condition: item.aging_condition || '',
-      display_order: item.display_order || 0,
+      display_order: item.display_order || 0, standard_id: (item as any).standard_id || '',
     });
   };
 
   const saveEdit = async () => {
     if (!editingId) return;
-    const { error } = await supabase.from('test_items').update(editForm).eq('id', editingId);
+    const { standard_id, ...rest } = editForm;
+    const payload = { ...rest, standard_id: standard_id || null };
+    const { error } = await supabase.from('test_items').update(payload).eq('id', editingId);
     if (error) { toast.error(error.message); return; }
     toast.success('Test method updated');
     setEditingId(null);
@@ -66,11 +76,13 @@ export default function TestMethodsPage() {
 
   const handleCreate = async () => {
     if (!newForm.name.trim()) { toast.error('Name is required'); return; }
-    const { error } = await supabase.from('test_items').insert(newForm);
+    const { standard_id, ...rest } = newForm;
+    const payload = { ...rest, standard_id: standard_id || null };
+    const { error } = await supabase.from('test_items').insert(payload);
     if (error) { toast.error(error.message); return; }
     toast.success('Test method created');
     setShowNew(false);
-    setNewForm({ name: '', category: 'Physical', unit: '', direction_required: false, multiple_samples: true, sample_count: 3, testing_standard: '', equipment_required: '', aging_condition: '', display_order: 0 });
+    setNewForm({ name: '', category: 'Physical', unit: '', direction_required: false, multiple_samples: true, sample_count: 3, testing_standard: '', equipment_required: '', aging_condition: '', display_order: 0, standard_id: '' });
     qc.invalidateQueries({ queryKey: ['test-items'] });
   };
 
@@ -119,7 +131,15 @@ export default function TestMethodsPage() {
               </select>
             </div>
             <FormField label="Unit" value={newForm.unit} onChange={v => setNewForm(p => ({ ...p, unit: v }))} />
-            <FormField label="Testing Standard" value={newForm.testing_standard} onChange={v => setNewForm(p => ({ ...p, testing_standard: v }))} />
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Standard (from library)</label>
+              <select value={newForm.standard_id} onChange={e => setNewForm(p => ({ ...p, standard_id: e.target.value }))}
+                className="w-full h-9 px-3 text-sm bg-background border rounded-md">
+                <option value="">— None —</option>
+                {standards.map(s => <option key={s.id} value={s.id}>{s.code}{s.version ? `:${s.version}` : ''} ({s.organization})</option>)}
+              </select>
+            </div>
+            <FormField label="Testing Standard (text)" value={newForm.testing_standard} onChange={v => setNewForm(p => ({ ...p, testing_standard: v }))} />
             <FormField label="Equipment Required" value={newForm.equipment_required} onChange={v => setNewForm(p => ({ ...p, equipment_required: v }))} />
             <FormField label="Aging Condition" value={newForm.aging_condition} onChange={v => setNewForm(p => ({ ...p, aging_condition: v }))} />
           </div>
@@ -171,7 +191,12 @@ export default function TestMethodsPage() {
                         </select>
                       </td>
                       <td className="px-3 py-1"><input value={editForm.unit} onChange={e => setEditForm(p => ({ ...p, unit: e.target.value }))} className="w-full h-7 px-2 text-sm bg-background border rounded-sm" /></td>
-                      <td className="px-3 py-1"><input value={editForm.testing_standard} onChange={e => setEditForm(p => ({ ...p, testing_standard: e.target.value }))} className="w-full h-7 px-2 text-sm bg-background border rounded-sm" /></td>
+                      <td className="px-3 py-1">
+                        <select value={editForm.standard_id} onChange={e => setEditForm(p => ({ ...p, standard_id: e.target.value }))} className="h-7 px-2 text-sm bg-background border rounded-sm w-full">
+                          <option value="">—</option>
+                          {standards.map(s => <option key={s.id} value={s.id}>{s.code}</option>)}
+                        </select>
+                      </td>
                       <td className="px-3 py-1"><input value={editForm.equipment_required} onChange={e => setEditForm(p => ({ ...p, equipment_required: e.target.value }))} className="w-full h-7 px-2 text-sm bg-background border rounded-sm" /></td>
                       <td className="px-3 py-1"><input type="checkbox" checked={editForm.direction_required} onChange={e => setEditForm(p => ({ ...p, direction_required: e.target.checked }))} /></td>
                       <td className="px-3 py-1 text-right">
@@ -185,7 +210,13 @@ export default function TestMethodsPage() {
                       <td className="px-3 py-1 font-medium">{item.name}</td>
                       <td className="px-3 py-1"><span className="text-xs px-1.5 py-0.5 rounded-sm bg-muted font-medium">{item.category}</span></td>
                       <td className="px-3 py-1 text-muted-foreground">{item.unit || '—'}</td>
-                      <td className="px-3 py-1 text-xs text-muted-foreground">{item.testing_standard || '—'}</td>
+                      <td className="px-3 py-1 text-xs text-muted-foreground">
+                        {(item as any).standard_id ? (
+                          <span className="px-1.5 py-0.5 rounded-sm bg-primary/10 text-primary font-mono">{standardsMap.get((item as any).standard_id) || item.testing_standard}</span>
+                        ) : (
+                          item.testing_standard || '—'
+                        )}
+                      </td>
                       <td className="px-3 py-1 text-xs text-muted-foreground">{item.equipment_required || '—'}</td>
                       <td className="px-3 py-1 text-xs text-muted-foreground">{item.direction_required ? '↕ Yes' : '—'}</td>
                       <td className="px-3 py-1 text-right">
