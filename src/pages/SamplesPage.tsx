@@ -13,7 +13,7 @@ export default function SamplesPage() {
     return (
       <SampleDetail
         sampleId={id}
-        onBack={() => navigate('/samples')}
+        onBack={() => navigate('/tests')}
       />
     );
   }
