@@ -142,12 +142,9 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
       );
       await Promise.all(promises);
 
-      // Auto-calculate overall judgment
-      const overall = computeOverallJudgment();
-      if (overall !== sample.overall_judgment) {
-        await updateSample.mutateAsync({ id: sampleId, overall_judgment: overall } as any);
-      }
-
+      // Overall judgment is now auto-calculated by the DB trigger on test_results.
+      // Just invalidate the sample query so UI picks up the new value.
+      
       // Auto-advance status from Pending to In Progress when first results entered
       if (sample.status === 'Pending' && localResults.size > 0) {
         await updateSample.mutateAsync({ id: sampleId, status: 'In Progress' } as any);
