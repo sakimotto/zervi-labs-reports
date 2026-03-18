@@ -7,6 +7,8 @@ import {
   BookOpen,
   ClipboardList,
   ChevronLeft,
+  Cpu,
+  Layers,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLocation } from 'react-router-dom';
@@ -30,6 +32,11 @@ const mainNav = [
   { title: 'Test Programs', url: '/test-programs', icon: ClipboardList },
   { title: 'Test Methods', url: '/test-methods', icon: TestTubes },
   { title: 'SOPs', url: '/sops', icon: BookOpen },
+];
+
+const labNav = [
+  { title: 'Equipment', url: '/equipment', icon: Cpu },
+  { title: 'Materials', url: '/materials', icon: Layers },
 ];
 
 const directoryNav = [
