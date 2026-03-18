@@ -200,7 +200,7 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
   const statusAction = STATUS_ACTION_LABELS[sample.status || 'Pending'];
 
   const infoFields = [
-    { label: 'Sample ID', key: 'sample_id', value: sample.sample_id, mono: true, readonly: true },
+    { label: 'Test ID', key: 'sample_id', value: sample.sample_id, mono: true, readonly: true },
     { label: 'Product', key: 'product_name', value: sample.product_name },
     { label: 'Composition', key: 'composition', value: sample.composition },
     { label: 'Color', key: 'color', value: sample.color },
