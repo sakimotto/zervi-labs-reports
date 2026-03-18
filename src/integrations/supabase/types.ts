@@ -58,6 +58,39 @@ export type Database = {
           },
         ]
       }
+      conditioning_profiles: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_hours: number | null
+          humidity_percent: number | null
+          id: string
+          is_active: boolean
+          name: string
+          temperature_c: number | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_hours?: number | null
+          humidity_percent?: number | null
+          id?: string
+          is_active?: boolean
+          name: string
+          temperature_c?: number | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_hours?: number | null
+          humidity_percent?: number | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          temperature_c?: number | null
+        }
+        Relationships: []
+      }
       customers: {
         Row: {
           address: string | null
@@ -329,6 +362,39 @@ export type Database = {
           },
         ]
       }
+      oem_specifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          oem_brand: string
+          region: string | null
+          spec_code: string
+          title: string | null
+          version: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          oem_brand: string
+          region?: string | null
+          spec_code: string
+          title?: string | null
+          version?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          oem_brand?: string
+          region?: string | null
+          spec_code?: string
+          title?: string | null
+          version?: string | null
+        }
+        Relationships: []
+      }
       sample_test_items: {
         Row: {
           display_order: number | null
@@ -380,6 +446,7 @@ export type Database = {
           id: string
           material_id: string | null
           oem_brand: string | null
+          oem_specification_id: string | null
           overall_judgment: Database["public"]["Enums"]["judgment"] | null
           priority: Database["public"]["Enums"]["priority_level"] | null
           product_name: string
@@ -388,6 +455,7 @@ export type Database = {
           sample_id: string
           standard_requirement: string | null
           status: Database["public"]["Enums"]["sample_status"] | null
+          supplier_id: string | null
           supplier_name: string | null
           technical_regulation: string | null
           test_conditions: string | null
@@ -406,6 +474,7 @@ export type Database = {
           id?: string
           material_id?: string | null
           oem_brand?: string | null
+          oem_specification_id?: string | null
           overall_judgment?: Database["public"]["Enums"]["judgment"] | null
           priority?: Database["public"]["Enums"]["priority_level"] | null
           product_name: string
@@ -414,6 +483,7 @@ export type Database = {
           sample_id: string
           standard_requirement?: string | null
           status?: Database["public"]["Enums"]["sample_status"] | null
+          supplier_id?: string | null
           supplier_name?: string | null
           technical_regulation?: string | null
           test_conditions?: string | null
@@ -432,6 +502,7 @@ export type Database = {
           id?: string
           material_id?: string | null
           oem_brand?: string | null
+          oem_specification_id?: string | null
           overall_judgment?: Database["public"]["Enums"]["judgment"] | null
           priority?: Database["public"]["Enums"]["priority_level"] | null
           product_name?: string
@@ -440,6 +511,7 @@ export type Database = {
           sample_id?: string
           standard_requirement?: string | null
           status?: Database["public"]["Enums"]["sample_status"] | null
+          supplier_id?: string | null
           supplier_name?: string | null
           technical_regulation?: string | null
           test_conditions?: string | null
@@ -453,6 +525,20 @@ export type Database = {
             columns: ["material_id"]
             isOneToOne: false
             referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "samples_oem_specification_id_fkey"
+            columns: ["oem_specification_id"]
+            isOneToOne: false
+            referencedRelation: "oem_specifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "samples_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
             referencedColumns: ["id"]
           },
           {
@@ -552,6 +638,39 @@ export type Database = {
           },
         ]
       }
+      standards: {
+        Row: {
+          code: string
+          created_at: string
+          document_url: string | null
+          id: string
+          is_active: boolean
+          organization: string
+          title: string | null
+          version: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          document_url?: string | null
+          id?: string
+          is_active?: boolean
+          organization?: string
+          title?: string | null
+          version?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          document_url?: string | null
+          id?: string
+          is_active?: boolean
+          organization?: string
+          title?: string | null
+          version?: string | null
+        }
+        Relationships: []
+      }
       suppliers: {
         Row: {
           contact_person: string | null
@@ -598,6 +717,7 @@ export type Database = {
           multiple_samples: boolean | null
           name: string
           sample_count: number | null
+          standard_id: string | null
           testing_standard: string | null
           unit: string | null
         }
@@ -613,6 +733,7 @@ export type Database = {
           multiple_samples?: boolean | null
           name: string
           sample_count?: number | null
+          standard_id?: string | null
           testing_standard?: string | null
           unit?: string | null
         }
@@ -628,13 +749,23 @@ export type Database = {
           multiple_samples?: boolean | null
           name?: string
           sample_count?: number | null
+          standard_id?: string | null
           testing_standard?: string | null
           unit?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "test_items_standard_id_fkey"
+            columns: ["standard_id"]
+            isOneToOne: false
+            referencedRelation: "standards"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       test_program_items: {
         Row: {
+          conditioning_profile_id: string | null
           display_order: number | null
           id: string
           include_in_report: boolean | null
@@ -643,6 +774,7 @@ export type Database = {
           test_item_id: number
         }
         Insert: {
+          conditioning_profile_id?: string | null
           display_order?: number | null
           id?: string
           include_in_report?: boolean | null
@@ -651,6 +783,7 @@ export type Database = {
           test_item_id: number
         }
         Update: {
+          conditioning_profile_id?: string | null
           display_order?: number | null
           id?: string
           include_in_report?: boolean | null
@@ -659,6 +792,13 @@ export type Database = {
           test_item_id?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "test_program_items_conditioning_profile_id_fkey"
+            columns: ["conditioning_profile_id"]
+            isOneToOne: false
+            referencedRelation: "conditioning_profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "test_program_items_program_id_fkey"
             columns: ["program_id"]
@@ -683,6 +823,7 @@ export type Database = {
           is_active: boolean | null
           material_type: string | null
           name: string
+          oem_specification_id: string | null
           report_columns: Json | null
           report_footer_notes: string | null
           report_header_notes: string | null
@@ -698,6 +839,7 @@ export type Database = {
           is_active?: boolean | null
           material_type?: string | null
           name: string
+          oem_specification_id?: string | null
           report_columns?: Json | null
           report_footer_notes?: string | null
           report_header_notes?: string | null
@@ -713,6 +855,7 @@ export type Database = {
           is_active?: boolean | null
           material_type?: string | null
           name?: string
+          oem_specification_id?: string | null
           report_columns?: Json | null
           report_footer_notes?: string | null
           report_header_notes?: string | null
@@ -721,7 +864,15 @@ export type Database = {
           signature_roles?: Json | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "test_programs_oem_specification_id_fkey"
+            columns: ["oem_specification_id"]
+            isOneToOne: false
+            referencedRelation: "oem_specifications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       test_requirements: {
         Row: {
@@ -732,6 +883,7 @@ export type Database = {
           max_value: number | null
           min_value: number | null
           oem_brand: string | null
+          oem_specification_id: string | null
           requirement_text: string | null
           standard_code: string | null
           target_value: number | null
@@ -745,6 +897,7 @@ export type Database = {
           max_value?: number | null
           min_value?: number | null
           oem_brand?: string | null
+          oem_specification_id?: string | null
           requirement_text?: string | null
           standard_code?: string | null
           target_value?: number | null
@@ -758,12 +911,20 @@ export type Database = {
           max_value?: number | null
           min_value?: number | null
           oem_brand?: string | null
+          oem_specification_id?: string | null
           requirement_text?: string | null
           standard_code?: string | null
           target_value?: number | null
           test_item_id?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "test_requirements_oem_specification_id_fkey"
+            columns: ["oem_specification_id"]
+            isOneToOne: false
+            referencedRelation: "oem_specifications"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "test_requirements_test_item_id_fkey"
             columns: ["test_item_id"]
@@ -776,10 +937,15 @@ export type Database = {
       test_results: {
         Row: {
           average_value: number | null
+          calibration_record_id: string | null
           comments: string | null
+          conditioning_profile_id: string | null
           created_at: string
           direction: string | null
+          environment_notes: string | null
+          equipment_id: string | null
           equipment_used: string | null
+          failure_mode: string | null
           id: number
           judgment: Database["public"]["Enums"]["judgment"] | null
           max_value: number | null
@@ -791,6 +957,7 @@ export type Database = {
           sample_5: number | null
           sample_6: number | null
           sample_id: string | null
+          sop_version_id: string | null
           test_item_id: number | null
           tested_by: string | null
           tested_date: string | null
@@ -798,10 +965,15 @@ export type Database = {
         }
         Insert: {
           average_value?: number | null
+          calibration_record_id?: string | null
           comments?: string | null
+          conditioning_profile_id?: string | null
           created_at?: string
           direction?: string | null
+          environment_notes?: string | null
+          equipment_id?: string | null
           equipment_used?: string | null
+          failure_mode?: string | null
           id?: number
           judgment?: Database["public"]["Enums"]["judgment"] | null
           max_value?: number | null
@@ -813,6 +985,7 @@ export type Database = {
           sample_5?: number | null
           sample_6?: number | null
           sample_id?: string | null
+          sop_version_id?: string | null
           test_item_id?: number | null
           tested_by?: string | null
           tested_date?: string | null
@@ -820,10 +993,15 @@ export type Database = {
         }
         Update: {
           average_value?: number | null
+          calibration_record_id?: string | null
           comments?: string | null
+          conditioning_profile_id?: string | null
           created_at?: string
           direction?: string | null
+          environment_notes?: string | null
+          equipment_id?: string | null
           equipment_used?: string | null
+          failure_mode?: string | null
           id?: number
           judgment?: Database["public"]["Enums"]["judgment"] | null
           max_value?: number | null
@@ -835,6 +1013,7 @@ export type Database = {
           sample_5?: number | null
           sample_6?: number | null
           sample_id?: string | null
+          sop_version_id?: string | null
           test_item_id?: number | null
           tested_by?: string | null
           tested_date?: string | null
@@ -842,10 +1021,38 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "test_results_calibration_record_id_fkey"
+            columns: ["calibration_record_id"]
+            isOneToOne: false
+            referencedRelation: "calibration_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_results_conditioning_profile_id_fkey"
+            columns: ["conditioning_profile_id"]
+            isOneToOne: false
+            referencedRelation: "conditioning_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_results_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "test_results_sample_id_fkey"
             columns: ["sample_id"]
             isOneToOne: false
             referencedRelation: "samples"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_results_sop_version_id_fkey"
+            columns: ["sop_version_id"]
+            isOneToOne: false
+            referencedRelation: "sop_versions"
             referencedColumns: ["id"]
           },
           {
