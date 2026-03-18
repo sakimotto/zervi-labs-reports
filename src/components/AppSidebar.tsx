@@ -7,6 +7,8 @@ import {
   BookOpen,
   ClipboardList,
   ChevronLeft,
+  Cpu,
+  Layers,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLocation } from 'react-router-dom';
@@ -30,6 +32,11 @@ const mainNav = [
   { title: 'Test Programs', url: '/test-programs', icon: ClipboardList },
   { title: 'Test Methods', url: '/test-methods', icon: TestTubes },
   { title: 'SOPs', url: '/sops', icon: BookOpen },
+];
+
+const labNav = [
+  { title: 'Equipment', url: '/equipment', icon: Cpu },
+  { title: 'Materials', url: '/materials', icon: Layers },
 ];
 
 const directoryNav = [
@@ -71,6 +78,28 @@ export function AppSidebar() {
                     <NavLink
                       to={item.url}
                       end={item.url === '/'}
+                      className="hover:bg-sidebar-accent"
+                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Lab Resources</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {labNav.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                    <NavLink
+                      to={item.url}
                       className="hover:bg-sidebar-accent"
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                     >

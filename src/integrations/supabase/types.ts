@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      calibration_records: {
+        Row: {
+          calibration_date: string
+          certificate_number: string | null
+          created_at: string
+          equipment_id: string
+          id: string
+          next_due_date: string | null
+          notes: string | null
+          performed_by: string | null
+          status: string
+        }
+        Insert: {
+          calibration_date: string
+          certificate_number?: string | null
+          created_at?: string
+          equipment_id: string
+          id?: string
+          next_due_date?: string | null
+          notes?: string | null
+          performed_by?: string | null
+          status?: string
+        }
+        Update: {
+          calibration_date?: string
+          certificate_number?: string | null
+          created_at?: string
+          equipment_id?: string
+          id?: string
+          next_due_date?: string | null
+          notes?: string | null
+          performed_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calibration_records_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customers: {
         Row: {
           address: string | null
@@ -52,6 +96,238 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      equipment: {
+        Row: {
+          assigned_operator: string | null
+          category: string
+          created_at: string
+          id: string
+          is_active: boolean
+          location: string | null
+          manufacturer: string | null
+          model: string | null
+          name: string
+          notes: string | null
+          purchase_date: string | null
+          serial_number: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_operator?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          location?: string | null
+          manufacturer?: string | null
+          model?: string | null
+          name: string
+          notes?: string | null
+          purchase_date?: string | null
+          serial_number?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_operator?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          location?: string | null
+          manufacturer?: string | null
+          model?: string | null
+          name?: string
+          notes?: string | null
+          purchase_date?: string | null
+          serial_number?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      equipment_test_items: {
+        Row: {
+          equipment_id: string
+          id: string
+          is_primary: boolean | null
+          test_item_id: number
+        }
+        Insert: {
+          equipment_id: string
+          id?: string
+          is_primary?: boolean | null
+          test_item_id: number
+        }
+        Update: {
+          equipment_id?: string
+          id?: string
+          is_primary?: boolean | null
+          test_item_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_test_items_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_test_items_test_item_id_fkey"
+            columns: ["test_item_id"]
+            isOneToOne: false
+            referencedRelation: "test_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      maintenance_logs: {
+        Row: {
+          cost: number | null
+          created_at: string
+          description: string | null
+          downtime_hours: number | null
+          equipment_id: string
+          id: string
+          maintenance_date: string
+          maintenance_type: string
+          parts_replaced: string | null
+          performed_by: string | null
+        }
+        Insert: {
+          cost?: number | null
+          created_at?: string
+          description?: string | null
+          downtime_hours?: number | null
+          equipment_id: string
+          id?: string
+          maintenance_date: string
+          maintenance_type?: string
+          parts_replaced?: string | null
+          performed_by?: string | null
+        }
+        Update: {
+          cost?: number | null
+          created_at?: string
+          description?: string | null
+          downtime_hours?: number | null
+          equipment_id?: string
+          id?: string
+          maintenance_date?: string
+          maintenance_type?: string
+          parts_replaced?: string | null
+          performed_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_logs_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      material_suppliers: {
+        Row: {
+          grade: string | null
+          id: string
+          material_id: string
+          notes: string | null
+          supplier_id: string
+          unit_price: number | null
+        }
+        Insert: {
+          grade?: string | null
+          id?: string
+          material_id: string
+          notes?: string | null
+          supplier_id: string
+          unit_price?: number | null
+        }
+        Update: {
+          grade?: string | null
+          id?: string
+          material_id?: string
+          notes?: string | null
+          supplier_id?: string
+          unit_price?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_suppliers_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_suppliers_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      materials: {
+        Row: {
+          color: string | null
+          composition: string | null
+          created_at: string
+          default_test_program_id: string | null
+          finish: string | null
+          id: string
+          is_active: boolean
+          material_type: string
+          name: string
+          notes: string | null
+          updated_at: string
+          weight_gsm: number | null
+          width_cm: number | null
+        }
+        Insert: {
+          color?: string | null
+          composition?: string | null
+          created_at?: string
+          default_test_program_id?: string | null
+          finish?: string | null
+          id?: string
+          is_active?: boolean
+          material_type?: string
+          name: string
+          notes?: string | null
+          updated_at?: string
+          weight_gsm?: number | null
+          width_cm?: number | null
+        }
+        Update: {
+          color?: string | null
+          composition?: string | null
+          created_at?: string
+          default_test_program_id?: string | null
+          finish?: string | null
+          id?: string
+          is_active?: boolean
+          material_type?: string
+          name?: string
+          notes?: string | null
+          updated_at?: string
+          weight_gsm?: number | null
+          width_cm?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materials_default_test_program_id_fkey"
+            columns: ["default_test_program_id"]
+            isOneToOne: false
+            referencedRelation: "test_programs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sample_test_items: {
         Row: {
@@ -102,6 +378,7 @@ export type Database = {
           created_at: string
           fabric_type: string | null
           id: string
+          material_id: string | null
           oem_brand: string | null
           overall_judgment: Database["public"]["Enums"]["judgment"] | null
           priority: Database["public"]["Enums"]["priority_level"] | null
@@ -127,6 +404,7 @@ export type Database = {
           created_at?: string
           fabric_type?: string | null
           id?: string
+          material_id?: string | null
           oem_brand?: string | null
           overall_judgment?: Database["public"]["Enums"]["judgment"] | null
           priority?: Database["public"]["Enums"]["priority_level"] | null
@@ -152,6 +430,7 @@ export type Database = {
           created_at?: string
           fabric_type?: string | null
           id?: string
+          material_id?: string | null
           oem_brand?: string | null
           overall_judgment?: Database["public"]["Enums"]["judgment"] | null
           priority?: Database["public"]["Enums"]["priority_level"] | null
@@ -169,6 +448,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "samples_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "samples_test_program_id_fkey"
             columns: ["test_program_id"]
