@@ -81,7 +81,7 @@ export default function DashboardPage() {
             {recent.map(s => (
               <Link
                 key={s.id}
-                to={`/samples/${s.id}`}
+                to={`/tests/${s.id}`}
                 className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/30 transition-colors text-sm"
               >
                 <span className="font-mono text-xs font-medium w-36">{s.sample_id}</span>
