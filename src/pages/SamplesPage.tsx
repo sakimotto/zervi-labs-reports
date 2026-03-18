@@ -29,7 +29,7 @@ export default function SamplesPage() {
 
   return (
     <Dashboard
-      onSelectSample={(sId) => navigate(`/samples/${sId}`)}
+      onSelectSample={(sId) => navigate(`/tests/${sId}`)}
       onNewSample={() => setMode('new')}
     />
   );
