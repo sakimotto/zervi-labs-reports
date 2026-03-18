@@ -38,6 +38,7 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
   const { data: testProgram } = useTestProgram(sample?.test_program_id || null);
   const upsertResult = useUpsertTestResult();
   const updateSample = useUpdateSample();
+  const qc = useQueryClient();
 
   const [localResults, setLocalResults] = useState<Map<string, LocalResult>>(new Map());
   const [dirty, setDirty] = useState(false);
