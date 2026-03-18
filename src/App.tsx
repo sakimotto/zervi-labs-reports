@@ -13,6 +13,7 @@ import CustomersPage from "./pages/CustomersPage";
 import SOPsPage from "./pages/SOPsPage";
 import EquipmentPage from "./pages/EquipmentPage";
 import MaterialsPage from "./pages/MaterialsPage";
+import StandardsPage from "./pages/StandardsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
