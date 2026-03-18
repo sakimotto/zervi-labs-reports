@@ -225,7 +225,7 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
     try {
       await updateSample.mutateAsync({ id: sampleId, ...editForm } as any);
       setEditingInfo(false);
-      toast.success('Sample info updated');
+      toast.success('Test info updated');
     } catch (err: any) {
       toast.error(err.message || 'Failed to update');
     }
