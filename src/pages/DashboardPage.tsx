@@ -38,10 +38,10 @@ export default function DashboardPage() {
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-        <StatCard icon={FlaskConical} label="Total Samples" value={samples.length} href="/samples" />
-        <StatCard icon={Clock} label="Pending" value={pending.length} variant="warning" href="/samples" />
-        <StatCard icon={TestTubes} label="In Progress" value={inProgress.length} variant="primary" href="/samples" />
-        <StatCard icon={CheckCircle2} label="Completed" value={completed.length} variant="success" href="/samples" />
+        <StatCard icon={FlaskConical} label="Total Tests" value={samples.length} href="/tests" />
+        <StatCard icon={Clock} label="Pending" value={pending.length} variant="warning" href="/tests" />
+        <StatCard icon={TestTubes} label="In Progress" value={inProgress.length} variant="primary" href="/tests" />
+        <StatCard icon={CheckCircle2} label="Completed" value={completed.length} variant="success" href="/tests" />
         <StatCard icon={Truck} label="Suppliers" value={suppliers.length} href="/suppliers" />
         <StatCard icon={Users} label="Customers" value={customers.length} href="/customers" />
       </div>
