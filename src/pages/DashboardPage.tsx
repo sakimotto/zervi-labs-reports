@@ -55,9 +55,9 @@ export default function DashboardPage() {
           </div>
           <div className="space-y-1">
             {urgent.map(s => (
-              <Link
+                <Link
                 key={s.id}
-                to={`/samples/${s.id}`}
+                to={`/tests/${s.id}`}
                 className="flex items-center gap-3 text-sm p-2 rounded hover:bg-warning/10 transition-colors"
               >
                 <span className="font-mono text-xs font-medium">{s.sample_id}</span>
