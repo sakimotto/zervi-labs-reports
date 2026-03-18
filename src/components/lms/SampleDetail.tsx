@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useSample, useUpdateSample } from '@/hooks/useSamples';
 import { useTestItems, useTestRequirements, useTestResults, useUpsertTestResult, autoJudge } from '@/hooks/useTestData';
 import { useSampleTestItems, useTestProgram } from '@/hooks/useTestPrograms';
