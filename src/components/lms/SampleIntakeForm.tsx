@@ -145,7 +145,7 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
         <button onClick={handleSubmit} disabled={createSample.isPending}
           className="h-8 px-4 flex items-center gap-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50">
           <Save className="h-3.5 w-3.5" />
-          {createSample.isPending ? 'Saving...' : 'Create Sample'}
+          {createSample.isPending ? 'Saving...' : 'Create Test'}
         </button>
       </div>
 
