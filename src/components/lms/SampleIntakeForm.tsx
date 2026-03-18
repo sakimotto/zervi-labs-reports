@@ -140,7 +140,7 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
           <button onClick={onBack} className="p-1 hover:bg-muted rounded transition-colors">
             <ArrowLeft className="h-4 w-4" />
           </button>
-          <span className="text-sm font-semibold">New Sample</span>
+          <span className="text-sm font-semibold">New Test</span>
         </div>
         <button onClick={handleSubmit} disabled={createSample.isPending}
           className="h-8 px-4 flex items-center gap-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50">
