@@ -95,10 +95,12 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
       return;
     }
     try {
-      const { test_program_id, material_id, supplier_id, oem_specification_id, ...sampleData } = form;
+      const { test_program_id, material_id, supplier_id, oem_specification_id, test_date, received_date, ...sampleData } = form;
       const result = await createSample.mutateAsync({
         sample_id: nextId || `ZV-TR-${Date.now()}`,
         ...sampleData,
+        ...(test_date ? { test_date } : {}),
+        ...(received_date ? { received_date } : {}),
         ...(test_program_id ? { test_program_id } : {}),
         ...(material_id ? { material_id } : {}),
         ...(supplier_id ? { supplier_id } : {}),
