@@ -38,10 +38,10 @@ export default function DashboardPage() {
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-        <StatCard icon={FlaskConical} label="Total Samples" value={samples.length} href="/samples" />
-        <StatCard icon={Clock} label="Pending" value={pending.length} variant="warning" href="/samples" />
-        <StatCard icon={TestTubes} label="In Progress" value={inProgress.length} variant="primary" href="/samples" />
-        <StatCard icon={CheckCircle2} label="Completed" value={completed.length} variant="success" href="/samples" />
+        <StatCard icon={FlaskConical} label="Total Tests" value={samples.length} href="/tests" />
+        <StatCard icon={Clock} label="Pending" value={pending.length} variant="warning" href="/tests" />
+        <StatCard icon={TestTubes} label="In Progress" value={inProgress.length} variant="primary" href="/tests" />
+        <StatCard icon={CheckCircle2} label="Completed" value={completed.length} variant="success" href="/tests" />
         <StatCard icon={Truck} label="Suppliers" value={suppliers.length} href="/suppliers" />
         <StatCard icon={Users} label="Customers" value={customers.length} href="/customers" />
       </div>
@@ -55,9 +55,9 @@ export default function DashboardPage() {
           </div>
           <div className="space-y-1">
             {urgent.map(s => (
-              <Link
+                <Link
                 key={s.id}
-                to={`/samples/${s.id}`}
+                to={`/tests/${s.id}`}
                 className="flex items-center gap-3 text-sm p-2 rounded hover:bg-warning/10 transition-colors"
               >
                 <span className="font-mono text-xs font-medium">{s.sample_id}</span>
@@ -75,13 +75,13 @@ export default function DashboardPage() {
         <div className="lg:col-span-2 bg-card rounded-lg shadow-card">
           <div className="flex items-center justify-between px-4 py-3 border-b">
             <span className="text-sm font-semibold">Recent Samples</span>
-            <Link to="/samples" className="text-xs text-primary hover:underline">View all →</Link>
+            <Link to="/tests" className="text-xs text-primary hover:underline">View all →</Link>
           </div>
           <div className="divide-y">
             {recent.map(s => (
               <Link
                 key={s.id}
-                to={`/samples/${s.id}`}
+                to={`/tests/${s.id}`}
                 className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/30 transition-colors text-sm"
               >
                 <span className="font-mono text-xs font-medium w-36">{s.sample_id}</span>

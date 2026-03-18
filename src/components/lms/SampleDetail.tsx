@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useSample, useUpdateSample } from '@/hooks/useSamples';
 import { useTestItems, useTestRequirements, useTestResults, useUpsertTestResult, autoJudge } from '@/hooks/useTestData';
 import { useSampleTestItems, useTestProgram } from '@/hooks/useTestPrograms';
@@ -37,6 +38,7 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
   const { data: testProgram } = useTestProgram(sample?.test_program_id || null);
   const upsertResult = useUpsertTestResult();
   const updateSample = useUpdateSample();
+  const qc = useQueryClient();
 
   const [localResults, setLocalResults] = useState<Map<string, LocalResult>>(new Map());
   const [dirty, setDirty] = useState(false);
@@ -142,18 +144,18 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
       );
       await Promise.all(promises);
 
-      // Auto-calculate overall judgment
-      const overall = computeOverallJudgment();
-      if (overall !== sample.overall_judgment) {
-        await updateSample.mutateAsync({ id: sampleId, overall_judgment: overall } as any);
-      }
-
+      // Overall judgment is now auto-calculated by the DB trigger on test_results.
+      // Just invalidate the sample query so UI picks up the new value.
+      
       // Auto-advance status from Pending to In Progress when first results entered
       if (sample.status === 'Pending' && localResults.size > 0) {
         await updateSample.mutateAsync({ id: sampleId, status: 'In Progress' } as any);
       }
 
       setDirty(false);
+      // Invalidate sample to pick up trigger-calculated overall_judgment
+      qc.invalidateQueries({ queryKey: ['samples', sampleId] });
+      qc.invalidateQueries({ queryKey: ['samples'] });
       toast.success('Results saved');
     } catch (err: any) {
       toast.error(err.message || 'Failed to save');
