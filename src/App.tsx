@@ -11,6 +11,8 @@ import TestProgramsPage from "./pages/TestProgramsPage";
 import SuppliersPage from "./pages/SuppliersPage";
 import CustomersPage from "./pages/CustomersPage";
 import SOPsPage from "./pages/SOPsPage";
+import EquipmentPage from "./pages/EquipmentPage";
+import MaterialsPage from "./pages/MaterialsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +30,8 @@ const App = () => (
             <Route path="/samples/:id" element={<SamplesPage />} />
             <Route path="/test-programs" element={<TestProgramsPage />} />
             <Route path="/test-methods" element={<TestMethodsPage />} />
+            <Route path="/equipment" element={<EquipmentPage />} />
+            <Route path="/materials" element={<MaterialsPage />} />
             <Route path="/suppliers" element={<SuppliersPage />} />
             <Route path="/customers" element={<CustomersPage />} />
             <Route path="/sops" element={<SOPsPage />} />
