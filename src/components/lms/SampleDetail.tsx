@@ -151,6 +151,9 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
       }
 
       setDirty(false);
+      // Invalidate sample to pick up trigger-calculated overall_judgment
+      qc.invalidateQueries({ queryKey: ['samples', sampleId] });
+      qc.invalidateQueries({ queryKey: ['samples'] });
       toast.success('Results saved');
     } catch (err: any) {
       toast.error(err.message || 'Failed to save');
