@@ -75,7 +75,7 @@ export default function DashboardPage() {
         <div className="lg:col-span-2 bg-card rounded-lg shadow-card">
           <div className="flex items-center justify-between px-4 py-3 border-b">
             <span className="text-sm font-semibold">Recent Samples</span>
-            <Link to="/samples" className="text-xs text-primary hover:underline">View all →</Link>
+            <Link to="/tests" className="text-xs text-primary hover:underline">View all →</Link>
           </div>
           <div className="divide-y">
             {recent.map(s => (
