@@ -10,9 +10,13 @@ import {
   Cpu,
   Layers,
   BookMarked,
+  LogOut,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { useUserRoles } from '@/hooks/useUserRole';
+import { toast } from 'sonner';
 import {
   Sidebar,
   SidebarContent,
@@ -50,7 +54,17 @@ export function AppSidebar() {
   const { state, toggleSidebar } = useSidebar();
   const collapsed = state === 'collapsed';
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
+  const { user, signOut } = useAuth();
+  const { data: roles = [] } = useUserRoles();
+  const primaryRole = roles[0] ?? 'viewer';
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success('Signed out');
+    navigate('/auth', { replace: true });
+  };
 
   const isActive = (path: string) =>
     path === '/' ? currentPath === '/' : currentPath.startsWith(path);
@@ -138,7 +152,23 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border p-2">
+      <SidebarFooter className="border-t border-sidebar-border p-2 space-y-1">
+        {user && !collapsed && (
+          <div className="px-2 py-1.5 mb-1">
+            <div className="text-xs font-medium truncate">{user.email}</div>
+            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
+              {primaryRole.replace('_', ' ')}
+            </div>
+          </div>
+        )}
+        <button
+          onClick={handleSignOut}
+          title="Sign out"
+          className="flex items-center gap-2 w-full h-8 px-2 rounded-md hover:bg-sidebar-accent transition-colors text-xs"
+        >
+          <LogOut className="h-4 w-4 shrink-0" />
+          {!collapsed && <span>Sign out</span>}
+        </button>
         <button
           onClick={toggleSidebar}
           className="flex items-center justify-center w-full h-8 rounded-md hover:bg-sidebar-accent transition-colors"

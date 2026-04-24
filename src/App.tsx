@@ -4,6 +4,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Layout } from "@/components/Layout";
+import { AuthProvider } from "@/hooks/useAuth";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import AuthPage from "./pages/AuthPage";
 import DashboardPage from "./pages/DashboardPage";
 import SamplesPage from "./pages/SamplesPage";
 import TestMethodsPage from "./pages/TestMethodsPage";
@@ -24,22 +27,34 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Layout>
+        <AuthProvider>
           <Routes>
-            <Route path="/" element={<DashboardPage />} />
-            <Route path="/tests" element={<SamplesPage />} />
-            <Route path="/tests/:id" element={<SamplesPage />} />
-            <Route path="/test-programs" element={<TestProgramsPage />} />
-            <Route path="/test-methods" element={<TestMethodsPage />} />
-            <Route path="/equipment" element={<EquipmentPage />} />
-            <Route path="/materials" element={<MaterialsPage />} />
-            <Route path="/standards" element={<StandardsPage />} />
-            <Route path="/suppliers" element={<SuppliersPage />} />
-            <Route path="/customers" element={<CustomersPage />} />
-            <Route path="/sops" element={<SOPsPage />} />
-            <Route path="*" element={<NotFound />} />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route
+              path="*"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Routes>
+                      <Route path="/" element={<DashboardPage />} />
+                      <Route path="/tests" element={<SamplesPage />} />
+                      <Route path="/tests/:id" element={<SamplesPage />} />
+                      <Route path="/test-programs" element={<TestProgramsPage />} />
+                      <Route path="/test-methods" element={<TestMethodsPage />} />
+                      <Route path="/equipment" element={<EquipmentPage />} />
+                      <Route path="/materials" element={<MaterialsPage />} />
+                      <Route path="/standards" element={<StandardsPage />} />
+                      <Route path="/suppliers" element={<SuppliersPage />} />
+                      <Route path="/customers" element={<CustomersPage />} />
+                      <Route path="/sops" element={<SOPsPage />} />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
           </Routes>
-        </Layout>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
