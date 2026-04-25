@@ -1197,7 +1197,6 @@ export type Database = {
           standard_id: string | null
           status: string
           summary: string | null
-          testing_standard: string | null
           unit: string | null
           updated_at: string
           version: number
@@ -1220,7 +1219,6 @@ export type Database = {
           standard_id?: string | null
           status?: string
           summary?: string | null
-          testing_standard?: string | null
           unit?: string | null
           updated_at?: string
           version?: number
@@ -1243,7 +1241,6 @@ export type Database = {
           standard_id?: string | null
           status?: string
           summary?: string | null
-          testing_standard?: string | null
           unit?: string | null
           updated_at?: string
           version?: number
