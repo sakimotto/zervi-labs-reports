@@ -112,7 +112,7 @@ export default function TestMethodsPage() {
     if (error) { toast.error(error.message); return; }
     toast.success(`Created ${method_code}`);
     setShowNew(false);
-    setNewForm({ name: '', category: 'Physical', unit: '', testing_standard: '', standard_id: '', summary: '' });
+    setNewForm({ name: '', category: 'Physical', unit: '', standard_id: '', summary: '' });
     qc.invalidateQueries({ queryKey: ['test-items'] });
     if (data) navigate(`/test-methods/${data.id}`);
   };
