@@ -17,6 +17,7 @@ import {
   useAddMaterialTestProgram,
   useRemoveMaterialTestProgram,
   useMaterialTestHistory,
+  useMaterialAudit,
 } from '@/hooks/useMaterials';
 import { useSuppliers } from '@/hooks/useSuppliers';
 import { useTestPrograms } from '@/hooks/useTestPrograms';
@@ -35,7 +36,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Plus, X, Check, Save, Trash2, FileCheck2, History, Layers, FlaskConical } from 'lucide-react';
+import { ArrowLeft, Plus, X, Check, Save, Trash2, FileCheck2, History, Layers, FlaskConical, Activity, Pencil, FilePlus2, Trash, Link2, Link2Off, BadgeCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import type { DbMaterialUpdate } from '@/hooks/useMaterials';
 import { materialUpdateSchema, friendlyMaterialError } from '@/lib/validation/material';
@@ -147,6 +148,7 @@ export default function MaterialDetailPage() {
           <TabsTrigger value="programs">Test Programs</TabsTrigger>
           <TabsTrigger value="history">Test History</TabsTrigger>
           <TabsTrigger value="versions">Versions</TabsTrigger>
+          <TabsTrigger value="audit">Audit</TabsTrigger>
         </TabsList>
 
         {/* IDENTITY */}
@@ -298,6 +300,11 @@ export default function MaterialDetailPage() {
         {/* VERSIONS */}
         <TabsContent value="versions" className="mt-4">
           <VersionsPanel materialId={id!} userEmail={user?.email ?? 'unknown'} />
+        </TabsContent>
+
+        {/* AUDIT */}
+        <TabsContent value="audit" className="mt-4">
+          <AuditPanel materialId={id!} />
         </TabsContent>
       </Tabs>
     </div>
