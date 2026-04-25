@@ -60,9 +60,20 @@ export default function MaterialDetailPage() {
 
   const handleSave = async () => {
     if (!id || Object.keys(edits).length === 0) return;
-    await updateMaterial.mutateAsync({ id, ...edits });
-    setEdits({});
-    toast.success('Material updated');
+    // Client-side validation of edited fields only
+    const parsed = materialUpdateSchema.safeParse(edits);
+    if (!parsed.success) {
+      const first = parsed.error.issues[0];
+      toast.error(`${first.path.join('.') || 'Field'}: ${first.message}`);
+      return;
+    }
+    try {
+      await updateMaterial.mutateAsync({ id, ...edits });
+      setEdits({});
+      toast.success('Material updated');
+    } catch (err) {
+      toast.error(friendlyMaterialError(err as { message?: string }));
+    }
   };
 
   const handleDelete = async () => {
