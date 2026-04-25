@@ -295,7 +295,7 @@ export function useMaterialTestHistory(materialId: string | null) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('samples')
-        .select('id, sample_id, customer_name, overall_judgment, status, created_at')
+        .select('id, sample_id, product_name, supplier_name, overall_judgment, status, created_at')
         .eq('material_id', materialId!)
         .order('created_at', { ascending: false })
         .limit(50);
