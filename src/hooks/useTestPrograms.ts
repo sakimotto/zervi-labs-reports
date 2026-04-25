@@ -60,6 +60,22 @@ export function useCreateTestProgram() {
   });
 }
 
+type TestProgramUpdate = Partial<{ name: string; description: string | null; material_type: string | null; report_title: string | null; report_header_notes: string | null; report_footer_notes: string | null }>;
+export function useUpdateTestProgram() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: TestProgramUpdate }) => {
+      const { data, error } = await supabase.from('test_programs').update(updates).eq('id', id).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ['test-programs'] });
+      qc.invalidateQueries({ queryKey: ['test-programs', data.id] });
+    },
+  });
+}
+
 export function useUpdateTestProgramItems() {
   const qc = useQueryClient();
   return useMutation({
