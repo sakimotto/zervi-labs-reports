@@ -127,6 +127,19 @@ export function useCreateConditioningProfile() {
   });
 }
 
+type ConditioningProfileUpdate = Partial<{ name: string; temperature_c: number | null; humidity_percent: number | null; duration_hours: number | null; description: string | null }>;
+export function useUpdateConditioningProfile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: ConditioningProfileUpdate }) => {
+      const { data, error } = await supabase.from('conditioning_profiles').update(updates).eq('id', id).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['conditioning-profiles'] }),
+  });
+}
+
 export function useDeleteConditioningProfile() {
   const qc = useQueryClient();
   return useMutation({
