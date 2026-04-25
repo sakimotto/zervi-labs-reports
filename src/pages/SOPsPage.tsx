@@ -138,12 +138,43 @@ export default function SOPsPage() {
               sop={sop}
               expanded={expandedId === sop.id}
               onToggle={() => setExpandedId(expandedId === sop.id ? null : sop.id)}
-              onDelete={() => handleDelete(sop.id)}
+              onEdit={() => setEditingSop(sop)}
+              onDelete={() => handleDelete(sop)}
               statusColor={statusColor}
             />
           ))
         )}
       </div>
+
+      <EditSOPDialog
+        sop={editingSop}
+        testItems={testItems}
+        onClose={() => setEditingSop(null)}
+        onSave={handleSaveEdit}
+        isPending={updateSOP.isPending}
+      />
+
+      <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete SOP?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete <span className="font-medium">{confirmDelete?.title}</span> and all its versions.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={async () => {
+              if (!confirmDelete) return;
+              try {
+                await deleteSOP.mutateAsync(confirmDelete.id);
+                toast.success('SOP deleted');
+              } catch (e: any) { toast.error(e.message); }
+              setConfirmDelete(null);
+            }}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
