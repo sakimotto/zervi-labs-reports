@@ -77,6 +77,19 @@ export function useCreateOemSpecification() {
   });
 }
 
+type OemSpecUpdate = Partial<{ oem_brand: string; spec_code: string; version: string | null; title: string | null; region: string | null }>;
+export function useUpdateOemSpecification() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: OemSpecUpdate }) => {
+      const { data, error } = await supabase.from('oem_specifications').update(updates).eq('id', id).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['oem-specifications'] }),
+  });
+}
+
 export function useDeleteOemSpecification() {
   const qc = useQueryClient();
   return useMutation({
