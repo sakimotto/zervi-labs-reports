@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTestItems } from '@/hooks/useTestData';
 import { useStandards } from '@/hooks/useReferenceData';
