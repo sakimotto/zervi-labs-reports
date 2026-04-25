@@ -38,6 +38,7 @@ import {
 import { ArrowLeft, Plus, X, Check, Save, Trash2, FileCheck2, History, Layers, FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
 import type { DbMaterialUpdate } from '@/hooks/useMaterials';
+import { materialUpdateSchema, friendlyMaterialError } from '@/lib/validation/material';
 
 const STRUCTURES = ['Woven', 'Knit', 'Nonwoven', 'Coated', 'Laminated', 'Composite', 'Film', 'Foam', 'Other'];
 const STATUSES = ['Active', 'Draft', 'Archived', 'Obsolete'];
@@ -59,9 +60,20 @@ export default function MaterialDetailPage() {
 
   const handleSave = async () => {
     if (!id || Object.keys(edits).length === 0) return;
-    await updateMaterial.mutateAsync({ id, ...edits });
-    setEdits({});
-    toast.success('Material updated');
+    // Client-side validation of edited fields only
+    const parsed = materialUpdateSchema.safeParse(edits);
+    if (!parsed.success) {
+      const first = parsed.error.issues[0];
+      toast.error(`${first.path.join('.') || 'Field'}: ${first.message}`);
+      return;
+    }
+    try {
+      await updateMaterial.mutateAsync({ id, ...edits });
+      setEdits({});
+      toast.success('Material updated');
+    } catch (err) {
+      toast.error(friendlyMaterialError(err as { message?: string }));
+    }
   };
 
   const handleDelete = async () => {

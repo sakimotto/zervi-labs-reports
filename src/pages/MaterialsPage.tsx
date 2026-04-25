@@ -10,11 +10,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Search, Flame, Sun, Shield } from 'lucide-react';
+import { Plus, Search, Flame, Sun, Shield, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  materialCreateSchema,
+  STRUCTURE_VALUES,
+  TYPE_VALUES,
+  friendlyMaterialError,
+} from '@/lib/validation/material';
 
-const STRUCTURES = ['Woven', 'Knit', 'Nonwoven', 'Coated', 'Laminated', 'Composite', 'Film', 'Foam', 'Other'];
-const TYPES = ['Fabric', 'PVC', 'Leather', 'Film', 'Foam', 'Composite', 'Yarn', 'Other'];
+const STRUCTURES = STRUCTURE_VALUES;
+const TYPES = TYPE_VALUES;
 
 export default function MaterialsPage() {
   const { data: materials = [], isLoading } = useMaterials();
@@ -30,6 +36,7 @@ export default function MaterialsPage() {
     composition: '', weight_gsm: '', width_cm: '', color: '', finish: '',
     default_test_program_id: '', notes: '',
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -43,23 +50,51 @@ export default function MaterialsPage() {
   }, [materials, search, filterType, filterStructure, filterStatus]);
 
   const handleCreate = async () => {
-    if (!form.name.trim()) return;
-    const created = await createMaterial.mutateAsync({
+    // Client-side validation
+    const parsed = materialCreateSchema.safeParse({
       name: form.name,
-      material_code: form.material_code || null,
+      material_code: form.material_code,
       material_type: form.material_type,
-      structure: form.structure || null,
-      composition: form.composition || null,
-      weight_gsm: form.weight_gsm ? Number(form.weight_gsm) : null,
-      width_cm: form.width_cm ? Number(form.width_cm) : null,
-      color: form.color || null,
-      finish: form.finish || null,
-      default_test_program_id: form.default_test_program_id || null,
-      notes: form.notes || null,
+      structure: form.structure,
+      composition: form.composition,
+      weight_gsm: form.weight_gsm,
+      width_cm: form.width_cm,
+      color: form.color,
+      finish: form.finish,
+      notes: form.notes,
     });
-    setForm({ name: '', material_code: '', material_type: 'Fabric', structure: '', composition: '', weight_gsm: '', width_cm: '', color: '', finish: '', default_test_program_id: '', notes: '' });
-    setShowAdd(false);
-    toast.success(`Material "${created.name}" added`);
+    if (!parsed.success) {
+      const fieldErrors: Record<string, string> = {};
+      for (const issue of parsed.error.issues) {
+        const key = issue.path[0]?.toString() ?? '_';
+        if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+      }
+      setErrors(fieldErrors);
+      toast.error('Please fix the highlighted fields');
+      return;
+    }
+    setErrors({});
+    const v = parsed.data;
+    try {
+      const created = await createMaterial.mutateAsync({
+        name: v.name,
+        material_code: v.material_code || null,
+        material_type: v.material_type,
+        structure: v.structure || null,
+        composition: v.composition || null,
+        weight_gsm: v.weight_gsm ?? null,
+        width_cm: v.width_cm ?? null,
+        color: v.color || null,
+        finish: v.finish || null,
+        default_test_program_id: form.default_test_program_id || null,
+        notes: v.notes || null,
+      });
+      setForm({ name: '', material_code: '', material_type: 'Fabric', structure: '', composition: '', weight_gsm: '', width_cm: '', color: '', finish: '', default_test_program_id: '', notes: '' });
+      setShowAdd(false);
+      toast.success(`Material "${created.name}" added`);
+    } catch (err) {
+      toast.error(friendlyMaterialError(err as { message?: string }));
+    }
   };
 
   return (
@@ -77,29 +112,51 @@ export default function MaterialsPage() {
             <DialogHeader><DialogTitle>Register Material</DialogTitle></DialogHeader>
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-2">
-                <div><Label className="text-xs">Material Name *</Label><Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} /></div>
-                <div><Label className="text-xs">Material Code</Label><Input placeholder="e.g. FAB-001" value={form.material_code} onChange={e => setForm(f => ({ ...f, material_code: e.target.value }))} /></div>
+                <div>
+                  <Label className="text-xs">Material Name *</Label>
+                  <Input aria-invalid={!!errors.name} className={errors.name ? 'border-destructive' : ''} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+                  {errors.name && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.name}</p>}
+                </div>
+                <div>
+                  <Label className="text-xs">Material Code</Label>
+                  <Input aria-invalid={!!errors.material_code} className={errors.material_code ? 'border-destructive' : ''} placeholder="e.g. FAB-001" value={form.material_code} onChange={e => setForm(f => ({ ...f, material_code: e.target.value }))} />
+                  {errors.material_code && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.material_code}</p>}
+                </div>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <Label className="text-xs">Type</Label>
+                  <Label className="text-xs">Type *</Label>
                   <Select value={form.material_type} onValueChange={v => setForm(f => ({ ...f, material_type: v }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger className={errors.material_type ? 'border-destructive' : ''}><SelectValue /></SelectTrigger>
                     <SelectContent>{TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                   </Select>
+                  {errors.material_type && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.material_type}</p>}
                 </div>
                 <div>
                   <Label className="text-xs">Structure</Label>
                   <Select value={form.structure} onValueChange={v => setForm(f => ({ ...f, structure: v }))}>
-                    <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                    <SelectTrigger className={errors.structure ? 'border-destructive' : ''}><SelectValue placeholder="—" /></SelectTrigger>
                     <SelectContent>{STRUCTURES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                   </Select>
+                  {errors.structure && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.structure}</p>}
                 </div>
-                <div><Label className="text-xs">Composition</Label><Input placeholder="100% Polyester" value={form.composition} onChange={e => setForm(f => ({ ...f, composition: e.target.value }))} /></div>
+                <div>
+                  <Label className="text-xs">Composition</Label>
+                  <Input aria-invalid={!!errors.composition} className={errors.composition ? 'border-destructive' : ''} placeholder="100% Polyester" value={form.composition} onChange={e => setForm(f => ({ ...f, composition: e.target.value }))} />
+                  {errors.composition && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.composition}</p>}
+                </div>
               </div>
               <div className="grid grid-cols-4 gap-2">
-                <div><Label className="text-xs">Weight (gsm)</Label><Input type="number" value={form.weight_gsm} onChange={e => setForm(f => ({ ...f, weight_gsm: e.target.value }))} /></div>
-                <div><Label className="text-xs">Width (cm)</Label><Input type="number" value={form.width_cm} onChange={e => setForm(f => ({ ...f, width_cm: e.target.value }))} /></div>
+                <div>
+                  <Label className="text-xs">Weight (gsm)</Label>
+                  <Input type="number" min={0} max={10000} aria-invalid={!!errors.weight_gsm} className={errors.weight_gsm ? 'border-destructive' : ''} value={form.weight_gsm} onChange={e => setForm(f => ({ ...f, weight_gsm: e.target.value }))} />
+                  {errors.weight_gsm && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.weight_gsm}</p>}
+                </div>
+                <div>
+                  <Label className="text-xs">Width (cm)</Label>
+                  <Input type="number" min={0} max={1000} aria-invalid={!!errors.width_cm} className={errors.width_cm ? 'border-destructive' : ''} value={form.width_cm} onChange={e => setForm(f => ({ ...f, width_cm: e.target.value }))} />
+                  {errors.width_cm && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.width_cm}</p>}
+                </div>
                 <div><Label className="text-xs">Color</Label><Input value={form.color} onChange={e => setForm(f => ({ ...f, color: e.target.value }))} /></div>
                 <div><Label className="text-xs">Finish</Label><Input placeholder="WR, FR…" value={form.finish} onChange={e => setForm(f => ({ ...f, finish: e.target.value }))} /></div>
               </div>
@@ -110,9 +167,13 @@ export default function MaterialsPage() {
                   <SelectContent>{programs.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-              <div><Label className="text-xs">Notes</Label><Textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={2} /></div>
+              <div>
+                <Label className="text-xs">Notes</Label>
+                <Textarea aria-invalid={!!errors.notes} className={errors.notes ? 'border-destructive' : ''} value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={2} />
+                {errors.notes && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.notes}</p>}
+              </div>
               <p className="text-xs text-muted-foreground">More detailed specs (yarn count, performance, certifications) can be added on the detail page after creation.</p>
-              <Button onClick={handleCreate} disabled={!form.name.trim()} className="w-full">Save & Open Detail</Button>
+              <Button onClick={handleCreate} disabled={createMaterial.isPending} className="w-full">Save & Open Detail</Button>
             </div>
           </DialogContent>
         </Dialog>
