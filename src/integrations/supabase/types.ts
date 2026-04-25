@@ -362,6 +362,480 @@ export type Database = {
           },
         ]
       }
+      method_acceptance: {
+        Row: {
+          display_order: number
+          id: string
+          max_value: number | null
+          measurement_uncertainty: number | null
+          min_value: number | null
+          notes: string | null
+          property_name: string
+          qc_frequency: string | null
+          qc_reference_material: string | null
+          specification_ref: string | null
+          test_item_id: number
+          unit: string | null
+        }
+        Insert: {
+          display_order?: number
+          id?: string
+          max_value?: number | null
+          measurement_uncertainty?: number | null
+          min_value?: number | null
+          notes?: string | null
+          property_name: string
+          qc_frequency?: string | null
+          qc_reference_material?: string | null
+          specification_ref?: string | null
+          test_item_id: number
+          unit?: string | null
+        }
+        Update: {
+          display_order?: number
+          id?: string
+          max_value?: number | null
+          measurement_uncertainty?: number | null
+          min_value?: number | null
+          notes?: string | null
+          property_name?: string
+          qc_frequency?: string | null
+          qc_reference_material?: string | null
+          specification_ref?: string | null
+          test_item_id?: number
+          unit?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "method_acceptance_test_item_id_fkey"
+            columns: ["test_item_id"]
+            isOneToOne: false
+            referencedRelation: "test_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      method_audit: {
+        Row: {
+          action: string
+          changed_by: string | null
+          changed_by_name: string | null
+          created_at: string
+          details: Json | null
+          id: string
+          test_item_id: number
+        }
+        Insert: {
+          action: string
+          changed_by?: string | null
+          changed_by_name?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          test_item_id: number
+        }
+        Update: {
+          action?: string
+          changed_by?: string | null
+          changed_by_name?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          test_item_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "method_audit_test_item_id_fkey"
+            columns: ["test_item_id"]
+            isOneToOne: false
+            referencedRelation: "test_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      method_calculations: {
+        Row: {
+          decimals: number
+          display_order: number
+          formula_text: string | null
+          id: string
+          notes: string | null
+          property_name: string
+          result_unit: string | null
+          rounding_rule: string
+          test_item_id: number
+        }
+        Insert: {
+          decimals?: number
+          display_order?: number
+          formula_text?: string | null
+          id?: string
+          notes?: string | null
+          property_name: string
+          result_unit?: string | null
+          rounding_rule?: string
+          test_item_id: number
+        }
+        Update: {
+          decimals?: number
+          display_order?: number
+          formula_text?: string | null
+          id?: string
+          notes?: string | null
+          property_name?: string
+          result_unit?: string | null
+          rounding_rule?: string
+          test_item_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "method_calculations_test_item_id_fkey"
+            columns: ["test_item_id"]
+            isOneToOne: false
+            referencedRelation: "test_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      method_conditioning: {
+        Row: {
+          conditioning_profile_id: string | null
+          created_at: string
+          description: string | null
+          duration_hours: number | null
+          humidity_percent: number | null
+          humidity_tolerance: number | null
+          id: string
+          temperature_c: number | null
+          temperature_tolerance: number | null
+          test_item_id: number
+        }
+        Insert: {
+          conditioning_profile_id?: string | null
+          created_at?: string
+          description?: string | null
+          duration_hours?: number | null
+          humidity_percent?: number | null
+          humidity_tolerance?: number | null
+          id?: string
+          temperature_c?: number | null
+          temperature_tolerance?: number | null
+          test_item_id: number
+        }
+        Update: {
+          conditioning_profile_id?: string | null
+          created_at?: string
+          description?: string | null
+          duration_hours?: number | null
+          humidity_percent?: number | null
+          humidity_tolerance?: number | null
+          id?: string
+          temperature_c?: number | null
+          temperature_tolerance?: number | null
+          test_item_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "method_conditioning_conditioning_profile_id_fkey"
+            columns: ["conditioning_profile_id"]
+            isOneToOne: false
+            referencedRelation: "conditioning_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "method_conditioning_test_item_id_fkey"
+            columns: ["test_item_id"]
+            isOneToOne: false
+            referencedRelation: "test_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      method_directions: {
+        Row: {
+          direction: string
+          id: string
+          notes: string | null
+          specimens_per_direction: number
+          test_item_id: number
+        }
+        Insert: {
+          direction: string
+          id?: string
+          notes?: string | null
+          specimens_per_direction?: number
+          test_item_id: number
+        }
+        Update: {
+          direction?: string
+          id?: string
+          notes?: string | null
+          specimens_per_direction?: number
+          test_item_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "method_directions_test_item_id_fkey"
+            columns: ["test_item_id"]
+            isOneToOne: false
+            referencedRelation: "test_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      method_equipment: {
+        Row: {
+          attachment: string | null
+          calibration_required: boolean
+          created_at: string
+          display_order: number
+          equipment_id: string | null
+          equipment_type: string | null
+          id: string
+          is_mandatory: boolean
+          model_required: string | null
+          notes: string | null
+          test_item_id: number
+        }
+        Insert: {
+          attachment?: string | null
+          calibration_required?: boolean
+          created_at?: string
+          display_order?: number
+          equipment_id?: string | null
+          equipment_type?: string | null
+          id?: string
+          is_mandatory?: boolean
+          model_required?: string | null
+          notes?: string | null
+          test_item_id: number
+        }
+        Update: {
+          attachment?: string | null
+          calibration_required?: boolean
+          created_at?: string
+          display_order?: number
+          equipment_id?: string | null
+          equipment_type?: string | null
+          id?: string
+          is_mandatory?: boolean
+          model_required?: string | null
+          notes?: string | null
+          test_item_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "method_equipment_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "method_equipment_test_item_id_fkey"
+            columns: ["test_item_id"]
+            isOneToOne: false
+            referencedRelation: "test_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      method_parameters: {
+        Row: {
+          display_order: number
+          id: string
+          is_mandatory: boolean
+          notes: string | null
+          param_name: string
+          param_value: string | null
+          test_item_id: number
+          unit: string | null
+        }
+        Insert: {
+          display_order?: number
+          id?: string
+          is_mandatory?: boolean
+          notes?: string | null
+          param_name: string
+          param_value?: string | null
+          test_item_id: number
+          unit?: string | null
+        }
+        Update: {
+          display_order?: number
+          id?: string
+          is_mandatory?: boolean
+          notes?: string | null
+          param_name?: string
+          param_value?: string | null
+          test_item_id?: number
+          unit?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "method_parameters_test_item_id_fkey"
+            columns: ["test_item_id"]
+            isOneToOne: false
+            referencedRelation: "test_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      method_procedure_steps: {
+        Row: {
+          created_at: string
+          expected_duration_minutes: number | null
+          id: string
+          image_url: string | null
+          instruction_text: string
+          step_number: number
+          test_item_id: number
+          warning_text: string | null
+        }
+        Insert: {
+          created_at?: string
+          expected_duration_minutes?: number | null
+          id?: string
+          image_url?: string | null
+          instruction_text: string
+          step_number: number
+          test_item_id: number
+          warning_text?: string | null
+        }
+        Update: {
+          created_at?: string
+          expected_duration_minutes?: number | null
+          id?: string
+          image_url?: string | null
+          instruction_text?: string
+          step_number?: number
+          test_item_id?: number
+          warning_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "method_procedure_steps_test_item_id_fkey"
+            columns: ["test_item_id"]
+            isOneToOne: false
+            referencedRelation: "test_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      method_standards: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          is_primary: boolean
+          notes: string | null
+          standard_id: string | null
+          standard_text: string | null
+          test_item_id: number
+          year: string | null
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_primary?: boolean
+          notes?: string | null
+          standard_id?: string | null
+          standard_text?: string | null
+          test_item_id: number
+          year?: string | null
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_primary?: boolean
+          notes?: string | null
+          standard_id?: string | null
+          standard_text?: string | null
+          test_item_id?: number
+          year?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "method_standards_standard_id_fkey"
+            columns: ["standard_id"]
+            isOneToOne: false
+            referencedRelation: "standards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "method_standards_test_item_id_fkey"
+            columns: ["test_item_id"]
+            isOneToOne: false
+            referencedRelation: "test_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      method_versions: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          change_notes: string | null
+          created_at: string
+          effective_date: string | null
+          id: string
+          prepared_by: string | null
+          reviewed_by: string | null
+          snapshot: Json | null
+          status: string
+          superseded_by: string | null
+          test_item_id: number
+          version_number: number
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          change_notes?: string | null
+          created_at?: string
+          effective_date?: string | null
+          id?: string
+          prepared_by?: string | null
+          reviewed_by?: string | null
+          snapshot?: Json | null
+          status?: string
+          superseded_by?: string | null
+          test_item_id: number
+          version_number: number
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          change_notes?: string | null
+          created_at?: string
+          effective_date?: string | null
+          id?: string
+          prepared_by?: string | null
+          reviewed_by?: string | null
+          snapshot?: Json | null
+          status?: string
+          superseded_by?: string | null
+          test_item_id?: number
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "method_versions_superseded_by_fkey"
+            columns: ["superseded_by"]
+            isOneToOne: false
+            referencedRelation: "method_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "method_versions_test_item_id_fkey"
+            columns: ["test_item_id"]
+            isOneToOne: false
+            referencedRelation: "test_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       oem_specifications: {
         Row: {
           created_at: string
@@ -714,12 +1188,19 @@ export type Database = {
           equipment_required: string | null
           id: number
           is_active: boolean | null
+          method_code: string
           multiple_samples: boolean | null
           name: string
+          principle: string | null
           sample_count: number | null
+          scope: string | null
           standard_id: string | null
+          status: string
+          summary: string | null
           testing_standard: string | null
           unit: string | null
+          updated_at: string
+          version: number
         }
         Insert: {
           aging_condition?: string | null
@@ -730,12 +1211,19 @@ export type Database = {
           equipment_required?: string | null
           id?: number
           is_active?: boolean | null
+          method_code: string
           multiple_samples?: boolean | null
           name: string
+          principle?: string | null
           sample_count?: number | null
+          scope?: string | null
           standard_id?: string | null
+          status?: string
+          summary?: string | null
           testing_standard?: string | null
           unit?: string | null
+          updated_at?: string
+          version?: number
         }
         Update: {
           aging_condition?: string | null
@@ -746,12 +1234,19 @@ export type Database = {
           equipment_required?: string | null
           id?: number
           is_active?: boolean | null
+          method_code?: string
           multiple_samples?: boolean | null
           name?: string
+          principle?: string | null
           sample_count?: number | null
+          scope?: string | null
           standard_id?: string | null
+          status?: string
+          summary?: string | null
           testing_standard?: string | null
           unit?: string | null
+          updated_at?: string
+          version?: number
         }
         Relationships: [
           {

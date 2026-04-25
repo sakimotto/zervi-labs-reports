@@ -1,73 +1,66 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTestItems } from '@/hooks/useTestData';
 import { useStandards } from '@/hooks/useReferenceData';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
-import { Search, Plus, Pencil, Trash2, X, Check, Filter, Loader2 } from 'lucide-react';
+import { Search, Plus, Trash2, Filter, Loader2, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 
 const CATEGORIES = ['Physical', 'Mechanical', 'Durability', 'Chemical', 'Safety', 'Visual', 'Other'];
+const STATUSES = ['Draft', 'Active', 'Archived'];
+
+function buildMethodCode(category: string, existingCodes: string[]): string {
+  const prefix = (category.replace(/[^A-Za-z]/g, '').slice(0, 3) || 'GEN').toUpperCase();
+  const used = existingCodes
+    .filter((c) => c?.startsWith(prefix + '-'))
+    .map((c) => parseInt(c.split('-')[1], 10))
+    .filter((n) => !Number.isNaN(n));
+  const next = (used.length ? Math.max(...used) : 0) + 1;
+  return `${prefix}-${String(next).padStart(3, '0')}`;
+}
 
 export default function TestMethodsPage() {
+  const navigate = useNavigate();
   const { data: items = [], isLoading } = useTestItems();
   const { data: standards = [] } = useStandards();
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState<Record<string, any>>({});
+  const [statusFilter, setStatusFilter] = useState('');
   const [showNew, setShowNew] = useState(false);
   const [newForm, setNewForm] = useState({
-    name: '', category: 'Physical', unit: '', direction_required: false,
-    multiple_samples: true, sample_count: 3, testing_standard: '', equipment_required: '',
-    aging_condition: '', display_order: 0, standard_id: '',
+    name: '', category: 'Physical', unit: '', testing_standard: '',
+    standard_id: '', summary: '',
   });
 
   const filtered = useMemo(() => {
-    return items.filter(item => {
-      const matchSearch = !search || item.name.toLowerCase().includes(search.toLowerCase()) ||
+    return items.filter((item) => {
+      const matchSearch = !search ||
+        item.name.toLowerCase().includes(search.toLowerCase()) ||
+        (item.method_code || '').toLowerCase().includes(search.toLowerCase()) ||
         (item.testing_standard || '').toLowerCase().includes(search.toLowerCase());
       const matchCat = !categoryFilter || item.category === categoryFilter;
-      return matchSearch && matchCat;
+      const matchStatus = !statusFilter || (item as any).status === statusFilter;
+      return matchSearch && matchCat && matchStatus;
     });
-  }, [items, search, categoryFilter]);
+  }, [items, search, categoryFilter, statusFilter]);
 
   const categories = useMemo(() => {
     const counts = new Map<string, number>();
-    items.forEach(i => counts.set(i.category, (counts.get(i.category) || 0) + 1));
+    items.forEach((i) => counts.set(i.category, (counts.get(i.category) || 0) + 1));
     return counts;
   }, [items]);
 
   const standardsMap = useMemo(() => {
     const map = new Map<string, string>();
-    standards.forEach(s => map.set(s.id, `${s.code}${s.version ? `:${s.version}` : ''}`));
+    standards.forEach((s) => map.set(s.id, `${s.code}${s.version ? `:${s.version}` : ''}`));
     return map;
   }, [standards]);
 
-  const startEdit = (item: typeof items[0]) => {
-    setEditingId(item.id);
-    setEditForm({
-      name: item.name, category: item.category, unit: item.unit || '',
-      direction_required: item.direction_required, multiple_samples: item.multiple_samples,
-      sample_count: item.sample_count, testing_standard: item.testing_standard || '',
-      equipment_required: item.equipment_required || '', aging_condition: item.aging_condition || '',
-      display_order: item.display_order || 0, standard_id: (item as any).standard_id || '',
-    });
-  };
-
-  const saveEdit = async () => {
-    if (!editingId) return;
-    const { standard_id, ...rest } = editForm;
-    const payload = { ...rest, standard_id: standard_id || null };
-    const { error } = await supabase.from('test_items').update(payload).eq('id', editingId);
-    if (error) { toast.error(error.message); return; }
-    toast.success('Test method updated');
-    setEditingId(null);
-    qc.invalidateQueries({ queryKey: ['test-items'] });
-  };
-
-  const handleDelete = async (id: number) => {
-    if (!confirm('Delete this test method?')) return;
+  const handleDelete = async (id: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm('Delete this test method? All versions and detail data will be removed.')) return;
     const { error } = await supabase.from('test_items').delete().eq('id', id);
     if (error) { toast.error(error.message); return; }
     toast.success('Test method deleted');
@@ -76,14 +69,33 @@ export default function TestMethodsPage() {
 
   const handleCreate = async () => {
     if (!newForm.name.trim()) { toast.error('Name is required'); return; }
+    const method_code = buildMethodCode(newForm.category, items.map((i) => (i as any).method_code).filter(Boolean));
     const { standard_id, ...rest } = newForm;
-    const payload = { ...rest, standard_id: standard_id || null };
-    const { error } = await supabase.from('test_items').insert(payload);
+    const payload = {
+      ...rest,
+      method_code,
+      status: 'Draft',
+      version: 1,
+      standard_id: standard_id || null,
+      direction_required: false,
+      multiple_samples: true,
+      sample_count: 3,
+      display_order: items.length + 1,
+    };
+    const { data, error } = await supabase.from('test_items').insert(payload).select().single();
     if (error) { toast.error(error.message); return; }
-    toast.success('Test method created');
+    toast.success(`Created ${method_code}`);
     setShowNew(false);
-    setNewForm({ name: '', category: 'Physical', unit: '', direction_required: false, multiple_samples: true, sample_count: 3, testing_standard: '', equipment_required: '', aging_condition: '', display_order: 0, standard_id: '' });
+    setNewForm({ name: '', category: 'Physical', unit: '', testing_standard: '', standard_id: '', summary: '' });
     qc.invalidateQueries({ queryKey: ['test-items'] });
+    if (data) navigate(`/test-methods/${data.id}`);
+  };
+
+  const statusBadge = (status?: string | null) => {
+    const cls = status === 'Active' ? 'bg-success/15 text-success'
+      : status === 'Archived' ? 'bg-muted text-muted-foreground'
+      : 'bg-warning/15 text-warning-foreground';
+    return <span className={`text-xs px-1.5 py-0.5 rounded-sm font-medium ${cls}`}>{status || 'Draft'}</span>;
   };
 
   return (
@@ -91,76 +103,69 @@ export default function TestMethodsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold tracking-tight">Test Methods Library</h1>
-          <p className="text-sm text-muted-foreground">{items.length} test methods configured</p>
+          <p className="text-sm text-muted-foreground">{items.length} methods · ISO/IEC 17025 method definitions</p>
         </div>
         <button onClick={() => setShowNew(true)} className="h-9 px-3 flex items-center gap-1.5 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
           <Plus className="h-3.5 w-3.5" /> Add Method
         </button>
       </div>
 
-      {/* Filters */}
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-md">
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="relative flex-1 max-w-md min-w-[240px]">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <input type="text" placeholder="Search methods..." value={search} onChange={e => setSearch(e.target.value)}
-            className="w-full h-9 pl-8 pr-3 text-sm bg-card border rounded-md shadow-card focus:outline-none focus:ring-2 focus:ring-primary/50" />
+          <input
+            type="text"
+            placeholder="Search by name, code, or standard..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full h-9 pl-8 pr-3 text-sm bg-card border rounded-md shadow-card focus:outline-none focus:ring-2 focus:ring-primary/50"
+          />
         </div>
         <div className="flex items-center gap-1">
           <Filter className="h-3.5 w-3.5 text-muted-foreground" />
-          <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}
-            className="h-9 px-3 text-sm bg-card border rounded-md shadow-card focus:outline-none focus:ring-2 focus:ring-primary/50">
+          <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="h-9 px-3 text-sm bg-card border rounded-md shadow-card focus:outline-none focus:ring-2 focus:ring-primary/50">
             <option value="">All Categories</option>
             {Array.from(categories.entries()).map(([cat, count]) => (
               <option key={cat} value={cat}>{cat} ({count})</option>
             ))}
           </select>
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="h-9 px-3 text-sm bg-card border rounded-md shadow-card focus:outline-none focus:ring-2 focus:ring-primary/50">
+            <option value="">All Statuses</option>
+            {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
         </div>
       </div>
 
-      {/* New form */}
       {showNew && (
         <div className="bg-card rounded-lg shadow-card p-4 border-2 border-primary/20">
           <div className="text-sm font-semibold mb-3">New Test Method</div>
+          <p className="text-xs text-muted-foreground mb-3">Create a basic record, then open the detail page to add standards, equipment, procedure steps, and acceptance criteria.</p>
           <div className="grid grid-cols-3 gap-3">
-            <FormField label="Name *" value={newForm.name} onChange={v => setNewForm(p => ({ ...p, name: v }))} />
+            <FormField label="Name *" value={newForm.name} onChange={(v) => setNewForm((p) => ({ ...p, name: v }))} />
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Category</label>
-              <select value={newForm.category} onChange={e => setNewForm(p => ({ ...p, category: e.target.value }))}
-                className="w-full h-9 px-3 text-sm bg-background border rounded-md">
-                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+              <select value={newForm.category} onChange={(e) => setNewForm((p) => ({ ...p, category: e.target.value }))} className="w-full h-9 px-3 text-sm bg-background border rounded-md">
+                {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
-            <FormField label="Unit" value={newForm.unit} onChange={v => setNewForm(p => ({ ...p, unit: v }))} />
+            <FormField label="Unit" value={newForm.unit} onChange={(v) => setNewForm((p) => ({ ...p, unit: v }))} />
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Standard (from library)</label>
-              <select value={newForm.standard_id} onChange={e => setNewForm(p => ({ ...p, standard_id: e.target.value }))}
-                className="w-full h-9 px-3 text-sm bg-background border rounded-md">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Primary Standard</label>
+              <select value={newForm.standard_id} onChange={(e) => setNewForm((p) => ({ ...p, standard_id: e.target.value }))} className="w-full h-9 px-3 text-sm bg-background border rounded-md">
                 <option value="">— None —</option>
-                {standards.map(s => <option key={s.id} value={s.id}>{s.code}{s.version ? `:${s.version}` : ''} ({s.organization})</option>)}
+                {standards.map((s) => <option key={s.id} value={s.id}>{s.code}{s.version ? `:${s.version}` : ''} ({s.organization})</option>)}
               </select>
             </div>
-            <FormField label="Testing Standard (text)" value={newForm.testing_standard} onChange={v => setNewForm(p => ({ ...p, testing_standard: v }))} />
-            <FormField label="Equipment Required" value={newForm.equipment_required} onChange={v => setNewForm(p => ({ ...p, equipment_required: v }))} />
-            <FormField label="Aging Condition" value={newForm.aging_condition} onChange={v => setNewForm(p => ({ ...p, aging_condition: v }))} />
-          </div>
-          <div className="flex items-center gap-4 mt-3">
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={newForm.direction_required} onChange={e => setNewForm(p => ({ ...p, direction_required: e.target.checked }))} />
-              Direction Required (Warp/Filling)
-            </label>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={newForm.multiple_samples} onChange={e => setNewForm(p => ({ ...p, multiple_samples: e.target.checked }))} />
-              Multiple Samples
-            </label>
+            <FormField label="Standard (free text)" value={newForm.testing_standard} onChange={(v) => setNewForm((p) => ({ ...p, testing_standard: v }))} />
+            <FormField label="Summary" value={newForm.summary} onChange={(v) => setNewForm((p) => ({ ...p, summary: v }))} />
           </div>
           <div className="flex gap-2 mt-3">
-            <button onClick={handleCreate} className="h-8 px-3 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90">Create</button>
+            <button onClick={handleCreate} className="h-8 px-3 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90">Create & Open</button>
             <button onClick={() => setShowNew(false)} className="h-8 px-3 text-xs font-medium text-muted-foreground hover:bg-muted rounded-md">Cancel</button>
           </div>
         </div>
       )}
 
-      {/* Table */}
       <div className="bg-card rounded-lg shadow-card overflow-hidden">
         {isLoading ? (
           <div className="flex justify-center py-12"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
@@ -168,63 +173,52 @@ export default function TestMethodsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b bg-muted/50">
-                <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">#</th>
+                <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Code</th>
                 <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Name</th>
                 <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Category</th>
+                <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</th>
+                <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ver</th>
                 <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Unit</th>
                 <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Standard</th>
-                <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Equipment</th>
-                <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Dir.</th>
                 <th className="text-right px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map(item => (
-                <tr key={item.id} className="border-b last:border-b-0 hover:bg-muted/30 transition-colors h-10">
-                  {editingId === item.id ? (
-                    <>
-                      <td className="px-3 py-1 text-xs text-muted-foreground">{item.id}</td>
-                      <td className="px-3 py-1"><input value={editForm.name} onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))} className="w-full h-7 px-2 text-sm bg-background border rounded-sm" /></td>
-                      <td className="px-3 py-1">
-                        <select value={editForm.category} onChange={e => setEditForm(p => ({ ...p, category: e.target.value }))} className="h-7 px-2 text-sm bg-background border rounded-sm">
-                          {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                        </select>
-                      </td>
-                      <td className="px-3 py-1"><input value={editForm.unit} onChange={e => setEditForm(p => ({ ...p, unit: e.target.value }))} className="w-full h-7 px-2 text-sm bg-background border rounded-sm" /></td>
-                      <td className="px-3 py-1">
-                        <select value={editForm.standard_id} onChange={e => setEditForm(p => ({ ...p, standard_id: e.target.value }))} className="h-7 px-2 text-sm bg-background border rounded-sm w-full">
-                          <option value="">—</option>
-                          {standards.map(s => <option key={s.id} value={s.id}>{s.code}</option>)}
-                        </select>
-                      </td>
-                      <td className="px-3 py-1"><input value={editForm.equipment_required} onChange={e => setEditForm(p => ({ ...p, equipment_required: e.target.value }))} className="w-full h-7 px-2 text-sm bg-background border rounded-sm" /></td>
-                      <td className="px-3 py-1"><input type="checkbox" checked={editForm.direction_required} onChange={e => setEditForm(p => ({ ...p, direction_required: e.target.checked }))} /></td>
-                      <td className="px-3 py-1 text-right">
-                        <button onClick={saveEdit} className="p-1 text-success hover:bg-success/10 rounded"><Check className="h-3.5 w-3.5" /></button>
-                        <button onClick={() => setEditingId(null)} className="p-1 text-muted-foreground hover:bg-muted rounded ml-1"><X className="h-3.5 w-3.5" /></button>
-                      </td>
-                    </>
-                  ) : (
-                    <>
-                      <td className="px-3 py-1 text-xs text-muted-foreground font-mono">{item.display_order || item.id}</td>
-                      <td className="px-3 py-1 font-medium">{item.name}</td>
-                      <td className="px-3 py-1"><span className="text-xs px-1.5 py-0.5 rounded-sm bg-muted font-medium">{item.category}</span></td>
-                      <td className="px-3 py-1 text-muted-foreground">{item.unit || '—'}</td>
-                      <td className="px-3 py-1 text-xs text-muted-foreground">
-                        {(item as any).standard_id ? (
-                          <span className="px-1.5 py-0.5 rounded-sm bg-primary/10 text-primary font-mono">{standardsMap.get((item as any).standard_id) || item.testing_standard}</span>
-                        ) : (
-                          item.testing_standard || '—'
-                        )}
-                      </td>
-                      <td className="px-3 py-1 text-xs text-muted-foreground">{item.equipment_required || '—'}</td>
-                      <td className="px-3 py-1 text-xs text-muted-foreground">{item.direction_required ? '↕ Yes' : '—'}</td>
-                      <td className="px-3 py-1 text-right">
-                        <button onClick={() => startEdit(item)} className="p-1 text-muted-foreground hover:bg-muted rounded"><Pencil className="h-3.5 w-3.5" /></button>
-                        <button onClick={() => handleDelete(item.id)} className="p-1 text-destructive hover:bg-destructive/10 rounded ml-1"><Trash2 className="h-3.5 w-3.5" /></button>
-                      </td>
-                    </>
-                  )}
+              {filtered.map((item) => (
+                <tr
+                  key={item.id}
+                  onClick={() => navigate(`/test-methods/${item.id}`)}
+                  className="border-b last:border-b-0 hover:bg-muted/30 transition-colors h-10 cursor-pointer"
+                >
+                  <td className="px-3 py-1 font-mono text-xs text-primary">{(item as any).method_code || `#${item.id}`}</td>
+                  <td className="px-3 py-1 font-medium">{item.name}</td>
+                  <td className="px-3 py-1"><span className="text-xs px-1.5 py-0.5 rounded-sm bg-muted font-medium">{item.category}</span></td>
+                  <td className="px-3 py-1">{statusBadge((item as any).status)}</td>
+                  <td className="px-3 py-1 text-xs text-muted-foreground font-mono">v{(item as any).version || 1}</td>
+                  <td className="px-3 py-1 text-muted-foreground">{item.unit || '—'}</td>
+                  <td className="px-3 py-1 text-xs text-muted-foreground">
+                    {(item as any).standard_id ? (
+                      <span className="px-1.5 py-0.5 rounded-sm bg-primary/10 text-primary font-mono">{standardsMap.get((item as any).standard_id) || item.testing_standard}</span>
+                    ) : (
+                      item.testing_standard || '—'
+                    )}
+                  </td>
+                  <td className="px-3 py-1 text-right">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); navigate(`/test-methods/${item.id}`); }}
+                      className="p-1 text-muted-foreground hover:bg-muted rounded"
+                      title="Open detail"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={(e) => handleDelete(item.id, e)}
+                      className="p-1 text-destructive hover:bg-destructive/10 rounded ml-1"
+                      title="Delete"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </td>
                 </tr>
               ))}
               {filtered.length === 0 && (
@@ -242,8 +236,12 @@ function FormField({ label, value, onChange }: { label: string; value: string; o
   return (
     <div>
       <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{label}</label>
-      <input type="text" value={value} onChange={e => onChange(e.target.value)}
-        className="w-full h-9 px-3 text-sm bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50" />
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full h-9 px-3 text-sm bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
+      />
     </div>
   );
 }
