@@ -9,8 +9,11 @@ export default function TestProgramsPage() {
   const { data: programs = [], isLoading } = useTestPrograms();
   const { data: allTestItems = [] } = useTestItems();
   const createProgram = useCreateTestProgram();
+  const updateProgram = useUpdateTestProgram();
   const deleteProgram = useDeleteTestProgram();
   const updateItems = useUpdateTestProgramItems();
+  const [editingMeta, setEditingMeta] = useState<any | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<any | null>(null);
 
   const [showNew, setShowNew] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
