@@ -86,7 +86,7 @@ function makeListHook<T extends RelationTable>(table: T, orderBy?: string) {
       queryKey: relationKey(table, testItemId ?? -1),
       enabled: testItemId !== null,
       queryFn: async () => {
-        let q = supabase.from(table).select('*').eq('test_item_id', testItemId!);
+        let q: any = (supabase.from(table) as any).select('*').eq('test_item_id', testItemId!);
         if (orderBy) q = q.order(orderBy);
         const { data, error } = await q;
         if (error) throw error;
