@@ -27,6 +27,19 @@ export function useCreateStandard() {
   });
 }
 
+type StandardUpdate = Partial<{ code: string; version: string | null; title: string | null; organization: string | null; document_url: string | null }>;
+export function useUpdateStandard() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: StandardUpdate }) => {
+      const { data, error } = await supabase.from('standards').update(updates).eq('id', id).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['standards'] }),
+  });
+}
+
 export function useDeleteStandard() {
   const qc = useQueryClient();
   return useMutation({
@@ -64,6 +77,19 @@ export function useCreateOemSpecification() {
   });
 }
 
+type OemSpecUpdate = Partial<{ oem_brand: string; spec_code: string; version: string | null; title: string | null; region: string | null }>;
+export function useUpdateOemSpecification() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: OemSpecUpdate }) => {
+      const { data, error } = await supabase.from('oem_specifications').update(updates).eq('id', id).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['oem-specifications'] }),
+  });
+}
+
 export function useDeleteOemSpecification() {
   const qc = useQueryClient();
   return useMutation({
@@ -94,6 +120,19 @@ export function useCreateConditioningProfile() {
   return useMutation({
     mutationFn: async (p: { name: string; temperature_c?: number; humidity_percent?: number; duration_hours?: number; description?: string }) => {
       const { data, error } = await supabase.from('conditioning_profiles').insert(p).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['conditioning-profiles'] }),
+  });
+}
+
+type ConditioningProfileUpdate = Partial<{ name: string; temperature_c: number | null; humidity_percent: number | null; duration_hours: number | null; description: string | null }>;
+export function useUpdateConditioningProfile() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: ConditioningProfileUpdate }) => {
+      const { data, error } = await supabase.from('conditioning_profiles').update(updates).eq('id', id).select().single();
       if (error) throw error;
       return data;
     },
