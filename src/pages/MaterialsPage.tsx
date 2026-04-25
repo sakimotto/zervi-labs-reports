@@ -112,29 +112,51 @@ export default function MaterialsPage() {
             <DialogHeader><DialogTitle>Register Material</DialogTitle></DialogHeader>
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-2">
-                <div><Label className="text-xs">Material Name *</Label><Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} /></div>
-                <div><Label className="text-xs">Material Code</Label><Input placeholder="e.g. FAB-001" value={form.material_code} onChange={e => setForm(f => ({ ...f, material_code: e.target.value }))} /></div>
+                <div>
+                  <Label className="text-xs">Material Name *</Label>
+                  <Input aria-invalid={!!errors.name} className={errors.name ? 'border-destructive' : ''} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+                  {errors.name && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.name}</p>}
+                </div>
+                <div>
+                  <Label className="text-xs">Material Code</Label>
+                  <Input aria-invalid={!!errors.material_code} className={errors.material_code ? 'border-destructive' : ''} placeholder="e.g. FAB-001" value={form.material_code} onChange={e => setForm(f => ({ ...f, material_code: e.target.value }))} />
+                  {errors.material_code && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.material_code}</p>}
+                </div>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <Label className="text-xs">Type</Label>
+                  <Label className="text-xs">Type *</Label>
                   <Select value={form.material_type} onValueChange={v => setForm(f => ({ ...f, material_type: v }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger className={errors.material_type ? 'border-destructive' : ''}><SelectValue /></SelectTrigger>
                     <SelectContent>{TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                   </Select>
+                  {errors.material_type && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.material_type}</p>}
                 </div>
                 <div>
                   <Label className="text-xs">Structure</Label>
                   <Select value={form.structure} onValueChange={v => setForm(f => ({ ...f, structure: v }))}>
-                    <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                    <SelectTrigger className={errors.structure ? 'border-destructive' : ''}><SelectValue placeholder="—" /></SelectTrigger>
                     <SelectContent>{STRUCTURES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                   </Select>
+                  {errors.structure && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.structure}</p>}
                 </div>
-                <div><Label className="text-xs">Composition</Label><Input placeholder="100% Polyester" value={form.composition} onChange={e => setForm(f => ({ ...f, composition: e.target.value }))} /></div>
+                <div>
+                  <Label className="text-xs">Composition</Label>
+                  <Input aria-invalid={!!errors.composition} className={errors.composition ? 'border-destructive' : ''} placeholder="100% Polyester" value={form.composition} onChange={e => setForm(f => ({ ...f, composition: e.target.value }))} />
+                  {errors.composition && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.composition}</p>}
+                </div>
               </div>
               <div className="grid grid-cols-4 gap-2">
-                <div><Label className="text-xs">Weight (gsm)</Label><Input type="number" value={form.weight_gsm} onChange={e => setForm(f => ({ ...f, weight_gsm: e.target.value }))} /></div>
-                <div><Label className="text-xs">Width (cm)</Label><Input type="number" value={form.width_cm} onChange={e => setForm(f => ({ ...f, width_cm: e.target.value }))} /></div>
+                <div>
+                  <Label className="text-xs">Weight (gsm)</Label>
+                  <Input type="number" min={0} max={10000} aria-invalid={!!errors.weight_gsm} className={errors.weight_gsm ? 'border-destructive' : ''} value={form.weight_gsm} onChange={e => setForm(f => ({ ...f, weight_gsm: e.target.value }))} />
+                  {errors.weight_gsm && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.weight_gsm}</p>}
+                </div>
+                <div>
+                  <Label className="text-xs">Width (cm)</Label>
+                  <Input type="number" min={0} max={1000} aria-invalid={!!errors.width_cm} className={errors.width_cm ? 'border-destructive' : ''} value={form.width_cm} onChange={e => setForm(f => ({ ...f, width_cm: e.target.value }))} />
+                  {errors.width_cm && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.width_cm}</p>}
+                </div>
                 <div><Label className="text-xs">Color</Label><Input value={form.color} onChange={e => setForm(f => ({ ...f, color: e.target.value }))} /></div>
                 <div><Label className="text-xs">Finish</Label><Input placeholder="WR, FR…" value={form.finish} onChange={e => setForm(f => ({ ...f, finish: e.target.value }))} /></div>
               </div>
@@ -145,9 +167,13 @@ export default function MaterialsPage() {
                   <SelectContent>{programs.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-              <div><Label className="text-xs">Notes</Label><Textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={2} /></div>
+              <div>
+                <Label className="text-xs">Notes</Label>
+                <Textarea aria-invalid={!!errors.notes} className={errors.notes ? 'border-destructive' : ''} value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={2} />
+                {errors.notes && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.notes}</p>}
+              </div>
               <p className="text-xs text-muted-foreground">More detailed specs (yarn count, performance, certifications) can be added on the detail page after creation.</p>
-              <Button onClick={handleCreate} disabled={!form.name.trim()} className="w-full">Save & Open Detail</Button>
+              <Button onClick={handleCreate} disabled={createMaterial.isPending} className="w-full">Save & Open Detail</Button>
             </div>
           </DialogContent>
         </Dialog>
