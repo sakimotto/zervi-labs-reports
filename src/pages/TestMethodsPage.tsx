@@ -47,29 +47,42 @@ export default function TestMethodsPage() {
     },
   });
 
+  const standardsMap = useMemo(() => {
+    const map = new Map<string, string>();
+    standards.forEach((s) => map.set(s.id, `${s.code}${s.version ? `:${s.version}` : ''}`));
+    return map;
+  }, [standards]);
+
+  // Map test_item_id -> primary standard label (from method_standards).
+  const primaryStandardByItem = useMemo(() => {
+    const map = new Map<number, string>();
+    primaryStandards.forEach((row: any) => {
+      const label = row.standard_id
+        ? standardsMap.get(row.standard_id) || row.standard_text || ''
+        : `${row.standard_text || ''}${row.year ? `:${row.year}` : ''}`;
+      if (label && !map.has(row.test_item_id)) map.set(row.test_item_id, label);
+    });
+    return map;
+  }, [primaryStandards, standardsMap]);
+
   const filtered = useMemo(() => {
     return items.filter((item) => {
+      const primary = primaryStandardByItem.get(item.id) || '';
       const matchSearch = !search ||
         item.name.toLowerCase().includes(search.toLowerCase()) ||
         (item.method_code || '').toLowerCase().includes(search.toLowerCase()) ||
-        (item.testing_standard || '').toLowerCase().includes(search.toLowerCase());
+        primary.toLowerCase().includes(search.toLowerCase());
       const matchCat = !categoryFilter || item.category === categoryFilter;
       const matchStatus = !statusFilter || (item as any).status === statusFilter;
       return matchSearch && matchCat && matchStatus;
     });
-  }, [items, search, categoryFilter, statusFilter]);
+  }, [items, search, categoryFilter, statusFilter, primaryStandardByItem]);
 
   const categories = useMemo(() => {
     const counts = new Map<string, number>();
     items.forEach((i) => counts.set(i.category, (counts.get(i.category) || 0) + 1));
     return counts;
   }, [items]);
-
-  const standardsMap = useMemo(() => {
-    const map = new Map<string, string>();
-    standards.forEach((s) => map.set(s.id, `${s.code}${s.version ? `:${s.version}` : ''}`));
-    return map;
-  }, [standards]);
 
   const handleDelete = async (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
