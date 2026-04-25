@@ -1,218 +1,199 @@
-import { useState } from 'react';
-import { useMaterials, useCreateMaterial, useDeleteMaterial, useMaterialSuppliers, useAddMaterialSupplier, useRemoveMaterialSupplier } from '@/hooks/useMaterials';
-import { useSuppliers } from '@/hooks/useSuppliers';
+import { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { useMaterials, useCreateMaterial } from '@/hooks/useMaterials';
 import { useTestPrograms } from '@/hooks/useTestPrograms';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, ArrowLeft, LinkIcon, X } from 'lucide-react';
+import { Plus, Search, Flame, Sun, Shield } from 'lucide-react';
 import { toast } from 'sonner';
+
+const STRUCTURES = ['Woven', 'Knit', 'Nonwoven', 'Coated', 'Laminated', 'Composite', 'Film', 'Foam', 'Other'];
+const TYPES = ['Fabric', 'PVC', 'Leather', 'Film', 'Foam', 'Composite', 'Yarn', 'Other'];
 
 export default function MaterialsPage() {
   const { data: materials = [], isLoading } = useMaterials();
   const { data: programs = [] } = useTestPrograms();
   const createMaterial = useCreateMaterial();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ name: '', material_type: 'Fabric', weight_gsm: '', width_cm: '', composition: '', color: '', finish: '', default_test_program_id: '', notes: '' });
+  const [search, setSearch] = useState('');
+  const [filterType, setFilterType] = useState<string>('all');
+  const [filterStructure, setFilterStructure] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('Active');
+  const [form, setForm] = useState({
+    name: '', material_code: '', material_type: 'Fabric', structure: '',
+    composition: '', weight_gsm: '', width_cm: '', color: '', finish: '',
+    default_test_program_id: '', notes: '',
+  });
+
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase().trim();
+    return materials.filter(m => {
+      if (filterStatus !== 'all' && m.status !== filterStatus) return false;
+      if (filterType !== 'all' && m.material_type !== filterType) return false;
+      if (filterStructure !== 'all' && m.structure !== filterStructure) return false;
+      if (!q) return true;
+      return [m.name, m.material_code, m.composition, m.color].some(v => v?.toLowerCase().includes(q));
+    });
+  }, [materials, search, filterType, filterStructure, filterStatus]);
 
   const handleCreate = async () => {
     if (!form.name.trim()) return;
-    await createMaterial.mutateAsync({
+    const created = await createMaterial.mutateAsync({
       name: form.name,
+      material_code: form.material_code || null,
       material_type: form.material_type,
-      weight_gsm: form.weight_gsm ? Number(form.weight_gsm) : undefined,
-      width_cm: form.width_cm ? Number(form.width_cm) : undefined,
-      composition: form.composition || undefined,
-      color: form.color || undefined,
-      finish: form.finish || undefined,
-      default_test_program_id: form.default_test_program_id || undefined,
-      notes: form.notes || undefined,
+      structure: form.structure || null,
+      composition: form.composition || null,
+      weight_gsm: form.weight_gsm ? Number(form.weight_gsm) : null,
+      width_cm: form.width_cm ? Number(form.width_cm) : null,
+      color: form.color || null,
+      finish: form.finish || null,
+      default_test_program_id: form.default_test_program_id || null,
+      notes: form.notes || null,
     });
-    setForm({ name: '', material_type: 'Fabric', weight_gsm: '', width_cm: '', composition: '', color: '', finish: '', default_test_program_id: '', notes: '' });
+    setForm({ name: '', material_code: '', material_type: 'Fabric', structure: '', composition: '', weight_gsm: '', width_cm: '', color: '', finish: '', default_test_program_id: '', notes: '' });
     setShowAdd(false);
-    toast.success('Material added');
+    toast.success(`Material "${created.name}" added`);
   };
-
-  if (selectedId) {
-    return <MaterialDetail id={selectedId} onBack={() => setSelectedId(null)} />;
-  }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Material Database</h1>
-          <p className="text-sm text-muted-foreground">Manage materials, specs, supplier links, and default test programs</p>
+          <p className="text-sm text-muted-foreground">Detailed textile specifications, certifications, suppliers and version control</p>
         </div>
         <Dialog open={showAdd} onOpenChange={setShowAdd}>
           <DialogTrigger asChild>
             <Button size="sm"><Plus className="h-4 w-4 mr-1" /> Add Material</Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
-            <DialogHeader><DialogTitle>Add Material</DialogTitle></DialogHeader>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader><DialogTitle>Register Material</DialogTitle></DialogHeader>
             <div className="space-y-3">
-              <Input placeholder="Material Name *" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
               <div className="grid grid-cols-2 gap-2">
-                <Select value={form.material_type} onValueChange={v => setForm(f => ({ ...f, material_type: v }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {['Fabric', 'PVC', 'Leather', 'Film', 'Foam', 'Composite', 'Yarn', 'Other'].map(t => (
-                      <SelectItem key={t} value={t}>{t}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input placeholder="Composition" value={form.composition} onChange={e => setForm(f => ({ ...f, composition: e.target.value }))} />
+                <div><Label className="text-xs">Material Name *</Label><Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} /></div>
+                <div><Label className="text-xs">Material Code</Label><Input placeholder="e.g. FAB-001" value={form.material_code} onChange={e => setForm(f => ({ ...f, material_code: e.target.value }))} /></div>
               </div>
               <div className="grid grid-cols-3 gap-2">
-                <Input placeholder="Weight (gsm)" type="number" value={form.weight_gsm} onChange={e => setForm(f => ({ ...f, weight_gsm: e.target.value }))} />
-                <Input placeholder="Width (cm)" type="number" value={form.width_cm} onChange={e => setForm(f => ({ ...f, width_cm: e.target.value }))} />
-                <Input placeholder="Color" value={form.color} onChange={e => setForm(f => ({ ...f, color: e.target.value }))} />
+                <div>
+                  <Label className="text-xs">Type</Label>
+                  <Select value={form.material_type} onValueChange={v => setForm(f => ({ ...f, material_type: v }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>{TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs">Structure</Label>
+                  <Select value={form.structure} onValueChange={v => setForm(f => ({ ...f, structure: v }))}>
+                    <SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                    <SelectContent>{STRUCTURES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+                <div><Label className="text-xs">Composition</Label><Input placeholder="100% Polyester" value={form.composition} onChange={e => setForm(f => ({ ...f, composition: e.target.value }))} /></div>
               </div>
-              <Input placeholder="Finish (e.g., Water repellent, FR)" value={form.finish} onChange={e => setForm(f => ({ ...f, finish: e.target.value }))} />
-              <Select value={form.default_test_program_id} onValueChange={v => setForm(f => ({ ...f, default_test_program_id: v }))}>
-                <SelectTrigger><SelectValue placeholder="Default Test Program (optional)" /></SelectTrigger>
-                <SelectContent>
-                  {programs.map(p => (
-                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Textarea placeholder="Notes" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
-              <Button onClick={handleCreate} disabled={!form.name.trim()} className="w-full">Save</Button>
+              <div className="grid grid-cols-4 gap-2">
+                <div><Label className="text-xs">Weight (gsm)</Label><Input type="number" value={form.weight_gsm} onChange={e => setForm(f => ({ ...f, weight_gsm: e.target.value }))} /></div>
+                <div><Label className="text-xs">Width (cm)</Label><Input type="number" value={form.width_cm} onChange={e => setForm(f => ({ ...f, width_cm: e.target.value }))} /></div>
+                <div><Label className="text-xs">Color</Label><Input value={form.color} onChange={e => setForm(f => ({ ...f, color: e.target.value }))} /></div>
+                <div><Label className="text-xs">Finish</Label><Input placeholder="WR, FR…" value={form.finish} onChange={e => setForm(f => ({ ...f, finish: e.target.value }))} /></div>
+              </div>
+              <div>
+                <Label className="text-xs">Default Test Program</Label>
+                <Select value={form.default_test_program_id} onValueChange={v => setForm(f => ({ ...f, default_test_program_id: v }))}>
+                  <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
+                  <SelectContent>{programs.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div><Label className="text-xs">Notes</Label><Textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={2} /></div>
+              <p className="text-xs text-muted-foreground">More detailed specs (yarn count, performance, certifications) can be added on the detail page after creation.</p>
+              <Button onClick={handleCreate} disabled={!form.name.trim()} className="w-full">Save & Open Detail</Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative flex-1 min-w-[240px]">
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input className="pl-8" placeholder="Search by name, code, composition, color…" value={search} onChange={e => setSearch(e.target.value)} />
+        </div>
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            {['Active', 'Draft', 'Archived', 'Obsolete'].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={filterType} onValueChange={setFilterType}>
+          <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All types</SelectItem>
+            {TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={filterStructure} onValueChange={setFilterStructure}>
+          <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All structures</SelectItem>
+            {STRUCTURES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+          </SelectContent>
+        </Select>
+      </div>
+
       {isLoading ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
       ) : (
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {materials.map(mat => (
-            <Card key={mat.id} className="cursor-pointer hover:border-primary/50 transition-colors" onClick={() => setSelectedId(mat.id)}>
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm">{mat.name}</CardTitle>
-                  <Badge variant="outline" className="text-[10px]">{mat.material_type}</Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-xs text-muted-foreground space-y-0.5">
-                  {mat.composition && <p>{mat.composition}</p>}
-                  {mat.weight_gsm && <p>{mat.weight_gsm} gsm</p>}
-                  {(mat as any).test_programs?.name && <p className="text-primary">📋 {(mat as any).test_programs.name}</p>}
-                </div>
-              </CardContent>
-            </Card>
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {filtered.map(mat => (
+            <Link key={mat.id} to={`/materials/${mat.id}`} className="block">
+              <Card className="cursor-pointer hover:border-primary/50 transition-colors h-full">
+                <CardHeader className="pb-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <CardTitle className="text-sm truncate">{mat.name}</CardTitle>
+                      {mat.material_code && <p className="text-[10px] text-muted-foreground font-mono">{mat.material_code}</p>}
+                    </div>
+                    <div className="flex flex-col items-end gap-1 shrink-0">
+                      <Badge variant="outline" className="text-[10px]">{mat.material_type}</Badge>
+                      {mat.structure && <Badge variant="secondary" className="text-[10px]">{mat.structure}</Badge>}
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-1.5">
+                  <div className="text-xs text-muted-foreground space-y-0.5">
+                    {mat.composition && <p className="truncate">{mat.composition}</p>}
+                    <p>
+                      {mat.weight_gsm ? `${mat.weight_gsm} gsm` : '—'}
+                      {mat.width_cm ? ` • ${mat.width_cm} cm` : ''}
+                      {mat.thickness_mm ? ` • ${mat.thickness_mm} mm` : ''}
+                    </p>
+                    {(mat as any).test_programs?.name && <p className="text-primary truncate">📋 {(mat as any).test_programs.name}</p>}
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1 pt-1">
+                    {mat.fire_retardant && <Badge variant="outline" className="text-[10px] gap-1"><Flame className="h-2.5 w-2.5" /> FR</Badge>}
+                    {mat.uv_stabilized && <Badge variant="outline" className="text-[10px] gap-1"><Sun className="h-2.5 w-2.5" /> UV</Badge>}
+                    {mat.antimicrobial && <Badge variant="outline" className="text-[10px] gap-1"><Shield className="h-2.5 w-2.5" /> AM</Badge>}
+                    {mat.status !== 'Active' && <Badge variant="secondary" className="text-[10px]">{mat.status}</Badge>}
+                    <Badge variant="outline" className="text-[10px] ml-auto">v{mat.current_version}</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
-          {materials.length === 0 && <p className="text-sm text-muted-foreground col-span-full">No materials registered yet.</p>}
+          {filtered.length === 0 && (
+            <p className="text-sm text-muted-foreground col-span-full text-center py-8">
+              {materials.length === 0 ? 'No materials registered yet.' : 'No materials match your filters.'}
+            </p>
+          )}
         </div>
       )}
-    </div>
-  );
-}
-
-function MaterialDetail({ id, onBack }: { id: string; onBack: () => void }) {
-  const { data: materials = [] } = useMaterials();
-  const mat = materials.find(m => m.id === id);
-  const { data: matSuppliers = [] } = useMaterialSuppliers(id);
-  const { data: allSuppliers = [] } = useSuppliers();
-  const addSupplier = useAddMaterialSupplier();
-  const removeSupplier = useRemoveMaterialSupplier();
-  const [showLinkDialog, setShowLinkDialog] = useState(false);
-  const [linkForm, setLinkForm] = useState({ supplier_id: '', grade: '', notes: '' });
-
-  const linkedIds = new Set(matSuppliers.map(ms => (ms as any).suppliers?.id));
-  const availableSuppliers = allSuppliers.filter(s => !linkedIds.has(s.id));
-
-  const handleLink = async () => {
-    if (!linkForm.supplier_id) return;
-    await addSupplier.mutateAsync({ material_id: id, supplier_id: linkForm.supplier_id, grade: linkForm.grade || undefined, notes: linkForm.notes || undefined });
-    setLinkForm({ supplier_id: '', grade: '', notes: '' });
-    setShowLinkDialog(false);
-    toast.success('Supplier linked');
-  };
-
-  if (!mat) return null;
-
-  return (
-    <div className="space-y-4">
-      <Button variant="ghost" size="sm" onClick={onBack}><ArrowLeft className="h-4 w-4 mr-1" /> Back</Button>
-      <div>
-        <h2 className="text-xl font-bold">{mat.name}</h2>
-        <p className="text-sm text-muted-foreground">{mat.material_type} — {mat.composition || 'No composition specified'}</p>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-        {[
-          ['Weight', mat.weight_gsm ? `${mat.weight_gsm} gsm` : '—'],
-          ['Width', mat.width_cm ? `${mat.width_cm} cm` : '—'],
-          ['Color', mat.color || '—'],
-          ['Finish', mat.finish || '—'],
-        ].map(([label, val]) => (
-          <Card key={label as string} className="p-3">
-            <p className="text-[10px] text-muted-foreground uppercase">{label}</p>
-            <p className="font-medium">{val}</p>
-          </Card>
-        ))}
-      </div>
-
-      {(mat as any).test_programs?.name && (
-        <Card className="p-3">
-          <p className="text-[10px] text-muted-foreground uppercase">Default Test Program</p>
-          <p className="font-medium text-primary">{(mat as any).test_programs.name}</p>
-        </Card>
-      )}
-
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold">Linked Suppliers</h3>
-          <Dialog open={showLinkDialog} onOpenChange={setShowLinkDialog}>
-            <DialogTrigger asChild>
-              <Button size="sm" variant="outline" disabled={availableSuppliers.length === 0}><LinkIcon className="h-3 w-3 mr-1" /> Link Supplier</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader><DialogTitle>Link Supplier</DialogTitle></DialogHeader>
-              <div className="space-y-3">
-                <Select value={linkForm.supplier_id} onValueChange={v => setLinkForm(f => ({ ...f, supplier_id: v }))}>
-                  <SelectTrigger><SelectValue placeholder="Select Supplier" /></SelectTrigger>
-                  <SelectContent>
-                    {availableSuppliers.map(s => (
-                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input placeholder="Grade / Quality" value={linkForm.grade} onChange={e => setLinkForm(f => ({ ...f, grade: e.target.value }))} />
-                <Input placeholder="Notes" value={linkForm.notes} onChange={e => setLinkForm(f => ({ ...f, notes: e.target.value }))} />
-                <Button onClick={handleLink} disabled={!linkForm.supplier_id} className="w-full">Link</Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-        <div className="border rounded-md overflow-hidden">
-          <table className="w-full text-sm">
-            <thead><tr className="bg-muted/50 text-xs"><th className="px-3 py-2 text-left">Supplier</th><th className="px-3 py-2 text-left">Grade</th><th className="px-3 py-2 text-left">Notes</th><th className="px-3 py-2 w-10"></th></tr></thead>
-            <tbody>
-              {matSuppliers.map(ms => (
-                <tr key={ms.id} className="border-t">
-                  <td className="px-3 py-2 font-medium">{(ms as any).suppliers?.name || '—'}</td>
-                  <td className="px-3 py-2">{ms.grade || '—'}</td>
-                  <td className="px-3 py-2 text-xs text-muted-foreground">{ms.notes || '—'}</td>
-                  <td className="px-3 py-2">
-                    <button onClick={() => removeSupplier.mutate({ id: ms.id, materialId: id })} className="text-destructive hover:text-destructive/80"><X className="h-3 w-3" /></button>
-                  </td>
-                </tr>
-              ))}
-              {matSuppliers.length === 0 && <tr><td colSpan={4} className="px-3 py-4 text-center text-muted-foreground text-xs">No suppliers linked</td></tr>}
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
   );
 }
