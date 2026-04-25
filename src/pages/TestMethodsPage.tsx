@@ -222,10 +222,10 @@ export default function TestMethodsPage() {
                   <td className="px-3 py-1 text-xs text-muted-foreground font-mono">v{(item as any).version || 1}</td>
                   <td className="px-3 py-1 text-muted-foreground">{item.unit || '—'}</td>
                   <td className="px-3 py-1 text-xs text-muted-foreground">
-                    {(item as any).standard_id ? (
-                      <span className="px-1.5 py-0.5 rounded-sm bg-primary/10 text-primary font-mono">{standardsMap.get((item as any).standard_id) || item.testing_standard}</span>
+                    {primaryStandardByItem.get(item.id) ? (
+                      <span className="px-1.5 py-0.5 rounded-sm bg-primary/10 text-primary font-mono">{primaryStandardByItem.get(item.id)}</span>
                     ) : (
-                      item.testing_standard || '—'
+                      '—'
                     )}
                   </td>
                   <td className="px-3 py-1 text-right">
