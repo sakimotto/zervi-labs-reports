@@ -668,3 +668,161 @@ function VersionsPanel({ materialId, userEmail }: { materialId: string; userEmai
     </Card>
   );
 }
+
+// ---------- Audit Panel ----------
+const HUMAN_FIELD: Record<string, string> = {
+  weight_gsm: 'Weight (gsm)', width_cm: 'Width (cm)', thickness_mm: 'Thickness (mm)',
+  warp_density_per_cm: 'Warp density (/cm)', weft_density_per_cm: 'Weft density (/cm)',
+  stretch_warp_percent: 'Stretch warp (%)', stretch_weft_percent: 'Stretch weft (%)',
+  gsm_tolerance: 'GSM tolerance', material_code: 'Material code', material_type: 'Type',
+  default_test_program_id: 'Default program', country_of_origin: 'Country of origin',
+  fire_retardant: 'Fire retardant', uv_stabilized: 'UV stabilized', antimicrobial: 'Antimicrobial',
+  reach_compliant: 'REACH compliant', oekotex_class: 'OEKO-TEX class', current_version: 'Version',
+  approval_status: 'Approval status', batch_lot: 'Batch / Lot', warp_yarn_count: 'Warp yarn count',
+  weft_yarn_count: 'Weft yarn count', coating_type: 'Coating type', coating_weight_gsm: 'Coating weight',
+  backing_material: 'Backing', recycled_content_percent: 'Recycled content %',
+  water_repellency_rating: 'Water repellency', breathability_rating: 'Breathability',
+  abrasion_class: 'Abrasion class', sub_type: 'Sub-type', weave_pattern: 'Weave pattern',
+  image_url: 'Image URL',
+};
+const humanField = (k: string) => HUMAN_FIELD[k] ?? k.replace(/_/g, ' ');
+const fmtVal = (v: unknown): string => {
+  if (v === null || v === undefined) return '—';
+  if (typeof v === 'boolean') return v ? 'Yes' : 'No';
+  if (typeof v === 'string' && v.length > 60) return v.slice(0, 57) + '…';
+  return String(v);
+};
+
+function ActionIcon({ action }: { action: string }) {
+  const map: Record<string, { icon: React.ReactNode; cls: string }> = {
+    created: { icon: <FilePlus2 className="h-3.5 w-3.5" />, cls: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' },
+    updated: { icon: <Pencil className="h-3.5 w-3.5" />, cls: 'bg-blue-500/10 text-blue-600 dark:text-blue-400' },
+    deleted: { icon: <Trash className="h-3.5 w-3.5" />, cls: 'bg-destructive/10 text-destructive' },
+    version_created: { icon: <Layers className="h-3.5 w-3.5" />, cls: 'bg-amber-500/10 text-amber-600 dark:text-amber-400' },
+    version_approved: { icon: <BadgeCheck className="h-3.5 w-3.5" />, cls: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' },
+    version_superseded: { icon: <Layers className="h-3.5 w-3.5" />, cls: 'bg-muted text-muted-foreground' },
+    certification_added: { icon: <FileCheck2 className="h-3.5 w-3.5" />, cls: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' },
+    certification_removed: { icon: <X className="h-3.5 w-3.5" />, cls: 'bg-destructive/10 text-destructive' },
+    supplier_linked: { icon: <Link2 className="h-3.5 w-3.5" />, cls: 'bg-blue-500/10 text-blue-600 dark:text-blue-400' },
+    supplier_unlinked: { icon: <Link2Off className="h-3.5 w-3.5" />, cls: 'bg-destructive/10 text-destructive' },
+  };
+  const def = map[action] ?? { icon: <Activity className="h-3.5 w-3.5" />, cls: 'bg-muted text-muted-foreground' };
+  return (
+    <div className={`flex h-7 w-7 items-center justify-center rounded-full ${def.cls}`}>
+      {def.icon}
+    </div>
+  );
+}
+
+function AuditEntryDescription({ row }: { row: { action: string; details: unknown } }) {
+  const d = (row.details ?? {}) as Record<string, unknown>;
+  switch (row.action) {
+    case 'created':
+      return <span>Created material <span className="font-medium">{String(d.name ?? '')}</span> ({String(d.material_type ?? '')})</span>;
+    case 'deleted':
+      return <span>Deleted material <span className="font-medium">{String(d.name ?? '')}</span></span>;
+    case 'updated': {
+      const changes = (d.changes ?? {}) as Record<string, { from: unknown; to: unknown }>;
+      const keys = Object.keys(changes);
+      if (keys.length === 0) return <span>Updated</span>;
+      return (
+        <div className="space-y-1">
+          <p className="text-xs">Updated <span className="font-medium">{keys.length}</span> field{keys.length === 1 ? '' : 's'}</p>
+          <ul className="space-y-0.5 ml-1 border-l border-border pl-2">
+            {keys.slice(0, 6).map(k => (
+              <li key={k} className="text-[11px]">
+                <span className="font-medium">{humanField(k)}</span>:{' '}
+                <span className="text-muted-foreground line-through">{fmtVal(changes[k].from)}</span>
+                <span className="text-muted-foreground"> → </span>
+                <span className="text-foreground">{fmtVal(changes[k].to)}</span>
+              </li>
+            ))}
+            {keys.length > 6 && <li className="text-[11px] text-muted-foreground">…and {keys.length - 6} more</li>}
+          </ul>
+        </div>
+      );
+    }
+    case 'version_created':
+      return <span>Created draft <span className="font-mono">v{String(d.version_number ?? '')}</span>{d.change_notes ? <> — <span className="text-muted-foreground italic">{String(d.change_notes)}</span></> : null}</span>;
+    case 'version_approved':
+      return <span>Approved <span className="font-mono">v{String(d.version_number ?? '')}</span> as Active</span>;
+    case 'version_superseded':
+      return <span>Superseded <span className="font-mono">v{String(d.version_number ?? '')}</span></span>;
+    case 'version_status_changed':
+      return <span><span className="font-mono">v{String(d.version_number ?? '')}</span>: {String(d.from)} → {String(d.to)}</span>;
+    case 'certification_added':
+      return <span>Added certification <span className="font-medium">{String(d.certification_type ?? '')}</span>{d.certificate_number ? ` (${String(d.certificate_number)})` : ''}</span>;
+    case 'certification_removed':
+      return <span>Removed certification <span className="font-medium">{String(d.certification_type ?? '')}</span></span>;
+    case 'supplier_linked':
+      return <span>Linked supplier <span className="font-medium">{String(d.supplier_name ?? d.supplier_id ?? '')}</span>{d.grade ? ` (grade ${String(d.grade)})` : ''}</span>;
+    case 'supplier_unlinked':
+      return <span>Unlinked supplier <span className="font-medium">{String(d.supplier_name ?? d.supplier_id ?? '')}</span></span>;
+    default:
+      return <span>{row.action}</span>;
+  }
+}
+
+function fmtTime(iso: string) {
+  const d = new Date(iso);
+  return d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+function AuditPanel({ materialId }: { materialId: string }) {
+  const { data: rows = [], isLoading } = useMaterialAudit(materialId);
+  const [filter, setFilter] = useState<string>('all');
+
+  const filtered = rows.filter(r => {
+    if (filter === 'all') return true;
+    if (filter === 'spec') return ['created', 'updated', 'deleted'].includes(r.action);
+    if (filter === 'versions') return r.action.startsWith('version_');
+    if (filter === 'certifications') return r.action.startsWith('certification_');
+    if (filter === 'suppliers') return r.action.startsWith('supplier_');
+    return true;
+  });
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between gap-2">
+        <CardTitle className="text-sm flex items-center gap-2"><Activity className="h-4 w-4" /> Audit Timeline</CardTitle>
+        <Select value={filter} onValueChange={setFilter}>
+          <SelectTrigger className="w-[180px] h-8 text-xs"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All events</SelectItem>
+            <SelectItem value="spec">Spec changes</SelectItem>
+            <SelectItem value="versions">Versions</SelectItem>
+            <SelectItem value="certifications">Certifications</SelectItem>
+            <SelectItem value="suppliers">Suppliers</SelectItem>
+          </SelectContent>
+        </Select>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <p className="text-xs text-muted-foreground">Loading…</p>
+        ) : filtered.length === 0 ? (
+          <p className="text-xs text-muted-foreground text-center py-8">
+            {rows.length === 0 ? 'No audit events recorded yet. Changes you make will appear here.' : 'No events match this filter.'}
+          </p>
+        ) : (
+          <ol className="relative space-y-3">
+            {filtered.map((row, idx) => (
+              <li key={row.id} className="flex gap-3">
+                <div className="flex flex-col items-center">
+                  <ActionIcon action={row.action} />
+                  {idx < filtered.length - 1 && <div className="w-px flex-1 bg-border mt-1" />}
+                </div>
+                <div className="flex-1 pb-3 min-w-0">
+                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                    <span className="text-xs font-medium">{row.changed_by_name ?? 'system'}</span>
+                    <span className="text-[11px] text-muted-foreground">{fmtTime(row.created_at)}</span>
+                  </div>
+                  <div className="text-sm mt-0.5"><AuditEntryDescription row={{ action: row.action, details: row.details }} /></div>
+                </div>
+              </li>
+            ))}
+          </ol>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
