@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import type { Tables, TablesInsert } from '@/integrations/supabase/types';
+import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
 export type DbCustomer = Tables<'customers'>;
 export type DbCustomerInsert = TablesInsert<'customers'>;
@@ -34,7 +34,7 @@ export function useCreateCustomer() {
 export function useUpdateCustomer() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<DbCustomer> & { id: string }) => {
+    mutationFn: async ({ id, ...updates }: { id: string } & Partial<TablesUpdate<'customers'>>) => {
       const { data, error } = await supabase.from('customers').update(updates).eq('id', id).select().single();
       if (error) throw error;
       return data;

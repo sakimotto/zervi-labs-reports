@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import type { Tables, TablesInsert } from '@/integrations/supabase/types';
+import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
 export type DbSupplier = Tables<'suppliers'>;
 export type DbSupplierInsert = TablesInsert<'suppliers'>;
@@ -34,7 +34,7 @@ export function useCreateSupplier() {
 export function useUpdateSupplier() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<DbSupplier> & { id: string }) => {
+    mutationFn: async ({ id, ...updates }: { id: string } & Partial<TablesUpdate<'suppliers'>>) => {
       const { data, error } = await supabase.from('suppliers').update(updates).eq('id', id).select().single();
       if (error) throw error;
       return data;
