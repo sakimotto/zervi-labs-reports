@@ -297,3 +297,59 @@ function Field({ label, value, onChange }: { label: string; value: string; onCha
     </div>
   );
 }
+
+const SOP_STATUSES = ['Draft', 'Under Review', 'Approved', 'Archived'];
+
+function EditSOPDialog({ sop, testItems, onClose, onSave, isPending }: {
+  sop: any | null; testItems: any[]; onClose: () => void; onSave: (id: string, updates: any) => void; isPending: boolean;
+}) {
+  const [form, setForm] = useState({ title: '', test_item_id: '', status: 'Draft' });
+  useEffect(() => {
+    if (sop) setForm({
+      title: sop.title || '',
+      test_item_id: sop.test_item_id ? String(sop.test_item_id) : '',
+      status: sop.status || 'Draft',
+    });
+  }, [sop]);
+  if (!sop) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+      <div className="bg-card rounded-lg shadow-lg p-4 max-w-md w-full m-4" onClick={e => e.stopPropagation()}>
+        <h2 className="text-sm font-semibold mb-3">Edit SOP</h2>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Title *</label>
+            <input type="text" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+              className="w-full h-9 px-3 text-sm bg-background border rounded-md" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Linked Test Method</label>
+            <select value={form.test_item_id} onChange={e => setForm(f => ({ ...f, test_item_id: e.target.value }))}
+              className="w-full h-9 px-3 text-sm bg-background border rounded-md">
+              <option value="">None</option>
+              {testItems.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Status</label>
+            <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
+              className="w-full h-9 px-3 text-sm bg-background border rounded-md">
+              {SOP_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+          <div className="flex gap-2 pt-2">
+            <button onClick={() => onSave(sop.id, {
+              title: form.title,
+              test_item_id: form.test_item_id ? parseInt(form.test_item_id) : null,
+              status: form.status,
+            })} disabled={!form.title.trim() || isPending}
+              className="h-8 px-3 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50">
+              Save Changes
+            </button>
+            <button onClick={onClose} className="h-8 px-3 text-xs font-medium text-muted-foreground hover:bg-muted rounded-md">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
