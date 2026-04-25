@@ -10,11 +10,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Search, Flame, Sun, Shield } from 'lucide-react';
+import { Plus, Search, Flame, Sun, Shield, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  materialCreateSchema,
+  STRUCTURE_VALUES,
+  TYPE_VALUES,
+  friendlyMaterialError,
+} from '@/lib/validation/material';
 
-const STRUCTURES = ['Woven', 'Knit', 'Nonwoven', 'Coated', 'Laminated', 'Composite', 'Film', 'Foam', 'Other'];
-const TYPES = ['Fabric', 'PVC', 'Leather', 'Film', 'Foam', 'Composite', 'Yarn', 'Other'];
+const STRUCTURES = STRUCTURE_VALUES;
+const TYPES = TYPE_VALUES;
 
 export default function MaterialsPage() {
   const { data: materials = [], isLoading } = useMaterials();
