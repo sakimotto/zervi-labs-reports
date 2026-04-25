@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { useSOPs, useCreateSOP, useDeleteSOP, useSOPVersions, useCreateSOPVersion } from '@/hooks/useSOPs';
+import { useState, useEffect } from 'react';
+import { useSOPs, useCreateSOP, useUpdateSOP, useDeleteSOP, useSOPVersions, useCreateSOPVersion } from '@/hooks/useSOPs';
 import { useTestItems } from '@/hooks/useTestData';
-import { Search, Plus, Trash2, Eye, Clock, FileText, Loader2, ChevronDown, ChevronRight } from 'lucide-react';
+import { Search, Plus, Trash2, Pencil, Eye, Clock, FileText, Loader2, ChevronDown, ChevronRight } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 
 const STATUS_OPTIONS = ['Draft', 'Under Review', 'Approved', 'Archived'];
