@@ -50,11 +50,15 @@ export default function SOPsPage() {
     } catch (e: any) { toast.error(e.message); }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this SOP and all versions?')) return;
+  const handleDelete = async (sop: any) => {
+    setConfirmDelete(sop);
+  };
+
+  const handleSaveEdit = async (id: string, updates: any) => {
     try {
-      await deleteSOP.mutateAsync(id);
-      toast.success('SOP deleted');
+      await updateSOP.mutateAsync({ id, ...updates });
+      toast.success('SOP updated');
+      setEditingSop(null);
     } catch (e: any) { toast.error(e.message); }
   };
 
