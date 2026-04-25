@@ -30,8 +30,21 @@ export default function TestMethodsPage() {
   const [statusFilter, setStatusFilter] = useState('');
   const [showNew, setShowNew] = useState(false);
   const [newForm, setNewForm] = useState({
-    name: '', category: 'Physical', unit: '', testing_standard: '',
+    name: '', category: 'Physical', unit: '',
     standard_id: '', summary: '',
+  });
+
+  // Pull primary standards from method_standards (canonical source).
+  const { data: primaryStandards = [] } = useQuery({
+    queryKey: ['method-primary-standards'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('method_standards')
+        .select('test_item_id, standard_id, standard_text, year, is_primary')
+        .eq('is_primary', true);
+      if (error) throw error;
+      return data ?? [];
+    },
   });
 
   const filtered = useMemo(() => {
