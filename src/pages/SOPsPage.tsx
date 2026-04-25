@@ -179,8 +179,8 @@ export default function SOPsPage() {
   );
 }
 
-function SOPCard({ sop, expanded, onToggle, onDelete, statusColor }: {
-  sop: any; expanded: boolean; onToggle: () => void; onDelete: () => void; statusColor: (s: string) => string;
+function SOPCard({ sop, expanded, onToggle, onEdit, onDelete, statusColor }: {
+  sop: any; expanded: boolean; onToggle: () => void; onEdit: () => void; onDelete: () => void; statusColor: (s: string) => string;
 }) {
   const { data: versions = [], isLoading } = useSOPVersions(expanded ? sop.id : null);
   const createVersion = useCreateSOPVersion();
@@ -213,7 +213,10 @@ function SOPCard({ sop, expanded, onToggle, onDelete, statusColor }: {
         {sop.test_items?.name && <span className="text-xs text-muted-foreground">{sop.test_items.name}</span>}
         <span className={`text-xs px-1.5 py-0.5 rounded-sm font-medium ${statusColor(sop.status)}`}>{sop.status}</span>
         <span className="text-xs text-muted-foreground">v{sop.current_version}</span>
-        <button onClick={e => { e.stopPropagation(); onDelete(); }} className="p-1 text-destructive hover:bg-destructive/10 rounded">
+        <button onClick={e => { e.stopPropagation(); onEdit(); }} className="p-1 text-muted-foreground hover:bg-muted rounded" title="Edit">
+          <Pencil className="h-3.5 w-3.5" />
+        </button>
+        <button onClick={e => { e.stopPropagation(); onDelete(); }} className="p-1 text-destructive hover:bg-destructive/10 rounded" title="Delete">
           <Trash2 className="h-3.5 w-3.5" />
         </button>
       </div>
