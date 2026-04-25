@@ -263,3 +263,49 @@ function FormField({ label, value, onChange, placeholder }: { label: string; val
     </div>
   );
 }
+
+function EditProgramMetaDialog({ program, onClose, onSave, isPending }: {
+  program: any | null; onClose: () => void; onSave: (id: string, updates: any) => void; isPending: boolean;
+}) {
+  const [form, setForm] = useState({ name: '', description: '', material_type: '', report_title: '', report_header_notes: '', report_footer_notes: '' });
+  useEffect(() => {
+    if (program) setForm({
+      name: program.name || '',
+      description: program.description || '',
+      material_type: program.material_type || '',
+      report_title: program.report_title || '',
+      report_header_notes: program.report_header_notes || '',
+      report_footer_notes: program.report_footer_notes || '',
+    });
+  }, [program]);
+  if (!program) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+      <div className="bg-card rounded-lg shadow-lg p-4 max-w-lg w-full m-4" onClick={e => e.stopPropagation()}>
+        <h2 className="text-sm font-semibold mb-3">Edit Program Metadata</h2>
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label="Name *" value={form.name} onChange={v => setForm(f => ({ ...f, name: v }))} />
+          <FormField label="Material Type" value={form.material_type} onChange={v => setForm(f => ({ ...f, material_type: v }))} />
+          <FormField label="Description" value={form.description} onChange={v => setForm(f => ({ ...f, description: v }))} />
+          <FormField label="Report Title" value={form.report_title} onChange={v => setForm(f => ({ ...f, report_title: v }))} />
+          <FormField label="Report Header" value={form.report_header_notes} onChange={v => setForm(f => ({ ...f, report_header_notes: v }))} />
+          <FormField label="Report Footer" value={form.report_footer_notes} onChange={v => setForm(f => ({ ...f, report_footer_notes: v }))} />
+        </div>
+        <div className="flex gap-2 pt-3">
+          <button onClick={() => onSave(program.id, {
+            name: form.name,
+            description: form.description || null,
+            material_type: form.material_type || null,
+            report_title: form.report_title || null,
+            report_header_notes: form.report_header_notes || null,
+            report_footer_notes: form.report_footer_notes || null,
+          })} disabled={!form.name.trim() || isPending}
+            className="h-8 px-3 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50">
+            Save Changes
+          </button>
+          <button onClick={onClose} className="h-8 px-3 text-xs font-medium text-muted-foreground hover:bg-muted rounded-md">Cancel</button>
+        </div>
+      </div>
+    </div>
+  );
+}
