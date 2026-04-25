@@ -50,11 +50,13 @@ export default function TestProgramsPage() {
     } catch (err: any) { toast.error(err.message); }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this test program?')) return;
+  const handleDelete = (program: any) => setConfirmDelete(program);
+
+  const handleSaveMeta = async (id: string, updates: any) => {
     try {
-      await deleteProgram.mutateAsync(id);
-      toast.success('Deleted');
+      await updateProgram.mutateAsync({ id, updates });
+      toast.success('Program updated');
+      setEditingMeta(null);
     } catch (err: any) { toast.error(err.message); }
   };
 
