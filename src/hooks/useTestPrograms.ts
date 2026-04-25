@@ -23,7 +23,7 @@ export function useTestProgram(id: string | null) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('test_programs')
-        .select('*, test_program_items(*, test_items(id, name, category, unit, direction_required, multiple_samples, sample_count, testing_standard, equipment_required))')
+        .select('*, test_program_items(*, test_items(id, name, category, unit, direction_required, multiple_samples, sample_count, equipment_required))')
         .eq('id', id!)
         .single();
       if (error) throw error;
