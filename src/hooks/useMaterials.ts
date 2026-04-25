@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import type { TablesUpdate } from '@/integrations/supabase/types';
 
 export function useMaterials() {
   return useQuery({
@@ -45,7 +46,7 @@ export function useCreateMaterial() {
 export function useUpdateMaterial() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...updates }: { id: string; [key: string]: unknown }) => {
+    mutationFn: async ({ id, ...updates }: { id: string } & Partial<TablesUpdate<'materials'>>) => {
       const { data, error } = await supabase.from('materials').update(updates).eq('id', id).select().single();
       if (error) throw error;
       return data;
