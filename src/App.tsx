@@ -10,6 +10,7 @@ import AuthPage from "./pages/AuthPage";
 import DashboardPage from "./pages/DashboardPage";
 import SamplesPage from "./pages/SamplesPage";
 import TestMethodsPage from "./pages/TestMethodsPage";
+import TestMethodDetailPage from "./pages/TestMethodDetailPage";
 import TestProgramsPage from "./pages/TestProgramsPage";
 import SuppliersPage from "./pages/SuppliersPage";
 import CustomersPage from "./pages/CustomersPage";
@@ -41,6 +42,7 @@ const App = () => (
                       <Route path="/tests/:id" element={<SamplesPage />} />
                       <Route path="/test-programs" element={<TestProgramsPage />} />
                       <Route path="/test-methods" element={<TestMethodsPage />} />
+                      <Route path="/test-methods/:id" element={<TestMethodDetailPage />} />
                       <Route path="/equipment" element={<EquipmentPage />} />
                       <Route path="/materials" element={<MaterialsPage />} />
                       <Route path="/standards" element={<StandardsPage />} />
