@@ -182,7 +182,6 @@ export default function TestMethodsPage() {
                 {standards.map((s) => <option key={s.id} value={s.id}>{s.code}{s.version ? `:${s.version}` : ''} ({s.organization})</option>)}
               </select>
             </div>
-            <FormField label="Standard (free text)" value={newForm.testing_standard} onChange={(v) => setNewForm((p) => ({ ...p, testing_standard: v }))} />
             <FormField label="Summary" value={newForm.summary} onChange={(v) => setNewForm((p) => ({ ...p, summary: v }))} />
           </div>
           <div className="flex gap-2 mt-3">
