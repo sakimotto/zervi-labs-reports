@@ -264,6 +264,94 @@ export type Database = {
           },
         ]
       }
+      material_audit: {
+        Row: {
+          action: string
+          changed_by: string | null
+          changed_by_name: string | null
+          created_at: string
+          details: Json | null
+          id: string
+          material_id: string
+        }
+        Insert: {
+          action: string
+          changed_by?: string | null
+          changed_by_name?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          material_id: string
+        }
+        Update: {
+          action?: string
+          changed_by?: string | null
+          changed_by_name?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          material_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_audit_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      material_certifications: {
+        Row: {
+          certificate_number: string | null
+          certification_type: string
+          created_at: string
+          document_url: string | null
+          id: string
+          is_active: boolean
+          issuer: string | null
+          material_id: string
+          notes: string | null
+          valid_from: string | null
+          valid_to: string | null
+        }
+        Insert: {
+          certificate_number?: string | null
+          certification_type: string
+          created_at?: string
+          document_url?: string | null
+          id?: string
+          is_active?: boolean
+          issuer?: string | null
+          material_id: string
+          notes?: string | null
+          valid_from?: string | null
+          valid_to?: string | null
+        }
+        Update: {
+          certificate_number?: string | null
+          certification_type?: string
+          created_at?: string
+          document_url?: string | null
+          id?: string
+          is_active?: boolean
+          issuer?: string | null
+          material_id?: string
+          notes?: string | null
+          valid_from?: string | null
+          valid_to?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_certifications_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       material_suppliers: {
         Row: {
           grade: string | null
@@ -306,49 +394,253 @@ export type Database = {
           },
         ]
       }
+      material_test_programs: {
+        Row: {
+          created_at: string
+          id: string
+          material_id: string
+          notes: string | null
+          priority: number
+          program_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          material_id: string
+          notes?: string | null
+          priority?: number
+          program_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          material_id?: string
+          notes?: string | null
+          priority?: number
+          program_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_test_programs_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_test_programs_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "test_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      material_versions: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          change_notes: string | null
+          created_at: string
+          effective_date: string | null
+          id: string
+          material_id: string
+          prepared_by: string | null
+          reviewed_by: string | null
+          snapshot: Json | null
+          status: string
+          superseded_by: string | null
+          version_number: number
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          change_notes?: string | null
+          created_at?: string
+          effective_date?: string | null
+          id?: string
+          material_id: string
+          prepared_by?: string | null
+          reviewed_by?: string | null
+          snapshot?: Json | null
+          status?: string
+          superseded_by?: string | null
+          version_number: number
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          change_notes?: string | null
+          created_at?: string
+          effective_date?: string | null
+          id?: string
+          material_id?: string
+          prepared_by?: string | null
+          reviewed_by?: string | null
+          snapshot?: Json | null
+          status?: string
+          superseded_by?: string | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_versions_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_versions_superseded_by_fkey"
+            columns: ["superseded_by"]
+            isOneToOne: false
+            referencedRelation: "material_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       materials: {
         Row: {
+          abrasion_class: string | null
+          antimicrobial: boolean
+          approval_status: string
+          backing_material: string | null
+          batch_lot: string | null
+          breathability_rating: string | null
+          coating_type: string | null
+          coating_weight_gsm: number | null
           color: string | null
           composition: string | null
+          country_of_origin: string | null
           created_at: string
+          current_version: number
           default_test_program_id: string | null
           finish: string | null
+          fire_retardant: boolean
+          gsm_tolerance: number | null
           id: string
+          image_url: string | null
           is_active: boolean
+          lamination: string | null
+          layers: number | null
+          material_code: string | null
           material_type: string
           name: string
           notes: string | null
+          oekotex_class: string | null
+          pattern: string | null
+          reach_compliant: boolean | null
+          recycled_content_percent: number | null
+          status: string
+          stretch_warp_percent: number | null
+          stretch_weft_percent: number | null
+          structure: string | null
+          sub_type: string | null
+          thickness_mm: number | null
           updated_at: string
+          uv_stabilized: boolean
+          warp_density_per_cm: number | null
+          warp_yarn_count: string | null
+          water_repellency_rating: string | null
+          weave_pattern: string | null
+          weft_density_per_cm: number | null
+          weft_yarn_count: string | null
           weight_gsm: number | null
           width_cm: number | null
         }
         Insert: {
+          abrasion_class?: string | null
+          antimicrobial?: boolean
+          approval_status?: string
+          backing_material?: string | null
+          batch_lot?: string | null
+          breathability_rating?: string | null
+          coating_type?: string | null
+          coating_weight_gsm?: number | null
           color?: string | null
           composition?: string | null
+          country_of_origin?: string | null
           created_at?: string
+          current_version?: number
           default_test_program_id?: string | null
           finish?: string | null
+          fire_retardant?: boolean
+          gsm_tolerance?: number | null
           id?: string
+          image_url?: string | null
           is_active?: boolean
+          lamination?: string | null
+          layers?: number | null
+          material_code?: string | null
           material_type?: string
           name: string
           notes?: string | null
+          oekotex_class?: string | null
+          pattern?: string | null
+          reach_compliant?: boolean | null
+          recycled_content_percent?: number | null
+          status?: string
+          stretch_warp_percent?: number | null
+          stretch_weft_percent?: number | null
+          structure?: string | null
+          sub_type?: string | null
+          thickness_mm?: number | null
           updated_at?: string
+          uv_stabilized?: boolean
+          warp_density_per_cm?: number | null
+          warp_yarn_count?: string | null
+          water_repellency_rating?: string | null
+          weave_pattern?: string | null
+          weft_density_per_cm?: number | null
+          weft_yarn_count?: string | null
           weight_gsm?: number | null
           width_cm?: number | null
         }
         Update: {
+          abrasion_class?: string | null
+          antimicrobial?: boolean
+          approval_status?: string
+          backing_material?: string | null
+          batch_lot?: string | null
+          breathability_rating?: string | null
+          coating_type?: string | null
+          coating_weight_gsm?: number | null
           color?: string | null
           composition?: string | null
+          country_of_origin?: string | null
           created_at?: string
+          current_version?: number
           default_test_program_id?: string | null
           finish?: string | null
+          fire_retardant?: boolean
+          gsm_tolerance?: number | null
           id?: string
+          image_url?: string | null
           is_active?: boolean
+          lamination?: string | null
+          layers?: number | null
+          material_code?: string | null
           material_type?: string
           name?: string
           notes?: string | null
+          oekotex_class?: string | null
+          pattern?: string | null
+          reach_compliant?: boolean | null
+          recycled_content_percent?: number | null
+          status?: string
+          stretch_warp_percent?: number | null
+          stretch_weft_percent?: number | null
+          structure?: string | null
+          sub_type?: string | null
+          thickness_mm?: number | null
           updated_at?: string
+          uv_stabilized?: boolean
+          warp_density_per_cm?: number | null
+          warp_yarn_count?: string | null
+          water_repellency_rating?: string | null
+          weave_pattern?: string | null
+          weft_density_per_cm?: number | null
+          weft_yarn_count?: string | null
           weight_gsm?: number | null
           width_cm?: number | null
         }
