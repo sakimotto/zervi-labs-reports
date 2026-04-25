@@ -11,10 +11,13 @@ export default function SOPsPage() {
   const { data: sops = [], isLoading } = useSOPs();
   const { data: testItems = [] } = useTestItems();
   const createSOP = useCreateSOP();
+  const updateSOP = useUpdateSOP();
   const deleteSOP = useDeleteSOP();
   const [search, setSearch] = useState('');
   const [showNew, setShowNew] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [editingSop, setEditingSop] = useState<any | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<any | null>(null);
   const [newForm, setNewForm] = useState({
     title: '', test_item_id: '' as string, content: '', equipment_settings: '',
     safety_notes: '', prepared_by: '',
