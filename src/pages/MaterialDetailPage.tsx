@@ -38,6 +38,7 @@ import {
 import { ArrowLeft, Plus, X, Check, Save, Trash2, FileCheck2, History, Layers, FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
 import type { DbMaterialUpdate } from '@/hooks/useMaterials';
+import { materialUpdateSchema, friendlyMaterialError } from '@/lib/validation/material';
 
 const STRUCTURES = ['Woven', 'Knit', 'Nonwoven', 'Coated', 'Laminated', 'Composite', 'Film', 'Foam', 'Other'];
 const STATUSES = ['Active', 'Draft', 'Archived', 'Obsolete'];
