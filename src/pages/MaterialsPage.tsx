@@ -36,6 +36,7 @@ export default function MaterialsPage() {
     composition: '', weight_gsm: '', width_cm: '', color: '', finish: '',
     default_test_program_id: '', notes: '',
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -49,23 +50,51 @@ export default function MaterialsPage() {
   }, [materials, search, filterType, filterStructure, filterStatus]);
 
   const handleCreate = async () => {
-    if (!form.name.trim()) return;
-    const created = await createMaterial.mutateAsync({
+    // Client-side validation
+    const parsed = materialCreateSchema.safeParse({
       name: form.name,
-      material_code: form.material_code || null,
+      material_code: form.material_code,
       material_type: form.material_type,
-      structure: form.structure || null,
-      composition: form.composition || null,
-      weight_gsm: form.weight_gsm ? Number(form.weight_gsm) : null,
-      width_cm: form.width_cm ? Number(form.width_cm) : null,
-      color: form.color || null,
-      finish: form.finish || null,
-      default_test_program_id: form.default_test_program_id || null,
-      notes: form.notes || null,
+      structure: form.structure,
+      composition: form.composition,
+      weight_gsm: form.weight_gsm,
+      width_cm: form.width_cm,
+      color: form.color,
+      finish: form.finish,
+      notes: form.notes,
     });
-    setForm({ name: '', material_code: '', material_type: 'Fabric', structure: '', composition: '', weight_gsm: '', width_cm: '', color: '', finish: '', default_test_program_id: '', notes: '' });
-    setShowAdd(false);
-    toast.success(`Material "${created.name}" added`);
+    if (!parsed.success) {
+      const fieldErrors: Record<string, string> = {};
+      for (const issue of parsed.error.issues) {
+        const key = issue.path[0]?.toString() ?? '_';
+        if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+      }
+      setErrors(fieldErrors);
+      toast.error('Please fix the highlighted fields');
+      return;
+    }
+    setErrors({});
+    const v = parsed.data;
+    try {
+      const created = await createMaterial.mutateAsync({
+        name: v.name,
+        material_code: v.material_code || null,
+        material_type: v.material_type,
+        structure: v.structure || null,
+        composition: v.composition || null,
+        weight_gsm: v.weight_gsm ?? null,
+        width_cm: v.width_cm ?? null,
+        color: v.color || null,
+        finish: v.finish || null,
+        default_test_program_id: form.default_test_program_id || null,
+        notes: v.notes || null,
+      });
+      setForm({ name: '', material_code: '', material_type: 'Fabric', structure: '', composition: '', weight_gsm: '', width_cm: '', color: '', finish: '', default_test_program_id: '', notes: '' });
+      setShowAdd(false);
+      toast.success(`Material "${created.name}" added`);
+    } catch (err) {
+      toast.error(friendlyMaterialError(err as { message?: string }));
+    }
   };
 
   return (
