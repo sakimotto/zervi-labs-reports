@@ -17,6 +17,7 @@ import CustomersPage from "./pages/CustomersPage";
 import SOPsPage from "./pages/SOPsPage";
 import EquipmentPage from "./pages/EquipmentPage";
 import MaterialsPage from "./pages/MaterialsPage";
+import MaterialDetailPage from "./pages/MaterialDetailPage";
 import StandardsPage from "./pages/StandardsPage";
 import NotFound from "./pages/NotFound";
 
@@ -45,6 +46,7 @@ const App = () => (
                       <Route path="/test-methods/:id" element={<TestMethodDetailPage />} />
                       <Route path="/equipment" element={<EquipmentPage />} />
                       <Route path="/materials" element={<MaterialsPage />} />
+                      <Route path="/materials/:id" element={<MaterialDetailPage />} />
                       <Route path="/standards" element={<StandardsPage />} />
                       <Route path="/suppliers" element={<SuppliersPage />} />
                       <Route path="/customers" element={<CustomersPage />} />
