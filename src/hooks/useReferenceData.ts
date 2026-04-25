@@ -27,6 +27,19 @@ export function useCreateStandard() {
   });
 }
 
+type StandardUpdate = Partial<{ code: string; version: string | null; title: string | null; organization: string | null; document_url: string | null }>;
+export function useUpdateStandard() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: StandardUpdate }) => {
+      const { data, error } = await supabase.from('standards').update(updates).eq('id', id).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['standards'] }),
+  });
+}
+
 export function useDeleteStandard() {
   const qc = useQueryClient();
   return useMutation({
