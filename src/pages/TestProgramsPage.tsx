@@ -196,6 +196,35 @@ export default function TestProgramsPage() {
           })}
         </div>
       )}
+
+      <EditProgramMetaDialog
+        program={editingMeta}
+        onClose={() => setEditingMeta(null)}
+        onSave={handleSaveMeta}
+        isPending={updateProgram.isPending}
+      />
+
+      <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete test program?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete <span className="font-medium">{confirmDelete?.name}</span> and its method assignments.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={async () => {
+              if (!confirmDelete) return;
+              try {
+                await deleteProgram.mutateAsync(confirmDelete.id);
+                toast.success('Deleted');
+              } catch (err: any) { toast.error(err.message); }
+              setConfirmDelete(null);
+            }}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
