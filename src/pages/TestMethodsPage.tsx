@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTestItems } from '@/hooks/useTestData';
 import { useStandards } from '@/hooks/useReferenceData';
 import { supabase } from '@/integrations/supabase/client';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { Search, Plus, Trash2, Filter, Loader2, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 
