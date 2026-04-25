@@ -1,7 +1,8 @@
-import { useState, useMemo } from 'react';
-import { useTestPrograms, useCreateTestProgram, useDeleteTestProgram, useUpdateTestProgramItems } from '@/hooks/useTestPrograms';
+import { useState, useMemo, useEffect } from 'react';
+import { useTestPrograms, useCreateTestProgram, useUpdateTestProgram, useDeleteTestProgram, useUpdateTestProgramItems } from '@/hooks/useTestPrograms';
 import { useTestItems } from '@/hooks/useTestData';
-import { Plus, Trash2, Loader2, ChevronDown, ChevronRight, Check, GripVertical } from 'lucide-react';
+import { Plus, Trash2, Pencil, Loader2, ChevronDown, ChevronRight, Check, GripVertical } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 
 export default function TestProgramsPage() {
