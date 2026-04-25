@@ -1,15 +1,19 @@
-import { useState, useMemo } from 'react';
-import { useTestPrograms, useCreateTestProgram, useDeleteTestProgram, useUpdateTestProgramItems } from '@/hooks/useTestPrograms';
+import { useState, useMemo, useEffect } from 'react';
+import { useTestPrograms, useCreateTestProgram, useUpdateTestProgram, useDeleteTestProgram, useUpdateTestProgramItems } from '@/hooks/useTestPrograms';
 import { useTestItems } from '@/hooks/useTestData';
-import { Plus, Trash2, Loader2, ChevronDown, ChevronRight, Check, GripVertical } from 'lucide-react';
+import { Plus, Trash2, Pencil, Loader2, ChevronDown, ChevronRight, Check, GripVertical } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 
 export default function TestProgramsPage() {
   const { data: programs = [], isLoading } = useTestPrograms();
   const { data: allTestItems = [] } = useTestItems();
   const createProgram = useCreateTestProgram();
+  const updateProgram = useUpdateTestProgram();
   const deleteProgram = useDeleteTestProgram();
   const updateItems = useUpdateTestProgramItems();
+  const [editingMeta, setEditingMeta] = useState<any | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<any | null>(null);
 
   const [showNew, setShowNew] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -46,11 +50,13 @@ export default function TestProgramsPage() {
     } catch (err: any) { toast.error(err.message); }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this test program?')) return;
+  const handleDelete = (program: any) => setConfirmDelete(program);
+
+  const handleSaveMeta = async (id: string, updates: any) => {
     try {
-      await deleteProgram.mutateAsync(id);
-      toast.success('Deleted');
+      await updateProgram.mutateAsync({ id, updates });
+      toast.success('Program updated');
+      setEditingMeta(null);
     } catch (err: any) { toast.error(err.message); }
   };
 
@@ -143,7 +149,10 @@ export default function TestProgramsPage() {
                       className="h-7 px-2 text-xs font-medium text-muted-foreground hover:bg-muted rounded transition-colors">
                       {isEditing ? '💾 Save' : '✏️ Edit Methods'}
                     </button>
-                    <button onClick={() => handleDelete(program.id)} className="p-1 text-destructive hover:bg-destructive/10 rounded">
+                    <button onClick={() => setEditingMeta(program)} className="p-1 text-muted-foreground hover:bg-muted rounded" title="Edit metadata">
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button onClick={() => handleDelete(program)} className="p-1 text-destructive hover:bg-destructive/10 rounded">
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
@@ -187,6 +196,35 @@ export default function TestProgramsPage() {
           })}
         </div>
       )}
+
+      <EditProgramMetaDialog
+        program={editingMeta}
+        onClose={() => setEditingMeta(null)}
+        onSave={handleSaveMeta}
+        isPending={updateProgram.isPending}
+      />
+
+      <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete test program?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete <span className="font-medium">{confirmDelete?.name}</span> and its method assignments.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={async () => {
+              if (!confirmDelete) return;
+              try {
+                await deleteProgram.mutateAsync(confirmDelete.id);
+                toast.success('Deleted');
+              } catch (err: any) { toast.error(err.message); }
+              setConfirmDelete(null);
+            }}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -222,6 +260,52 @@ function FormField({ label, value, onChange, placeholder }: { label: string; val
       <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{label}</label>
       <input type="text" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
         className="w-full h-9 px-3 text-sm bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50" />
+    </div>
+  );
+}
+
+function EditProgramMetaDialog({ program, onClose, onSave, isPending }: {
+  program: any | null; onClose: () => void; onSave: (id: string, updates: any) => void; isPending: boolean;
+}) {
+  const [form, setForm] = useState({ name: '', description: '', material_type: '', report_title: '', report_header_notes: '', report_footer_notes: '' });
+  useEffect(() => {
+    if (program) setForm({
+      name: program.name || '',
+      description: program.description || '',
+      material_type: program.material_type || '',
+      report_title: program.report_title || '',
+      report_header_notes: program.report_header_notes || '',
+      report_footer_notes: program.report_footer_notes || '',
+    });
+  }, [program]);
+  if (!program) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+      <div className="bg-card rounded-lg shadow-lg p-4 max-w-lg w-full m-4" onClick={e => e.stopPropagation()}>
+        <h2 className="text-sm font-semibold mb-3">Edit Program Metadata</h2>
+        <div className="grid grid-cols-2 gap-3">
+          <FormField label="Name *" value={form.name} onChange={v => setForm(f => ({ ...f, name: v }))} />
+          <FormField label="Material Type" value={form.material_type} onChange={v => setForm(f => ({ ...f, material_type: v }))} />
+          <FormField label="Description" value={form.description} onChange={v => setForm(f => ({ ...f, description: v }))} />
+          <FormField label="Report Title" value={form.report_title} onChange={v => setForm(f => ({ ...f, report_title: v }))} />
+          <FormField label="Report Header" value={form.report_header_notes} onChange={v => setForm(f => ({ ...f, report_header_notes: v }))} />
+          <FormField label="Report Footer" value={form.report_footer_notes} onChange={v => setForm(f => ({ ...f, report_footer_notes: v }))} />
+        </div>
+        <div className="flex gap-2 pt-3">
+          <button onClick={() => onSave(program.id, {
+            name: form.name,
+            description: form.description || null,
+            material_type: form.material_type || null,
+            report_title: form.report_title || null,
+            report_header_notes: form.report_header_notes || null,
+            report_footer_notes: form.report_footer_notes || null,
+          })} disabled={!form.name.trim() || isPending}
+            className="h-8 px-3 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50">
+            Save Changes
+          </button>
+          <button onClick={onClose} className="h-8 px-3 text-xs font-medium text-muted-foreground hover:bg-muted rounded-md">Cancel</button>
+        </div>
+      </div>
     </div>
   );
 }

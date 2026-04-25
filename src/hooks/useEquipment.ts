@@ -111,6 +111,29 @@ export function useAddCalibration() {
   });
 }
 
+export function useUpdateCalibration() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, equipment_id, ...updates }: { id: string; equipment_id: string } & Partial<TablesUpdate<'calibration_records'>>) => {
+      const { data, error } = await supabase.from('calibration_records').update(updates).eq('id', id).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, vars) => qc.invalidateQueries({ queryKey: ['calibration-records', vars.equipment_id] }),
+  });
+}
+
+export function useDeleteCalibration() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, equipment_id }: { id: string; equipment_id: string }) => {
+      const { error } = await supabase.from('calibration_records').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: (_, vars) => qc.invalidateQueries({ queryKey: ['calibration-records', vars.equipment_id] }),
+  });
+}
+
 export function useAddMaintenanceLog() {
   const qc = useQueryClient();
   return useMutation({
@@ -118,6 +141,29 @@ export function useAddMaintenanceLog() {
       const { data, error } = await supabase.from('maintenance_logs').insert(log).select().single();
       if (error) throw error;
       return data;
+    },
+    onSuccess: (_, vars) => qc.invalidateQueries({ queryKey: ['maintenance-logs', vars.equipment_id] }),
+  });
+}
+
+export function useUpdateMaintenanceLog() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, equipment_id, ...updates }: { id: string; equipment_id: string } & Partial<TablesUpdate<'maintenance_logs'>>) => {
+      const { data, error } = await supabase.from('maintenance_logs').update(updates).eq('id', id).select().single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, vars) => qc.invalidateQueries({ queryKey: ['maintenance-logs', vars.equipment_id] }),
+  });
+}
+
+export function useDeleteMaintenanceLog() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, equipment_id }: { id: string; equipment_id: string }) => {
+      const { error } = await supabase.from('maintenance_logs').delete().eq('id', id);
+      if (error) throw error;
     },
     onSuccess: (_, vars) => qc.invalidateQueries({ queryKey: ['maintenance-logs', vars.equipment_id] }),
   });

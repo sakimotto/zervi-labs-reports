@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { useSOPs, useCreateSOP, useDeleteSOP, useSOPVersions, useCreateSOPVersion } from '@/hooks/useSOPs';
+import { useState, useEffect } from 'react';
+import { useSOPs, useCreateSOP, useUpdateSOP, useDeleteSOP, useSOPVersions, useCreateSOPVersion } from '@/hooks/useSOPs';
 import { useTestItems } from '@/hooks/useTestData';
-import { Search, Plus, Trash2, Eye, Clock, FileText, Loader2, ChevronDown, ChevronRight } from 'lucide-react';
+import { Search, Plus, Trash2, Pencil, Eye, Clock, FileText, Loader2, ChevronDown, ChevronRight } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 
 const STATUS_OPTIONS = ['Draft', 'Under Review', 'Approved', 'Archived'];
@@ -10,10 +11,13 @@ export default function SOPsPage() {
   const { data: sops = [], isLoading } = useSOPs();
   const { data: testItems = [] } = useTestItems();
   const createSOP = useCreateSOP();
+  const updateSOP = useUpdateSOP();
   const deleteSOP = useDeleteSOP();
   const [search, setSearch] = useState('');
   const [showNew, setShowNew] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [editingSop, setEditingSop] = useState<any | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<any | null>(null);
   const [newForm, setNewForm] = useState({
     title: '', test_item_id: '' as string, content: '', equipment_settings: '',
     safety_notes: '', prepared_by: '',
@@ -46,11 +50,15 @@ export default function SOPsPage() {
     } catch (e: any) { toast.error(e.message); }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Delete this SOP and all versions?')) return;
+  const handleDelete = async (sop: any) => {
+    setConfirmDelete(sop);
+  };
+
+  const handleSaveEdit = async (id: string, updates: any) => {
     try {
-      await deleteSOP.mutateAsync(id);
-      toast.success('SOP deleted');
+      await updateSOP.mutateAsync({ id, ...updates });
+      toast.success('SOP updated');
+      setEditingSop(null);
     } catch (e: any) { toast.error(e.message); }
   };
 
@@ -130,18 +138,49 @@ export default function SOPsPage() {
               sop={sop}
               expanded={expandedId === sop.id}
               onToggle={() => setExpandedId(expandedId === sop.id ? null : sop.id)}
-              onDelete={() => handleDelete(sop.id)}
+              onEdit={() => setEditingSop(sop)}
+              onDelete={() => handleDelete(sop)}
               statusColor={statusColor}
             />
           ))
         )}
       </div>
+
+      <EditSOPDialog
+        sop={editingSop}
+        testItems={testItems}
+        onClose={() => setEditingSop(null)}
+        onSave={handleSaveEdit}
+        isPending={updateSOP.isPending}
+      />
+
+      <AlertDialog open={!!confirmDelete} onOpenChange={(o) => !o && setConfirmDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete SOP?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete <span className="font-medium">{confirmDelete?.title}</span> and all its versions.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={async () => {
+              if (!confirmDelete) return;
+              try {
+                await deleteSOP.mutateAsync(confirmDelete.id);
+                toast.success('SOP deleted');
+              } catch (e: any) { toast.error(e.message); }
+              setConfirmDelete(null);
+            }}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
 
-function SOPCard({ sop, expanded, onToggle, onDelete, statusColor }: {
-  sop: any; expanded: boolean; onToggle: () => void; onDelete: () => void; statusColor: (s: string) => string;
+function SOPCard({ sop, expanded, onToggle, onEdit, onDelete, statusColor }: {
+  sop: any; expanded: boolean; onToggle: () => void; onEdit: () => void; onDelete: () => void; statusColor: (s: string) => string;
 }) {
   const { data: versions = [], isLoading } = useSOPVersions(expanded ? sop.id : null);
   const createVersion = useCreateSOPVersion();
@@ -174,7 +213,10 @@ function SOPCard({ sop, expanded, onToggle, onDelete, statusColor }: {
         {sop.test_items?.name && <span className="text-xs text-muted-foreground">{sop.test_items.name}</span>}
         <span className={`text-xs px-1.5 py-0.5 rounded-sm font-medium ${statusColor(sop.status)}`}>{sop.status}</span>
         <span className="text-xs text-muted-foreground">v{sop.current_version}</span>
-        <button onClick={e => { e.stopPropagation(); onDelete(); }} className="p-1 text-destructive hover:bg-destructive/10 rounded">
+        <button onClick={e => { e.stopPropagation(); onEdit(); }} className="p-1 text-muted-foreground hover:bg-muted rounded" title="Edit">
+          <Pencil className="h-3.5 w-3.5" />
+        </button>
+        <button onClick={e => { e.stopPropagation(); onDelete(); }} className="p-1 text-destructive hover:bg-destructive/10 rounded" title="Delete">
           <Trash2 className="h-3.5 w-3.5" />
         </button>
       </div>
@@ -252,6 +294,62 @@ function Field({ label, value, onChange }: { label: string; value: string; onCha
       <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{label}</label>
       <input type="text" value={value} onChange={e => onChange(e.target.value)}
         className="w-full h-9 px-3 text-sm bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50" />
+    </div>
+  );
+}
+
+const SOP_STATUSES = ['Draft', 'Under Review', 'Approved', 'Archived'];
+
+function EditSOPDialog({ sop, testItems, onClose, onSave, isPending }: {
+  sop: any | null; testItems: any[]; onClose: () => void; onSave: (id: string, updates: any) => void; isPending: boolean;
+}) {
+  const [form, setForm] = useState({ title: '', test_item_id: '', status: 'Draft' });
+  useEffect(() => {
+    if (sop) setForm({
+      title: sop.title || '',
+      test_item_id: sop.test_item_id ? String(sop.test_item_id) : '',
+      status: sop.status || 'Draft',
+    });
+  }, [sop]);
+  if (!sop) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+      <div className="bg-card rounded-lg shadow-lg p-4 max-w-md w-full m-4" onClick={e => e.stopPropagation()}>
+        <h2 className="text-sm font-semibold mb-3">Edit SOP</h2>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Title *</label>
+            <input type="text" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+              className="w-full h-9 px-3 text-sm bg-background border rounded-md" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Linked Test Method</label>
+            <select value={form.test_item_id} onChange={e => setForm(f => ({ ...f, test_item_id: e.target.value }))}
+              className="w-full h-9 px-3 text-sm bg-background border rounded-md">
+              <option value="">None</option>
+              {testItems.map((t: any) => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Status</label>
+            <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
+              className="w-full h-9 px-3 text-sm bg-background border rounded-md">
+              {SOP_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+          <div className="flex gap-2 pt-2">
+            <button onClick={() => onSave(sop.id, {
+              title: form.title,
+              test_item_id: form.test_item_id ? parseInt(form.test_item_id) : null,
+              status: form.status,
+            })} disabled={!form.title.trim() || isPending}
+              className="h-8 px-3 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50">
+              Save Changes
+            </button>
+            <button onClick={onClose} className="h-8 px-3 text-xs font-medium text-muted-foreground hover:bg-muted rounded-md">Cancel</button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
