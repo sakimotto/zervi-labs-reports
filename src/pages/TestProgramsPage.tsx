@@ -149,7 +149,10 @@ export default function TestProgramsPage() {
                       className="h-7 px-2 text-xs font-medium text-muted-foreground hover:bg-muted rounded transition-colors">
                       {isEditing ? '💾 Save' : '✏️ Edit Methods'}
                     </button>
-                    <button onClick={() => handleDelete(program.id)} className="p-1 text-destructive hover:bg-destructive/10 rounded">
+                    <button onClick={() => setEditingMeta(program)} className="p-1 text-muted-foreground hover:bg-muted rounded" title="Edit metadata">
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button onClick={() => handleDelete(program)} className="p-1 text-destructive hover:bg-destructive/10 rounded">
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
