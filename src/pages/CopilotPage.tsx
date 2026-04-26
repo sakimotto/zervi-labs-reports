@@ -323,6 +323,20 @@ export default function CopilotPage() {
           </div>
         </div>
       </main>
+
+      {/* Confirmation modal — review drafts before "sending" */}
+      {reviewState && (
+        <DraftReviewModal
+          open={reviewState.open}
+          onOpenChange={(open) =>
+            setReviewState((s) => (s ? { ...s, open } : s))
+          }
+          kind={reviewState.kind}
+          title={reviewState.title}
+          contextLabel={reviewState.contextLabel}
+          content={reviewState.content}
+        />
+      )}
     </div>
   );
 }
