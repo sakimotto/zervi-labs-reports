@@ -106,11 +106,11 @@ export function useCopilot() {
   );
 
   const send = useCallback(
-    async (text: string, context?: { type: string; id: string; label?: string }) => {
+    async (text: string, context?: { type: string; id: string; label?: string }, modeOverride?: string) => {
       if (!text.trim() || sending) return;
       let convId = activeId;
       if (!convId) {
-        convId = await newConversation(context);
+        convId = await newConversation(context, modeOverride ?? "general");
         if (!convId) return;
       }
       const userMsg: CopilotMessage = { role: "user", content: text };
@@ -123,11 +123,15 @@ export function useCopilot() {
           .filter((m) => m.role === "user" || m.role === "assistant")
           .map((m) => ({ role: m.role, content: m.content }));
 
+        const conv = conversations.find((c) => c.id === convId);
+        const mode = modeOverride ?? conv?.mode ?? "general";
+
         const { data, error } = await supabase.functions.invoke("lab-copilot", {
           body: {
             conversation_id: convId,
             messages: [...history, { role: "user", content: text }],
             context,
+            mode,
           },
         });
 
