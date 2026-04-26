@@ -11,11 +11,13 @@ import {
   Loader2,
   Pin,
   ShieldCheck,
+  Eye,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useCopilot } from "@/hooks/useCopilot";
 import { ToolCallStrip } from "@/components/copilot/ToolCallStrip";
+import { DraftReviewModal, type DraftKind } from "@/components/copilot/DraftReviewModal";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
