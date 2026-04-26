@@ -237,23 +237,36 @@ export default function CustomersPage() {
               <DialogHeader>
                 <DialogTitle>New Customer</DialogTitle>
               </DialogHeader>
-              <div className="grid grid-cols-2 gap-3">
-                <FormField label="Name *" value={form.name} onChange={(v) => setForm((p) => ({ ...p, name: v }))} />
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Type</Label>
-                  <Select value={form.customer_type} onValueChange={(v) => setForm((p) => ({ ...p, customer_type: v }))}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>{TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                  </Select>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleCreate();
+                }}
+                className="space-y-4"
+              >
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField label="Name *" value={form.name} onChange={(v) => setForm((p) => ({ ...p, name: v }))} autoFocus />
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Type</Label>
+                    <Select value={form.customer_type} onValueChange={(v) => setForm((p) => ({ ...p, customer_type: v }))}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>{TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <FormField label="Contact Person" value={form.contact_person} onChange={(v) => setForm((p) => ({ ...p, contact_person: v }))} />
+                  <FormField label="Email" value={form.email} onChange={(v) => setForm((p) => ({ ...p, email: v }))} type="email" />
+                  <FormField label="Phone" value={form.phone} onChange={(v) => setForm((p) => ({ ...p, phone: v }))} />
+                  <FormField label="Address" value={form.address} onChange={(v) => setForm((p) => ({ ...p, address: v }))} />
                 </div>
-                <FormField label="Contact Person" value={form.contact_person} onChange={(v) => setForm((p) => ({ ...p, contact_person: v }))} />
-                <FormField label="Email" value={form.email} onChange={(v) => setForm((p) => ({ ...p, email: v }))} />
-                <FormField label="Phone" value={form.phone} onChange={(v) => setForm((p) => ({ ...p, phone: v }))} />
-                <FormField label="Address" value={form.address} onChange={(v) => setForm((p) => ({ ...p, address: v }))} />
-              </div>
-              <Button onClick={handleCreate} disabled={createCustomer.isPending} className="w-full mt-2">
-                {createCustomer.isPending ? 'Creating…' : 'Create Customer'}
-              </Button>
+                <div className="flex justify-end gap-2 pt-2 border-t border-border">
+                  <Button type="button" variant="outline" onClick={() => setShowNew(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={createCustomer.isPending}>
+                    {createCustomer.isPending ? 'Creating…' : 'Create Customer'}
+                  </Button>
+                </div>
+              </form>
             </DialogContent>
           </Dialog>
         }
@@ -316,15 +329,19 @@ function FormField({
   label,
   value,
   onChange,
+  type = 'text',
+  autoFocus,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
+  type?: string;
+  autoFocus?: boolean;
 }) {
   return (
     <div className="space-y-1.5">
       <Label className="text-xs">{label}</Label>
-      <Input value={value} onChange={(e) => onChange(e.target.value)} />
+      <Input type={type} value={value} onChange={(e) => onChange(e.target.value)} autoFocus={autoFocus} />
     </div>
   );
 }
