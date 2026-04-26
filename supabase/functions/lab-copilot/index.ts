@@ -170,6 +170,36 @@ const TOOLS = [
   {
     type: "function",
     function: {
+      name: "get_test_request_detail",
+      description:
+        "Full detail of a customer test request — by request_number (e.g. CTR-2024-0001) or id. Includes linked samples and progress.",
+      parameters: {
+        type: "object",
+        properties: {
+          request_number: { type: "string" },
+          request_id: { type: "string" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_test_report_detail",
+      description:
+        "Full detail of an issued test report — by report_number (e.g. RPT-2024-0001) or id. Includes linked samples, results and judgment.",
+      parameters: {
+        type: "object",
+        properties: {
+          report_number: { type: "string" },
+          report_id: { type: "string" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "list_test_methods",
       description: "List available test methods, optionally filtered by category.",
       parameters: {
