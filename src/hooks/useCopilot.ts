@@ -22,6 +22,7 @@ export type CopilotConversation = {
   message_count: number;
   last_message_at: string;
   created_at: string;
+  mode: string;
 };
 
 export function useCopilot() {
@@ -62,7 +63,7 @@ export function useCopilot() {
   }, [activeId, loadMessages]);
 
   const newConversation = useCallback(
-    async (context?: { type: string; id: string; label?: string }) => {
+    async (context?: { type: string; id: string; label?: string }, mode: string = "general") => {
       if (!user) return null;
       const { data, error } = await supabase
         .from("copilot_conversations")
@@ -72,6 +73,7 @@ export function useCopilot() {
           context_type: context?.type ?? "general",
           context_id: context?.id ?? null,
           context_label: context?.label ?? null,
+          mode,
         })
         .select()
         .single();
@@ -86,12 +88,29 @@ export function useCopilot() {
     [user, loadConversations]
   );
 
+  const updateConversationMode = useCallback(
+    async (id: string, mode: string) => {
+      const { error } = await supabase
+        .from("copilot_conversations")
+        .update({ mode })
+        .eq("id", id);
+      if (error) {
+        toast({ title: "Failed", description: error.message, variant: "destructive" });
+        return;
+      }
+      setConversations((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, mode } : c))
+      );
+    },
+    []
+  );
+
   const send = useCallback(
-    async (text: string, context?: { type: string; id: string; label?: string }) => {
+    async (text: string, context?: { type: string; id: string; label?: string }, modeOverride?: string) => {
       if (!text.trim() || sending) return;
       let convId = activeId;
       if (!convId) {
-        convId = await newConversation(context);
+        convId = await newConversation(context, modeOverride ?? "general");
         if (!convId) return;
       }
       const userMsg: CopilotMessage = { role: "user", content: text };
@@ -104,11 +123,15 @@ export function useCopilot() {
           .filter((m) => m.role === "user" || m.role === "assistant")
           .map((m) => ({ role: m.role, content: m.content }));
 
+        const conv = conversations.find((c) => c.id === convId);
+        const mode = modeOverride ?? conv?.mode ?? "general";
+
         const { data, error } = await supabase.functions.invoke("lab-copilot", {
           body: {
             conversation_id: convId,
             messages: [...history, { role: "user", content: text }],
             context,
+            mode,
           },
         });
 
@@ -142,7 +165,7 @@ export function useCopilot() {
         setSending(false);
       }
     },
-    [activeId, messages, sending, newConversation, loadConversations]
+    [activeId, messages, sending, newConversation, loadConversations, conversations]
   );
 
   const deleteConversation = useCallback(
@@ -164,6 +187,7 @@ export function useCopilot() {
     send,
     newConversation,
     deleteConversation,
+    updateConversationMode,
     refresh: loadConversations,
   };
 }
