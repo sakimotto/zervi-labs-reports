@@ -106,6 +106,92 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_test_requests: {
+        Row: {
+          actual_cost: number | null
+          assigned_to: string | null
+          completed_at: string | null
+          contact_email: string | null
+          contact_person: string | null
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          customer_id: string
+          description: string | null
+          due_date: string | null
+          estimated_cost: number | null
+          id: string
+          materials_description: string | null
+          notes: string | null
+          po_number: string | null
+          priority: string
+          reported_at: string | null
+          request_number: string
+          requested_date: string
+          scope: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          actual_cost?: number | null
+          assigned_to?: string | null
+          completed_at?: string | null
+          contact_email?: string | null
+          contact_person?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          customer_id: string
+          description?: string | null
+          due_date?: string | null
+          estimated_cost?: number | null
+          id?: string
+          materials_description?: string | null
+          notes?: string | null
+          po_number?: string | null
+          priority?: string
+          reported_at?: string | null
+          request_number: string
+          requested_date?: string
+          scope?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          actual_cost?: number | null
+          assigned_to?: string | null
+          completed_at?: string | null
+          contact_email?: string | null
+          contact_person?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          customer_id?: string
+          description?: string | null
+          due_date?: string | null
+          estimated_cost?: number | null
+          id?: string
+          materials_description?: string | null
+          notes?: string | null
+          po_number?: string | null
+          priority?: string
+          reported_at?: string | null
+          request_number?: string
+          requested_date?: string
+          scope?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_test_requests_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customers: {
         Row: {
           account_manager: string | null
@@ -1411,6 +1497,7 @@ export type Database = {
           test_conditions: string | null
           test_date: string | null
           test_program_id: string | null
+          test_request_id: string | null
           updated_at: string
         }
         Insert: {
@@ -1440,6 +1527,7 @@ export type Database = {
           test_conditions?: string | null
           test_date?: string | null
           test_program_id?: string | null
+          test_request_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -1469,6 +1557,7 @@ export type Database = {
           test_conditions?: string | null
           test_date?: string | null
           test_program_id?: string | null
+          test_request_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1505,6 +1594,13 @@ export type Database = {
             columns: ["test_program_id"]
             isOneToOne: false
             referencedRelation: "test_programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "samples_test_request_id_fkey"
+            columns: ["test_request_id"]
+            isOneToOne: false
+            referencedRelation: "customer_test_requests"
             referencedColumns: ["id"]
           },
         ]
@@ -1948,6 +2044,97 @@ export type Database = {
             columns: ["oem_specification_id"]
             isOneToOne: false
             referencedRelation: "oem_specifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_reports: {
+        Row: {
+          acknowledged_at: string | null
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          customer_id: string | null
+          document_url: string | null
+          id: string
+          issued_by: string | null
+          issued_date: string | null
+          notes: string | null
+          overall_judgment: string | null
+          recipient_email: string | null
+          report_number: string
+          sample_id: string | null
+          sent_at: string | null
+          status: string
+          summary: string | null
+          test_request_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          customer_id?: string | null
+          document_url?: string | null
+          id?: string
+          issued_by?: string | null
+          issued_date?: string | null
+          notes?: string | null
+          overall_judgment?: string | null
+          recipient_email?: string | null
+          report_number: string
+          sample_id?: string | null
+          sent_at?: string | null
+          status?: string
+          summary?: string | null
+          test_request_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          customer_id?: string | null
+          document_url?: string | null
+          id?: string
+          issued_by?: string | null
+          issued_date?: string | null
+          notes?: string | null
+          overall_judgment?: string | null
+          recipient_email?: string | null
+          report_number?: string
+          sample_id?: string | null
+          sent_at?: string | null
+          status?: string
+          summary?: string | null
+          test_request_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_reports_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_reports_sample_id_fkey"
+            columns: ["sample_id"]
+            isOneToOne: false
+            referencedRelation: "samples"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_reports_test_request_id_fkey"
+            columns: ["test_request_id"]
+            isOneToOne: false
+            referencedRelation: "customer_test_requests"
             referencedColumns: ["id"]
           },
         ]
