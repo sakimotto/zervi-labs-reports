@@ -246,10 +246,10 @@ You are now in **analytics mode**. Default behaviour:
 - Call out the top 3 movers (positive or negative).
 - End every answer with one "so what" insight — not a recap.`,
     starters: [
-      { emoji: "📊", title: "Monthly throughput", prompt: "How many samples did we process this month vs last month? Break down by customer and material." },
-      { emoji: "📉", title: "NG rate by customer", prompt: "Show NG rate by customer over the last 90 days. Highlight any customer with NG rate above 20%." },
-      { emoji: "🧪", title: "Method utilisation", prompt: "Which test methods are run most often, and which haven't been run in 60+ days?" },
-      { emoji: "👥", title: "Customer mix", prompt: "Top 10 customers by sample volume this quarter, with their NG rate and on-time delivery rate." },
+      { emoji: "📊", title: "How many samples did we process this month?", prompt: "How many samples did we process this month vs last month? Break down by customer and material." },
+      { emoji: "📉", title: "Show NG rate by customer over 90 days", prompt: "Show NG rate by customer over the last 90 days. Highlight any customer with NG rate above 20%." },
+      { emoji: "🧪", title: "Which test methods are used most & least?", prompt: "Which test methods are run most often, and which haven't been run in 60+ days?" },
+      { emoji: "👥", title: "Top 10 customers by sample volume this quarter", prompt: "Top 10 customers by sample volume this quarter, with their NG rate and on-time delivery rate." },
     ],
   },
 };
