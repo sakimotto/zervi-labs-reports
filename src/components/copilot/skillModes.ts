@@ -216,10 +216,10 @@ You are now in **equipment / metrology mode**. Default behaviour:
 - For maintenance discussions, summarise downtime hours, total cost, and last 5 events.
 - If the user asks about a test method, list the qualified instruments and any calibration risk.`,
     starters: [
-      { emoji: "🛠️", title: "Cal due soon", prompt: "Which equipment is due for calibration in the next 30 days? Flag anything overdue." },
-      { emoji: "❌", title: "Out of cal", prompt: "List all equipment currently Out of Cal and which test methods they affect." },
-      { emoji: "📈", title: "Maintenance load", prompt: "Show maintenance downtime hours by instrument over the last 90 days. Highlight problem units." },
-      { emoji: "🔗", title: "Method coverage", prompt: "For each active test method, list the qualified equipment and flag any method with only one qualified instrument." },
+      { emoji: "🛠️", title: "What equipment needs calibration in 30 days?", prompt: "Which equipment is due for calibration in the next 30 days? Flag anything overdue." },
+      { emoji: "❌", title: "List all equipment currently Out of Cal", prompt: "List all equipment currently Out of Cal and which test methods they affect." },
+      { emoji: "📈", title: "Show maintenance downtime by instrument", prompt: "Show maintenance downtime hours by instrument over the last 90 days. Highlight problem units." },
+      { emoji: "🔗", title: "Which methods rely on a single instrument?", prompt: "For each active test method, list the qualified equipment and flag any method with only one qualified instrument." },
     ],
   },
 
