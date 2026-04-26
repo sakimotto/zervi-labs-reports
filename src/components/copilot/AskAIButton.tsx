@@ -11,11 +11,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
+export type DraftKind = "report" | "email" | "diagnosis" | "generic";
+
 export type AskAIAction = {
   label: string;
   emoji?: string;
   prompt: string;
   description?: string;
+  /** If set, the response will be intercepted by a review modal before "sending". */
+  draftKind?: DraftKind;
 };
 
 export type AskAIContext = {
@@ -59,6 +63,8 @@ export function AskAIButton({
         autoLaunch: {
           context,
           prompt: action.prompt,
+          draftKind: action.draftKind,
+          actionLabel: action.label,
         },
       },
     });
@@ -181,12 +187,14 @@ export function getSampleAIActions(sampleLabel: string): AskAIAction[] {
       emoji: "🔍",
       description: "Root cause + corrective actions for any failed tests on this sample.",
       prompt: `Run a full NG diagnosis for sample "${sampleLabel}". For every NG result: explain why it failed (compare actual vs spec), list 3-5 likely root causes, find similar historical failures, and propose corrective actions.`,
+      draftKind: "diagnosis",
     },
     {
       label: "Draft test report",
       emoji: "📝",
       description: "Full formal report with executive summary, per-test commentary, conclusion.",
       prompt: `Draft a formal test report for sample "${sampleLabel}". Include executive summary, sample identification table, test methods used, per-test results table with judgments, conclusion and overall judgment.`,
+      draftKind: "report",
     },
     {
       label: "Compare to spec",
@@ -199,6 +207,7 @@ export function getSampleAIActions(sampleLabel: string): AskAIAction[] {
       emoji: "✉️",
       description: "Professional email summarising results for the customer.",
       prompt: `Draft a professional customer email to deliver the results of sample "${sampleLabel}". Tone: confident, technical, transparent about any issues. Include a brief summary, key findings, and clear next steps.`,
+      draftKind: "email",
     },
   ];
 }
@@ -222,6 +231,7 @@ export function getTestRequestAIActions(requestNumber: string): AskAIAction[] {
       emoji: "✉️",
       description: "Draft a status email to the customer.",
       prompt: `Draft a customer status update email for test request "${requestNumber}". Be transparent about progress, blockers, and expected completion.`,
+      draftKind: "email",
     },
     {
       label: "Risk check",
@@ -245,6 +255,7 @@ export function getReportAIActions(reportNumber: string): AskAIAction[] {
       emoji: "✉️",
       description: "Professional cover email to deliver this report to the customer.",
       prompt: `Draft a professional cover email to deliver test report "${reportNumber}" to the customer. Include a 2-3 line summary of findings and the overall judgment, and an offer to discuss.`,
+      draftKind: "email",
     },
     {
       label: "Explain NG findings",

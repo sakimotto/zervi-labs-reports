@@ -11,11 +11,13 @@ import {
   Loader2,
   Pin,
   ShieldCheck,
+  Eye,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useCopilot } from "@/hooks/useCopilot";
 import { ToolCallStrip } from "@/components/copilot/ToolCallStrip";
+import { DraftReviewModal, type DraftKind } from "@/components/copilot/DraftReviewModal";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -75,6 +77,18 @@ export default function CopilotPage() {
   const navigate = useNavigate();
   const autoLaunchedRef = useRef(false);
 
+  // Pending draft expectation: when the user fires a draft action ("Draft report" / "Draft email"),
+  // we remember the kind + label, then pop the review modal as soon as the agent's response arrives.
+  const pendingDraftRef = useRef<{ kind: DraftKind; label: string } | null>(null);
+  const lastReviewedContentRef = useRef<string | null>(null);
+  const [reviewState, setReviewState] = useState<{
+    open: boolean;
+    kind: DraftKind;
+    title: string;
+    contextLabel?: string;
+    content: string;
+  } | null>(null);
+
   // Auto-launch: when navigated here from an "Ask AI" button with state,
   // open a fresh conversation pinned to the entity context and fire the prompt.
   useEffect(() => {
@@ -83,6 +97,10 @@ export default function CopilotPage() {
     autoLaunchedRef.current = true;
     // Clear router state so a refresh doesn't re-fire
     navigate(location.pathname, { replace: true, state: {} });
+
+    if (auto.draftKind) {
+      pendingDraftRef.current = { kind: auto.draftKind, label: auto.actionLabel ?? "AI draft" };
+    }
 
     (async () => {
       const id = await newConversation(auto.context);
@@ -93,6 +111,49 @@ export default function CopilotPage() {
     })();
   }, [location, navigate, newConversation, send]);
 
+  // When a fresh assistant message arrives AND a draft is pending, open the review modal.
+  useEffect(() => {
+    if (sending) return;
+    const pending = pendingDraftRef.current;
+    if (!pending) return;
+    const last = messages[messages.length - 1];
+    if (!last || last.role !== "assistant" || !last.content || last.content === "...") return;
+    if (lastReviewedContentRef.current === last.content) return;
+    lastReviewedContentRef.current = last.content;
+    pendingDraftRef.current = null;
+    const ctxLabel =
+      conversations.find((c) => c.id === activeId)?.context_label ?? undefined;
+    setReviewState({
+      open: true,
+      kind: pending.kind,
+      title: pending.label,
+      contextLabel: ctxLabel,
+      content: last.content,
+    });
+  }, [messages, sending, conversations, activeId]);
+
+  // Heuristic: lets the user re-open review on any assistant message that looks draft-y.
+  const detectDraftKind = (content: string): DraftKind | null => {
+    const c = content.toLowerCase();
+    if (/(^|\n)\s*(subject:|dear |hi |hello )/i.test(content) || c.includes("kind regards") || c.includes("best regards")) return "email";
+    if (c.includes("test report") || c.includes("executive summary") || c.includes("overall judgment")) return "report";
+    if (c.includes("root cause") || c.includes("ng diagnosis") || c.includes("corrective action")) return "diagnosis";
+    return null;
+  };
+
+  const openManualReview = (content: string) => {
+    const kind = detectDraftKind(content) ?? "generic";
+    const ctxLabel =
+      conversations.find((c) => c.id === activeId)?.context_label ?? undefined;
+    setReviewState({
+      open: true,
+      kind,
+      title: "Manual review",
+      contextLabel: ctxLabel,
+      content,
+    });
+  };
+
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, sending]);
@@ -101,6 +162,15 @@ export default function CopilotPage() {
     if (!input.trim() || sending) return;
     const text = input;
     setInput("");
+    // Detect "draft an email/report" intent in free-form input so the modal still triggers.
+    const lower = text.toLowerCase();
+    if (/\bdraft\b.*\bemail\b|\bemail draft\b|\bcompose .* email\b/.test(lower)) {
+      pendingDraftRef.current = { kind: "email", label: "Email draft" };
+    } else if (/\bdraft\b.*\breport\b|\btest report draft\b/.test(lower)) {
+      pendingDraftRef.current = { kind: "report", label: "Test report draft" };
+    } else if (/\bdiagnos(e|is)\b|\bng\b.*\b(why|root cause)\b/.test(lower)) {
+      pendingDraftRef.current = { kind: "diagnosis", label: "NG diagnosis" };
+    }
     send(text);
   };
 
@@ -205,7 +275,7 @@ export default function CopilotPage() {
           ) : (
             <div className="max-w-3xl mx-auto px-6 py-6 space-y-6">
               {messages.map((m, i) => (
-                <MessageBubble key={i} message={m} />
+                <MessageBubble key={i} message={m} onReview={openManualReview} />
               ))}
               {sending && messages[messages.length - 1]?.content === "..." && (
                 <div className="flex items-center gap-2 text-xs text-muted-foreground pl-11">
@@ -253,13 +323,36 @@ export default function CopilotPage() {
           </div>
         </div>
       </main>
+
+      {/* Confirmation modal — review drafts before "sending" */}
+      {reviewState && (
+        <DraftReviewModal
+          open={reviewState.open}
+          onOpenChange={(open) =>
+            setReviewState((s) => (s ? { ...s, open } : s))
+          }
+          kind={reviewState.kind}
+          title={reviewState.title}
+          contextLabel={reviewState.contextLabel}
+          content={reviewState.content}
+        />
+      )}
     </div>
   );
 }
 
-function MessageBubble({ message }: { message: any }) {
+function MessageBubble({
+  message,
+  onReview,
+}: {
+  message: any;
+  onReview?: (content: string) => void;
+}) {
   const isUser = message.role === "user";
   const isThinking = message.content === "...";
+  const isAssistant = message.role === "assistant";
+  const canReview =
+    isAssistant && !isThinking && typeof message.content === "string" && message.content.length > 80;
   return (
     <div className={cn("flex gap-3", isUser && "flex-row-reverse")}>
       <div
@@ -297,6 +390,19 @@ function MessageBubble({ message }: { message: any }) {
             </div>
           )}
         </div>
+        {canReview && onReview && (
+          <div className="mt-1.5">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => onReview(message.content)}
+              className="h-6 px-2 text-[11px] text-muted-foreground hover:text-primary gap-1"
+            >
+              <Eye className="h-3 w-3" />
+              Review before sending
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
