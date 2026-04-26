@@ -7,7 +7,10 @@ import {
   Loader2,
   ShieldCheck,
   Eye,
+  Pencil,
 } from "lucide-react";
+import { StarterEditorModal } from "@/components/copilot/StarterEditorModal";
+import { useStarterOverrides } from "@/hooks/useStarterOverrides";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useCopilot } from "@/hooks/useCopilot";
