@@ -11,11 +11,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
+export type DraftKind = "report" | "email" | "diagnosis" | "generic";
+
 export type AskAIAction = {
   label: string;
   emoji?: string;
   prompt: string;
   description?: string;
+  /** If set, the response will be intercepted by a review modal before "sending". */
+  draftKind?: DraftKind;
 };
 
 export type AskAIContext = {
