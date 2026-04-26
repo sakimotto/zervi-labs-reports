@@ -186,10 +186,10 @@ You are now in **spec verification mode**. Default behaviour:
 - If multiple OEM specs apply, run the comparison against each.
 - Flag any test that should have been run per the spec but is missing.`,
     starters: [
-      { emoji: "📐", title: "Compare to spec", prompt: "For sample [code], compare every result to the material spec. Flag deviations and rate severity." },
-      { emoji: "🏷️", title: "OEM check", prompt: "Take the most recent OEM customer's last 5 samples and verify each one meets the OEM spec they require." },
-      { emoji: "📚", title: "Standard lookup", prompt: "Which JIS/ISO/ASTM/VDA standards do we currently test against, and which versions are we on?" },
-      { emoji: "❓", title: "Missing tests", prompt: "Find samples where the assigned test program didn't cover all parameters required by the material spec." },
+      { emoji: "📐", title: "Compare a sample's results to its spec", prompt: "For sample [code], compare every result to the material spec. Flag deviations and rate severity." },
+      { emoji: "🏷️", title: "Verify the latest OEM samples meet OEM specs", prompt: "Take the most recent OEM customer's last 5 samples and verify each one meets the OEM spec they require." },
+      { emoji: "📚", title: "Which standards and versions do we test against?", prompt: "Which JIS/ISO/ASTM/VDA standards do we currently test against, and which versions are we on?" },
+      { emoji: "❓", title: "Find samples missing required tests", prompt: "Find samples where the assigned test program didn't cover all parameters required by the material spec." },
     ],
   },
 
