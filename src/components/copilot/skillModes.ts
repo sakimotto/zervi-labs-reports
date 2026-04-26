@@ -65,10 +65,10 @@ export const SKILL_MODES: Record<SkillModeId, SkillMode> = {
     },
     systemAddendum: "",
     starters: [
-      { emoji: "📊", title: "Lab snapshot", prompt: "Give me a snapshot of the lab right now — open work, NG count, equipment due for calibration, overdue requests." },
-      { emoji: "🔬", title: "Find samples", prompt: "Show me the 10 most recently received samples and their current status." },
-      { emoji: "📅", title: "What's overdue", prompt: "List all overdue customer test requests sorted by how late they are." },
-      { emoji: "🧪", title: "Suggest a program", prompt: "Recommend a test program for an automotive seat fabric sample from a new OEM customer." },
+      { emoji: "📊", title: "Give me a snapshot of the lab right now", prompt: "Give me a snapshot of the lab right now — open work, NG count, equipment due for calibration, overdue requests." },
+      { emoji: "🔬", title: "Show the 10 most recently received samples", prompt: "Show me the 10 most recently received samples and their current status." },
+      { emoji: "📅", title: "What customer requests are overdue?", prompt: "List all overdue customer test requests sorted by how late they are." },
+      { emoji: "🧪", title: "Recommend a test program for a new sample", prompt: "Recommend a test program for an automotive seat fabric sample from a new OEM customer." },
     ],
   },
 
