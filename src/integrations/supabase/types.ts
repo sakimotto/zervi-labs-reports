@@ -108,40 +108,91 @@ export type Database = {
       }
       customers: {
         Row: {
+          account_manager: string | null
           address: string | null
+          address_line: string | null
+          city: string | null
           contact_person: string | null
+          country: string | null
           created_at: string
+          credit_limit: number | null
+          currency: string | null
+          customer_code: string | null
           customer_type: string
           email: string | null
           id: string
+          industry: string | null
           is_active: boolean
           name: string
+          notes: string | null
+          payment_terms: string | null
           phone: string | null
+          postal_code: string | null
+          rating: number | null
+          secondary_email: string | null
+          state_region: string | null
+          status: string
+          tax_id: string | null
           updated_at: string
+          website: string | null
         }
         Insert: {
+          account_manager?: string | null
           address?: string | null
+          address_line?: string | null
+          city?: string | null
           contact_person?: string | null
+          country?: string | null
           created_at?: string
+          credit_limit?: number | null
+          currency?: string | null
+          customer_code?: string | null
           customer_type?: string
           email?: string | null
           id?: string
+          industry?: string | null
           is_active?: boolean
           name: string
+          notes?: string | null
+          payment_terms?: string | null
           phone?: string | null
+          postal_code?: string | null
+          rating?: number | null
+          secondary_email?: string | null
+          state_region?: string | null
+          status?: string
+          tax_id?: string | null
           updated_at?: string
+          website?: string | null
         }
         Update: {
+          account_manager?: string | null
           address?: string | null
+          address_line?: string | null
+          city?: string | null
           contact_person?: string | null
+          country?: string | null
           created_at?: string
+          credit_limit?: number | null
+          currency?: string | null
+          customer_code?: string | null
           customer_type?: string
           email?: string | null
           id?: string
+          industry?: string | null
           is_active?: boolean
           name?: string
+          notes?: string | null
+          payment_terms?: string | null
           phone?: string | null
+          postal_code?: string | null
+          rating?: number | null
+          secondary_email?: string | null
+          state_region?: string | null
+          status?: string
+          tax_id?: string | null
           updated_at?: string
+          website?: string | null
         }
         Relationships: []
       }
@@ -1340,6 +1391,7 @@ export type Database = {
           color: string | null
           composition: string | null
           created_at: string
+          customer_id: string | null
           fabric_type: string | null
           id: string
           material_id: string | null
@@ -1368,6 +1420,7 @@ export type Database = {
           color?: string | null
           composition?: string | null
           created_at?: string
+          customer_id?: string | null
           fabric_type?: string | null
           id?: string
           material_id?: string | null
@@ -1396,6 +1449,7 @@ export type Database = {
           color?: string | null
           composition?: string | null
           created_at?: string
+          customer_id?: string | null
           fabric_type?: string | null
           id?: string
           material_id?: string | null
@@ -1418,6 +1472,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "samples_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "samples_material_id_fkey"
             columns: ["material_id"]

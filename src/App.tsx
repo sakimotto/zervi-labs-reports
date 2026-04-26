@@ -15,6 +15,7 @@ import TestProgramsPage from "./pages/TestProgramsPage";
 import SuppliersPage from "./pages/SuppliersPage";
 import SupplierDetailPage from "./pages/SupplierDetailPage";
 import CustomersPage from "./pages/CustomersPage";
+import CustomerDetailPage from "./pages/CustomerDetailPage";
 import SOPsPage from "./pages/SOPsPage";
 import EquipmentPage from "./pages/EquipmentPage";
 import EquipmentDetailPage from "./pages/EquipmentDetailPage";
@@ -54,6 +55,7 @@ const App = () => (
                       <Route path="/suppliers" element={<SuppliersPage />} />
                       <Route path="/suppliers/:id" element={<SupplierDetailPage />} />
                       <Route path="/customers" element={<CustomersPage />} />
+                      <Route path="/customers/:id" element={<CustomerDetailPage />} />
                       <Route path="/sops" element={<SOPsPage />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>
