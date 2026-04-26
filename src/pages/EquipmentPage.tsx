@@ -254,18 +254,35 @@ export default function EquipmentPage() {
                   <Plus className="h-4 w-4 mr-1" /> Add Equipment
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Add Equipment</DialogTitle>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+                <DialogHeader className="px-6 pt-6 pb-2">
+                  <DialogTitle className="flex items-center gap-2">
+                    <span className="h-7 w-7 rounded-md bg-primary-soft text-primary inline-flex items-center justify-center">
+                      <Cpu className="h-4 w-4" />
+                    </span>
+                    Add Equipment
+                  </DialogTitle>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Fill in identity to save — full calibration program & specs can be edited later.
+                  </p>
                 </DialogHeader>
-                <EquipmentFormFields form={form} setForm={setForm} errors={errors} />
-                <Button
-                  onClick={handleCreate}
-                  disabled={createEquipment.isPending}
-                  className="w-full"
+                <form
+                  onSubmit={(e) => { e.preventDefault(); handleCreate(); }}
+                  className="px-6 pb-6"
                 >
-                  Save
-                </Button>
+                  <EquipmentFormFields form={form} setForm={setForm} errors={errors} />
+                  <div className="flex items-center justify-between gap-3 pt-3 mt-4 border-t border-border -mx-6 px-6 sticky bottom-0 bg-card/95 backdrop-blur-md py-3">
+                    <p className="text-xs text-muted-foreground">
+                      Required: Name. Other fields can be filled after creation.
+                    </p>
+                    <div className="flex gap-2">
+                      <Button type="button" variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button>
+                      <Button type="submit" disabled={createEquipment.isPending}>
+                        {createEquipment.isPending ? 'Saving…' : 'Save & Open Detail'}
+                      </Button>
+                    </div>
+                  </div>
+                </form>
               </DialogContent>
             </Dialog>
           </>
