@@ -19,7 +19,7 @@ export interface Column<T> {
 interface DataTableProps<T> {
   data: T[];
   columns: Column<T>[];
-  rowKey: (row: T) => string;
+  rowKey: (row: T) => string | number;
   onRowClick?: (row: T) => void;
   emptyState?: ReactNode;
   className?: string;
@@ -74,7 +74,7 @@ export function DataTable<T>({
     });
   };
 
-  const allIds = useMemo(() => sorted.map((r) => rowKey(r)), [sorted, rowKey]);
+  const allIds = useMemo(() => sorted.map((r) => String(rowKey(r))), [sorted, rowKey]);
   const allSelected = selectable && allIds.length > 0 && allIds.every((id) => selectedIds?.has(id));
   const someSelected = selectable && allIds.some((id) => selectedIds?.has(id));
 
@@ -160,7 +160,7 @@ export function DataTable<T>({
           </thead>
           <tbody>
             {sorted.map((row, idx) => {
-              const id = rowKey(row);
+              const id = String(rowKey(row));
               const isSelected = selectedIds?.has(id);
               return (
                 <tr
