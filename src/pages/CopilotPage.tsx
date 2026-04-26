@@ -341,9 +341,18 @@ export default function CopilotPage() {
   );
 }
 
-function MessageBubble({ message }: { message: any }) {
+function MessageBubble({
+  message,
+  onReview,
+}: {
+  message: any;
+  onReview?: (content: string) => void;
+}) {
   const isUser = message.role === "user";
   const isThinking = message.content === "...";
+  const isAssistant = message.role === "assistant";
+  const canReview =
+    isAssistant && !isThinking && typeof message.content === "string" && message.content.length > 80;
   return (
     <div className={cn("flex gap-3", isUser && "flex-row-reverse")}>
       <div
@@ -381,6 +390,19 @@ function MessageBubble({ message }: { message: any }) {
             </div>
           )}
         </div>
+        {canReview && onReview && (
+          <div className="mt-1.5">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => onReview(message.content)}
+              className="h-6 px-2 text-[11px] text-muted-foreground hover:text-primary gap-1"
+            >
+              <Eye className="h-3 w-3" />
+              Review before sending
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
