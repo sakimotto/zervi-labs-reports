@@ -275,7 +275,7 @@ export default function CopilotPage() {
           ) : (
             <div className="max-w-3xl mx-auto px-6 py-6 space-y-6">
               {messages.map((m, i) => (
-                <MessageBubble key={i} message={m} />
+                <MessageBubble key={i} message={m} onReview={openManualReview} />
               ))}
               {sending && messages[messages.length - 1]?.content === "..." && (
                 <div className="flex items-center gap-2 text-xs text-muted-foreground pl-11">
