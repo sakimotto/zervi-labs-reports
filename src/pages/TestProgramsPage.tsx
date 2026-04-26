@@ -229,6 +229,7 @@ export default function TestProgramsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </div>
     </div>
   );
 }
