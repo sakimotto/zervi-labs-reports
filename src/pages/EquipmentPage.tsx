@@ -156,58 +156,69 @@ export default function EquipmentPage() {
       {isLoading ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
       ) : filtered.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No equipment matches.</p>
+        <Card className="p-12 text-center">
+          <p className="text-sm text-muted-foreground">No equipment matches your filters.</p>
+        </Card>
       ) : (
-        <div className="border rounded-md overflow-hidden bg-card">
-          <table className="w-full text-sm">
-            <thead><tr className="bg-muted/50 text-xs text-left">
-              <th className="px-3 py-2">Name</th>
-              <th className="px-3 py-2">Asset Tag</th>
-              <th className="px-3 py-2">Category / Sub-type</th>
-              <th className="px-3 py-2">Manufacturer</th>
-              <th className="px-3 py-2">Location</th>
-              <th className="px-3 py-2">Status</th>
-              <th className="px-3 py-2">Calibration</th>
-              <th className="px-3 py-2">Next Due</th>
-            </tr></thead>
-            <tbody>
-              {filtered.map(eq => {
-                const calStatus = deriveCalStatus(eq.next_calibration_due);
-                const calTone = calStatus === 'In Cal' ? 'bg-emerald-500/15 text-emerald-700 border-emerald-500/30'
-                  : calStatus === 'Due Soon' ? 'bg-amber-500/15 text-amber-700 border-amber-500/30'
-                  : calStatus === 'Out of Cal' ? 'bg-destructive/15 text-destructive border-destructive/30'
-                  : '';
-                return (
-                  <tr key={eq.id} className="border-t hover:bg-muted/30 cursor-pointer" onClick={() => navigate(`/equipment/${eq.id}`)}>
-                    <td className="px-3 py-2 font-medium">{eq.name}</td>
-                    <td className="px-3 py-2 font-mono text-xs">{eq.asset_tag || '—'}</td>
-                    <td className="px-3 py-2 text-xs">
-                      <div>{eq.category}</div>
-                      {eq.sub_type && <div className="text-muted-foreground">{eq.sub_type}</div>}
-                    </td>
-                    <td className="px-3 py-2 text-xs">
-                      <div>{eq.manufacturer || '—'}</div>
-                      {eq.model && <div className="text-muted-foreground">{eq.model}</div>}
-                    </td>
-                    <td className="px-3 py-2 text-xs">
-                      {eq.location || '—'}{eq.room ? ` · ${eq.room}` : ''}{eq.bench ? ` · ${eq.bench}` : ''}
-                    </td>
-                    <td className="px-3 py-2">
-                      <Badge variant={eq.status === 'Active' ? 'default' : eq.status === 'Retired' ? 'secondary' : 'destructive'} className="text-[10px]">{eq.status}</Badge>
-                    </td>
-                    <td className="px-3 py-2">
-                      {calStatus
-                        ? <Badge variant="outline" className={`text-[10px] ${calTone}`}>{calStatus}</Badge>
-                        : <span className="text-xs text-muted-foreground">—</span>}
-                    </td>
-                    <td className="px-3 py-2 text-xs">{eq.next_calibration_due || '—'}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <Card className="overflow-hidden p-0 shadow-card">
+          <div className="overflow-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/60 backdrop-blur-sm sticky top-0 z-10">
+                <tr className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground text-left border-b border-border">
+                  <th className="px-4 py-2.5">Name</th>
+                  <th className="px-4 py-2.5">Asset Tag</th>
+                  <th className="px-4 py-2.5">Category / Sub-type</th>
+                  <th className="px-4 py-2.5">Manufacturer</th>
+                  <th className="px-4 py-2.5">Location</th>
+                  <th className="px-4 py-2.5">Status</th>
+                  <th className="px-4 py-2.5">Calibration</th>
+                  <th className="px-4 py-2.5">Next Due</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((eq, idx) => {
+                  const calStatus = deriveCalStatus(eq.next_calibration_due);
+                  const calTone = calStatus === 'In Cal' ? 'bg-success-soft text-success border-success/30'
+                    : calStatus === 'Due Soon' ? 'bg-warning-soft text-warning border-warning/30'
+                    : calStatus === 'Out of Cal' ? 'bg-destructive/10 text-destructive border-destructive/30'
+                    : '';
+                  return (
+                    <tr
+                      key={eq.id}
+                      className={`border-b border-border/60 hover:bg-primary-soft/40 cursor-pointer transition-colors ${idx % 2 === 1 ? 'bg-card-muted' : ''}`}
+                      onClick={() => navigate(`/equipment/${eq.id}`)}
+                    >
+                      <td className="px-4 py-2.5 font-medium text-foreground">{eq.name}</td>
+                      <td className="px-4 py-2.5 font-mono text-xs text-muted-foreground">{eq.asset_tag || '—'}</td>
+                      <td className="px-4 py-2.5 text-xs">
+                        <div className="text-foreground">{eq.category}</div>
+                        {eq.sub_type && <div className="text-muted-foreground">{eq.sub_type}</div>}
+                      </td>
+                      <td className="px-4 py-2.5 text-xs">
+                        <div className="text-foreground">{eq.manufacturer || '—'}</div>
+                        {eq.model && <div className="text-muted-foreground">{eq.model}</div>}
+                      </td>
+                      <td className="px-4 py-2.5 text-xs text-muted-foreground">
+                        {eq.location || '—'}{eq.room ? ` · ${eq.room}` : ''}{eq.bench ? ` · ${eq.bench}` : ''}
+                      </td>
+                      <td className="px-4 py-2.5">
+                        <Badge variant={eq.status === 'Active' ? 'default' : eq.status === 'Retired' ? 'secondary' : 'destructive'} className="text-[10px]">{eq.status}</Badge>
+                      </td>
+                      <td className="px-4 py-2.5">
+                        {calStatus
+                          ? <Badge variant="outline" className={`text-[10px] ${calTone}`}>{calStatus}</Badge>
+                          : <span className="text-xs text-muted-foreground">—</span>}
+                      </td>
+                      <td className="px-4 py-2.5 text-xs font-mono tabular-nums">{eq.next_calibration_due || '—'}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Card>
       )}
+      </PageBody>
     </div>
   );
 }
