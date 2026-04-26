@@ -383,22 +383,19 @@ function WelcomeScreen({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {mode.starters.map((s) => (
           <button
             key={s.title}
             onClick={() => onPrompt(s.prompt)}
-            className="group text-left p-4 rounded-xl border bg-card hover:bg-card/80 transition-all border-border hover:shadow-sm hover:border-primary/40"
+            className={cn(
+              "group text-left px-4 py-3.5 rounded-xl border bg-card transition-all",
+              "border-border hover:bg-card hover:border-primary/40 hover:shadow-sm"
+            )}
           >
-            <div className="flex items-start gap-3">
-              <span className="text-xl shrink-0">{s.emoji}</span>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold mb-0.5 text-foreground group-hover:text-primary transition-colors">
-                  {s.title}
-                </p>
-                <p className="text-xs text-muted-foreground line-clamp-2">{s.prompt}</p>
-              </div>
-            </div>
+            <p className="text-sm leading-snug text-foreground group-hover:text-primary transition-colors">
+              {s.title}
+            </p>
           </button>
         ))}
       </div>

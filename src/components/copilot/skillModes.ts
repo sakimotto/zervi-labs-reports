@@ -65,10 +65,10 @@ export const SKILL_MODES: Record<SkillModeId, SkillMode> = {
     },
     systemAddendum: "",
     starters: [
-      { emoji: "📊", title: "Lab snapshot", prompt: "Give me a snapshot of the lab right now — open work, NG count, equipment due for calibration, overdue requests." },
-      { emoji: "🔬", title: "Find samples", prompt: "Show me the 10 most recently received samples and their current status." },
-      { emoji: "📅", title: "What's overdue", prompt: "List all overdue customer test requests sorted by how late they are." },
-      { emoji: "🧪", title: "Suggest a program", prompt: "Recommend a test program for an automotive seat fabric sample from a new OEM customer." },
+      { emoji: "📊", title: "Give me a snapshot of the lab right now", prompt: "Give me a snapshot of the lab right now — open work, NG count, equipment due for calibration, overdue requests." },
+      { emoji: "🔬", title: "Show the 10 most recently received samples", prompt: "Show me the 10 most recently received samples and their current status." },
+      { emoji: "📅", title: "What customer requests are overdue?", prompt: "List all overdue customer test requests sorted by how late they are." },
+      { emoji: "🧪", title: "Recommend a test program for a new sample", prompt: "Recommend a test program for an automotive seat fabric sample from a new OEM customer." },
     ],
   },
 
@@ -95,10 +95,10 @@ You are now in **failure investigation mode**. Default behaviour:
 - Flag systemic patterns (same material across customers, same method across samples, same operator, same equipment).
 - Be blunt about uncertainty — if data is missing, say what you'd need.`,
     starters: [
-      { emoji: "🔍", title: "All current NGs", prompt: "Show me all samples currently judged NG. Group by material and customer, identify any patterns." },
-      { emoji: "📉", title: "NG trend", prompt: "What's our NG rate this month vs last month? Break down by test method and flag any methods with spiking failures." },
-      { emoji: "🧩", title: "Root cause", prompt: "Diagnose the most recent NG result in the system — root cause, similar historical failures, corrective actions." },
-      { emoji: "⚠️", title: "Repeat offenders", prompt: "Which materials or customers have produced the most NG results in the last 90 days?" },
+      { emoji: "🔍", title: "Show all samples currently judged NG", prompt: "Show me all samples currently judged NG. Group by material and customer, identify any patterns." },
+      { emoji: "📉", title: "How is our NG rate trending this month?", prompt: "What's our NG rate this month vs last month? Break down by test method and flag any methods with spiking failures." },
+      { emoji: "🧩", title: "Diagnose the most recent NG result", prompt: "Diagnose the most recent NG result in the system — root cause, similar historical failures, corrective actions." },
+      { emoji: "⚠️", title: "Which materials fail most often?", prompt: "Which materials or customers have produced the most NG results in the last 90 days?" },
     ],
   },
 
@@ -125,10 +125,10 @@ You are now in **formal report mode**. Default behaviour:
 - Always end with: "**This is a draft for your review** — please verify all values against source data before issuing."
 - For emails: subject line, professional greeting, 2-3 line summary, key findings, clear next steps, sign-off placeholder.`,
     starters: [
-      { emoji: "📝", title: "Draft a report", prompt: "Help me draft a formal test report for sample [paste sample code or ID]. Include all the standard sections." },
-      { emoji: "✉️", title: "Cover email", prompt: "Draft a professional cover email to deliver test report [paste report number] to the customer." },
-      { emoji: "📋", title: "Findings summary", prompt: "Summarise the key findings from the most recent issued test report in 3 bullet points for an executive audience." },
-      { emoji: "🔁", title: "Revise draft", prompt: "Take the last draft you produced and tighten the executive summary — more direct, less hedging." },
+      { emoji: "📝", title: "Draft a formal test report for a sample", prompt: "Help me draft a formal test report for sample [paste sample code or ID]. Include all the standard sections." },
+      { emoji: "✉️", title: "Write a cover email for a test report", prompt: "Draft a professional cover email to deliver test report [paste report number] to the customer." },
+      { emoji: "📋", title: "Summarise the latest report for executives", prompt: "Summarise the key findings from the most recent issued test report in 3 bullet points for an executive audience." },
+      { emoji: "🔁", title: "Tighten the executive summary in my last draft", prompt: "Take the last draft you produced and tighten the executive summary — more direct, less hedging." },
     ],
   },
 
@@ -155,10 +155,10 @@ You are now in **operations / SLA mode**. Default behaviour:
 - Quantify risk: number of customer requests, monetary value if available, days of delay.
 - If asked anything ambiguous, default scope to "next 14 days".`,
     starters: [
-      { emoji: "🚨", title: "Overdue now", prompt: "List every overdue customer test request, sorted by days overdue, with the blocker for each." },
-      { emoji: "📅", title: "Due in 7 days", prompt: "What's due in the next 7 days? Flag anything at risk of slipping." },
-      { emoji: "🛠️", title: "Calibration block", prompt: "Which equipment is due for calibration in the next 14 days, and which active test requests depend on it?" },
-      { emoji: "📦", title: "Awaiting samples", prompt: "Which test requests are blocked because samples haven't been received yet?" },
+      { emoji: "🚨", title: "List every overdue customer test request", prompt: "List every overdue customer test request, sorted by days overdue, with the blocker for each." },
+      { emoji: "📅", title: "What's due in the next 7 days?", prompt: "What's due in the next 7 days? Flag anything at risk of slipping." },
+      { emoji: "🛠️", title: "Which calibrations could block delivery?", prompt: "Which equipment is due for calibration in the next 14 days, and which active test requests depend on it?" },
+      { emoji: "📦", title: "What's blocked waiting on samples?", prompt: "Which test requests are blocked because samples haven't been received yet?" },
     ],
   },
 
@@ -186,10 +186,10 @@ You are now in **spec verification mode**. Default behaviour:
 - If multiple OEM specs apply, run the comparison against each.
 - Flag any test that should have been run per the spec but is missing.`,
     starters: [
-      { emoji: "📐", title: "Compare to spec", prompt: "For sample [code], compare every result to the material spec. Flag deviations and rate severity." },
-      { emoji: "🏷️", title: "OEM check", prompt: "Take the most recent OEM customer's last 5 samples and verify each one meets the OEM spec they require." },
-      { emoji: "📚", title: "Standard lookup", prompt: "Which JIS/ISO/ASTM/VDA standards do we currently test against, and which versions are we on?" },
-      { emoji: "❓", title: "Missing tests", prompt: "Find samples where the assigned test program didn't cover all parameters required by the material spec." },
+      { emoji: "📐", title: "Compare a sample's results to its spec", prompt: "For sample [code], compare every result to the material spec. Flag deviations and rate severity." },
+      { emoji: "🏷️", title: "Verify the latest OEM samples meet OEM specs", prompt: "Take the most recent OEM customer's last 5 samples and verify each one meets the OEM spec they require." },
+      { emoji: "📚", title: "Which standards and versions do we test against?", prompt: "Which JIS/ISO/ASTM/VDA standards do we currently test against, and which versions are we on?" },
+      { emoji: "❓", title: "Find samples missing required tests", prompt: "Find samples where the assigned test program didn't cover all parameters required by the material spec." },
     ],
   },
 
@@ -216,10 +216,10 @@ You are now in **equipment / metrology mode**. Default behaviour:
 - For maintenance discussions, summarise downtime hours, total cost, and last 5 events.
 - If the user asks about a test method, list the qualified instruments and any calibration risk.`,
     starters: [
-      { emoji: "🛠️", title: "Cal due soon", prompt: "Which equipment is due for calibration in the next 30 days? Flag anything overdue." },
-      { emoji: "❌", title: "Out of cal", prompt: "List all equipment currently Out of Cal and which test methods they affect." },
-      { emoji: "📈", title: "Maintenance load", prompt: "Show maintenance downtime hours by instrument over the last 90 days. Highlight problem units." },
-      { emoji: "🔗", title: "Method coverage", prompt: "For each active test method, list the qualified equipment and flag any method with only one qualified instrument." },
+      { emoji: "🛠️", title: "What equipment needs calibration in 30 days?", prompt: "Which equipment is due for calibration in the next 30 days? Flag anything overdue." },
+      { emoji: "❌", title: "List all equipment currently Out of Cal", prompt: "List all equipment currently Out of Cal and which test methods they affect." },
+      { emoji: "📈", title: "Show maintenance downtime by instrument", prompt: "Show maintenance downtime hours by instrument over the last 90 days. Highlight problem units." },
+      { emoji: "🔗", title: "Which methods rely on a single instrument?", prompt: "For each active test method, list the qualified equipment and flag any method with only one qualified instrument." },
     ],
   },
 
@@ -246,10 +246,10 @@ You are now in **analytics mode**. Default behaviour:
 - Call out the top 3 movers (positive or negative).
 - End every answer with one "so what" insight — not a recap.`,
     starters: [
-      { emoji: "📊", title: "Monthly throughput", prompt: "How many samples did we process this month vs last month? Break down by customer and material." },
-      { emoji: "📉", title: "NG rate by customer", prompt: "Show NG rate by customer over the last 90 days. Highlight any customer with NG rate above 20%." },
-      { emoji: "🧪", title: "Method utilisation", prompt: "Which test methods are run most often, and which haven't been run in 60+ days?" },
-      { emoji: "👥", title: "Customer mix", prompt: "Top 10 customers by sample volume this quarter, with their NG rate and on-time delivery rate." },
+      { emoji: "📊", title: "How many samples did we process this month?", prompt: "How many samples did we process this month vs last month? Break down by customer and material." },
+      { emoji: "📉", title: "Show NG rate by customer over 90 days", prompt: "Show NG rate by customer over the last 90 days. Highlight any customer with NG rate above 20%." },
+      { emoji: "🧪", title: "Which test methods are used most & least?", prompt: "Which test methods are run most often, and which haven't been run in 60+ days?" },
+      { emoji: "👥", title: "Top 10 customers by sample volume this quarter", prompt: "Top 10 customers by sample volume this quarter, with their NG rate and on-time delivery rate." },
     ],
   },
 };
