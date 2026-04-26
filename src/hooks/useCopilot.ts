@@ -63,7 +63,7 @@ export function useCopilot() {
   }, [activeId, loadMessages]);
 
   const newConversation = useCallback(
-    async (context?: { type: string; id: string; label?: string }) => {
+    async (context?: { type: string; id: string; label?: string }, mode: string = "general") => {
       if (!user) return null;
       const { data, error } = await supabase
         .from("copilot_conversations")
@@ -73,6 +73,7 @@ export function useCopilot() {
           context_type: context?.type ?? "general",
           context_id: context?.id ?? null,
           context_label: context?.label ?? null,
+          mode,
         })
         .select()
         .single();
@@ -85,6 +86,23 @@ export function useCopilot() {
       return data.id as string;
     },
     [user, loadConversations]
+  );
+
+  const updateConversationMode = useCallback(
+    async (id: string, mode: string) => {
+      const { error } = await supabase
+        .from("copilot_conversations")
+        .update({ mode })
+        .eq("id", id);
+      if (error) {
+        toast({ title: "Failed", description: error.message, variant: "destructive" });
+        return;
+      }
+      setConversations((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, mode } : c))
+      );
+    },
+    []
   );
 
   const send = useCallback(
