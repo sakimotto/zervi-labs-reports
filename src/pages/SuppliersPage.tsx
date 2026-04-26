@@ -230,13 +230,41 @@ export default function SuppliersPage() {
           onSearchChange={setSearch}
           searchPlaceholder="Search by name, code, contact, email, city, country…"
           summary={`${filtered.length} of ${suppliers.length} suppliers`}
-        >
-          <div className="flex flex-wrap items-center gap-2">
-            <FilterSelect label="Status" value={statusFilter} onChange={setStatusFilter} options={['all', ...SUPPLIER_STATUSES]} />
-            <FilterSelect label="Type" value={typeFilter} onChange={setTypeFilter} options={['all', ...SUPPLIER_TYPES]} />
-            <FilterSelect label="Approval" value={approvalFilter} onChange={setApprovalFilter} options={['all', 'Approved', 'Pending', 'Rejected']} />
-          </div>
-        </FilterBar>
+          filters={[
+            {
+              key: 'status',
+              label: 'Status',
+              value: statusFilter,
+              onChange: setStatusFilter,
+              options: [
+                { value: 'all', label: 'All' },
+                ...SUPPLIER_STATUSES.map((s) => ({ value: s, label: s })),
+              ],
+            },
+            {
+              key: 'type',
+              label: 'Type',
+              value: typeFilter,
+              onChange: setTypeFilter,
+              options: [
+                { value: 'all', label: 'All' },
+                ...SUPPLIER_TYPES.map((s) => ({ value: s, label: s })),
+              ],
+            },
+            {
+              key: 'approval',
+              label: 'Approval',
+              value: approvalFilter,
+              onChange: setApprovalFilter,
+              options: [
+                { value: 'all', label: 'All' },
+                { value: 'Approved', label: 'Approved' },
+                { value: 'Pending', label: 'Pending' },
+                { value: 'Rejected', label: 'Rejected' },
+              ],
+            },
+          ]}
+        />
 
         {isLoading ? (
           <TableSkeleton columns={6} rows={6} />
