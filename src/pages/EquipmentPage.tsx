@@ -43,6 +43,34 @@ export default function EquipmentPage() {
   const [fCalStatus, setFCalStatus] = useState('all');
   const [fLocation, setFLocation] = useState('all');
 
+  // Saved views
+  const savedViews = useSavedViews<{
+    q: string;
+    fCategory: string;
+    fStatus: string;
+    fCalStatus: string;
+    fLocation: string;
+  }>('equipment');
+
+  const applySavedView = (id: string) => {
+    const state = savedViews.applyView(id);
+    if (!state) return;
+    setQ(state.q);
+    setFCategory(state.fCategory);
+    setFStatus(state.fStatus);
+    setFCalStatus(state.fCalStatus);
+    setFLocation(state.fLocation);
+  };
+
+  const saveCurrentView = (name: string) => {
+    savedViews.saveView(name, { q, fCategory, fStatus, fCalStatus, fLocation });
+    toast.success(`View "${name}" saved`);
+  };
+
+  // Bulk selection
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const clearSelection = () => setSelected(new Set());
+
   const locations = useMemo(
     () => Array.from(new Set(equipment.map((e) => e.location).filter(Boolean))) as string[],
     [equipment],
