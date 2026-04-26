@@ -29,6 +29,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CustomerStatusBadge, CustomerTypeBadge, StarRating } from '@/components/customers/CustomerBadges';
 import { CustomerFormDialog } from '@/components/customers/CustomerFormDialog';
+import { CustomerTestRequestsTab } from '@/components/customers/CustomerTestRequestsTab';
+import { CustomerReportsTab } from '@/components/customers/CustomerReportsTab';
 import { EmptyState } from '@/components/data/EmptyState';
 
 export default function CustomerDetailPage() {
@@ -112,6 +114,8 @@ export default function CustomerDetailPage() {
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList className="bg-muted/60 p-1 h-auto">
             <TabsTrigger value="overview" className="text-xs px-4">Overview</TabsTrigger>
+            <TabsTrigger value="requests" className="text-xs px-4">Test Requests</TabsTrigger>
+            <TabsTrigger value="reports" className="text-xs px-4">Reports</TabsTrigger>
             <TabsTrigger value="samples" className="text-xs px-4">Samples</TabsTrigger>
             <TabsTrigger value="specifications" className="text-xs px-4">Specifications</TabsTrigger>
           </TabsList>
@@ -171,6 +175,18 @@ export default function CustomerDetailPage() {
                 </Card>
               )}
             </div>
+          </TabsContent>
+
+          <TabsContent value="requests" className="mt-0">
+            <CustomerTestRequestsTab customerId={customer.id} customerEmail={customer.email} />
+          </TabsContent>
+
+          <TabsContent value="reports" className="mt-0">
+            <CustomerReportsTab
+              customerId={customer.id}
+              customerEmail={customer.email}
+              customerName={customer.name}
+            />
           </TabsContent>
 
           <TabsContent value="samples" className="mt-0">
