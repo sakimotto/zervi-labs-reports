@@ -4,6 +4,7 @@ import { useTestItems } from '@/hooks/useTestData';
 import { Plus, Trash2, Pencil, Loader2, ChevronDown, ChevronRight, Check, GripVertical } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 export default function TestProgramsPage() {
   const { data: programs = [], isLoading } = useTestPrograms();
@@ -76,16 +77,19 @@ export default function TestProgramsPage() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight">Test Programs</h1>
-          <p className="text-sm text-muted-foreground">Templates defining which tests to run + report layout</p>
-        </div>
-        <button onClick={() => setShowNew(true)} className="h-9 px-3 flex items-center gap-1.5 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
-          <Plus className="h-3.5 w-3.5" /> New Program
-        </button>
-      </div>
+    <div className="flex flex-col">
+      <PageHeader
+        eyebrow="Lab Resources"
+        title="Test Programs"
+        description="Reusable templates defining which tests run + report layout for a material category."
+        actions={
+          <button onClick={() => setShowNew(true)} className="h-8 px-3 flex items-center gap-1.5 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors shadow-card">
+            <Plus className="h-3.5 w-3.5" /> New Program
+          </button>
+        }
+      />
+
+      <div className="px-6 py-5 space-y-4 max-w-5xl">
 
       {/* New Program Form */}
       {showNew && (
