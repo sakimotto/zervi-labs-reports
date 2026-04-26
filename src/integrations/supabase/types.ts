@@ -106,6 +106,151 @@ export type Database = {
         }
         Relationships: []
       }
+      copilot_action_log: {
+        Row: {
+          arguments: Json
+          conversation_id: string | null
+          created_at: string
+          duration_ms: number | null
+          error: string | null
+          id: string
+          result_summary: string | null
+          status: string
+          tool_name: string
+          user_id: string
+        }
+        Insert: {
+          arguments?: Json
+          conversation_id?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          result_summary?: string | null
+          status?: string
+          tool_name: string
+          user_id: string
+        }
+        Update: {
+          arguments?: Json
+          conversation_id?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          result_summary?: string | null
+          status?: string
+          tool_name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "copilot_action_log_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "copilot_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      copilot_conversations: {
+        Row: {
+          archived: boolean
+          context_id: string | null
+          context_label: string | null
+          context_type: string | null
+          created_at: string
+          id: string
+          last_message_at: string
+          message_count: number
+          pinned: boolean
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          archived?: boolean
+          context_id?: string | null
+          context_label?: string | null
+          context_type?: string | null
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          message_count?: number
+          pinned?: boolean
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          archived?: boolean
+          context_id?: string | null
+          context_label?: string | null
+          context_type?: string | null
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          message_count?: number
+          pinned?: boolean
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      copilot_messages: {
+        Row: {
+          content: string | null
+          conversation_id: string
+          created_at: string
+          finish_reason: string | null
+          id: string
+          model: string | null
+          role: string
+          tokens_in: number | null
+          tokens_out: number | null
+          tool_call_id: string | null
+          tool_calls: Json | null
+          tool_name: string | null
+        }
+        Insert: {
+          content?: string | null
+          conversation_id: string
+          created_at?: string
+          finish_reason?: string | null
+          id?: string
+          model?: string | null
+          role: string
+          tokens_in?: number | null
+          tokens_out?: number | null
+          tool_call_id?: string | null
+          tool_calls?: Json | null
+          tool_name?: string | null
+        }
+        Update: {
+          content?: string | null
+          conversation_id?: string
+          created_at?: string
+          finish_reason?: string | null
+          id?: string
+          model?: string | null
+          role?: string
+          tokens_in?: number | null
+          tokens_out?: number | null
+          tool_call_id?: string | null
+          tool_calls?: Json | null
+          tool_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "copilot_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "copilot_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_test_requests: {
         Row: {
           actual_cost: number | null

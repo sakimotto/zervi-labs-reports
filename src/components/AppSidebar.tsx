@@ -10,6 +10,7 @@ import {
   Layers,
   BookMarked,
   ClipboardList,
+  Sparkles,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLocation } from 'react-router-dom';
@@ -29,6 +30,7 @@ import {
 
 const mainNav = [
   { title: 'Dashboard', url: '/', icon: LayoutDashboard },
+  { title: 'Lab Copilot', url: '/copilot', icon: Sparkles },
   { title: 'Tests', url: '/tests', icon: FlaskConical },
   { title: 'Test Programs', url: '/test-programs', icon: ClipboardList },
   { title: 'Test Methods', url: '/test-methods', icon: TestTubes },
