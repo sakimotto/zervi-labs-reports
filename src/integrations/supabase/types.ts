@@ -16,37 +16,52 @@ export type Database = {
     Tables: {
       calibration_records: {
         Row: {
+          accreditation_body: string | null
           calibration_date: string
           certificate_number: string | null
           created_at: string
+          document_url: string | null
           equipment_id: string
           id: string
+          in_tolerance: boolean | null
           next_due_date: string | null
           notes: string | null
           performed_by: string | null
           status: string
+          traceability: string | null
+          uncertainty: string | null
         }
         Insert: {
+          accreditation_body?: string | null
           calibration_date: string
           certificate_number?: string | null
           created_at?: string
+          document_url?: string | null
           equipment_id: string
           id?: string
+          in_tolerance?: boolean | null
           next_due_date?: string | null
           notes?: string | null
           performed_by?: string | null
           status?: string
+          traceability?: string | null
+          uncertainty?: string | null
         }
         Update: {
+          accreditation_body?: string | null
           calibration_date?: string
           certificate_number?: string | null
           created_at?: string
+          document_url?: string | null
           equipment_id?: string
           id?: string
+          in_tolerance?: boolean | null
           next_due_date?: string | null
           notes?: string | null
           performed_by?: string | null
           status?: string
+          traceability?: string | null
+          uncertainty?: string | null
         }
         Relationships: [
           {
@@ -132,52 +147,166 @@ export type Database = {
       }
       equipment: {
         Row: {
+          accessories: string | null
+          accreditation_body: string | null
+          accuracy: string | null
+          asset_tag: string | null
           assigned_operator: string | null
+          bench: string | null
+          calibration_interval_days: number | null
+          calibration_traceability: string | null
           category: string
+          condition_rating: number | null
           created_at: string
+          currency: string | null
+          firmware_version: string | null
           id: string
           is_active: boolean
+          last_calibration_date: string | null
           location: string | null
           manufacturer: string | null
+          measurement_max: number | null
+          measurement_min: number | null
+          measurement_unit: string | null
           model: string | null
           name: string
+          next_calibration_due: string | null
           notes: string | null
+          operating_humidity_max: number | null
+          operating_humidity_min: number | null
+          operating_temp_max: number | null
+          operating_temp_min: number | null
+          photo_url: string | null
+          power_requirements: string | null
+          purchase_cost: number | null
           purchase_date: string | null
+          resolution: string | null
+          room: string | null
           serial_number: string | null
+          software_version: string | null
           status: string
+          sub_type: string | null
           updated_at: string
+          vendor: string | null
+          warranty_until: string | null
         }
         Insert: {
+          accessories?: string | null
+          accreditation_body?: string | null
+          accuracy?: string | null
+          asset_tag?: string | null
           assigned_operator?: string | null
+          bench?: string | null
+          calibration_interval_days?: number | null
+          calibration_traceability?: string | null
           category?: string
+          condition_rating?: number | null
           created_at?: string
+          currency?: string | null
+          firmware_version?: string | null
           id?: string
           is_active?: boolean
+          last_calibration_date?: string | null
           location?: string | null
           manufacturer?: string | null
+          measurement_max?: number | null
+          measurement_min?: number | null
+          measurement_unit?: string | null
           model?: string | null
           name: string
+          next_calibration_due?: string | null
           notes?: string | null
+          operating_humidity_max?: number | null
+          operating_humidity_min?: number | null
+          operating_temp_max?: number | null
+          operating_temp_min?: number | null
+          photo_url?: string | null
+          power_requirements?: string | null
+          purchase_cost?: number | null
           purchase_date?: string | null
+          resolution?: string | null
+          room?: string | null
           serial_number?: string | null
+          software_version?: string | null
           status?: string
+          sub_type?: string | null
           updated_at?: string
+          vendor?: string | null
+          warranty_until?: string | null
         }
         Update: {
+          accessories?: string | null
+          accreditation_body?: string | null
+          accuracy?: string | null
+          asset_tag?: string | null
           assigned_operator?: string | null
+          bench?: string | null
+          calibration_interval_days?: number | null
+          calibration_traceability?: string | null
           category?: string
+          condition_rating?: number | null
           created_at?: string
+          currency?: string | null
+          firmware_version?: string | null
           id?: string
           is_active?: boolean
+          last_calibration_date?: string | null
           location?: string | null
           manufacturer?: string | null
+          measurement_max?: number | null
+          measurement_min?: number | null
+          measurement_unit?: string | null
           model?: string | null
           name?: string
+          next_calibration_due?: string | null
           notes?: string | null
+          operating_humidity_max?: number | null
+          operating_humidity_min?: number | null
+          operating_temp_max?: number | null
+          operating_temp_min?: number | null
+          photo_url?: string | null
+          power_requirements?: string | null
+          purchase_cost?: number | null
           purchase_date?: string | null
+          resolution?: string | null
+          room?: string | null
           serial_number?: string | null
+          software_version?: string | null
           status?: string
+          sub_type?: string | null
           updated_at?: string
+          vendor?: string | null
+          warranty_until?: string | null
+        }
+        Relationships: []
+      }
+      equipment_audit: {
+        Row: {
+          action: string
+          changed_by: string | null
+          changed_by_name: string | null
+          created_at: string
+          details: Json | null
+          equipment_id: string
+          id: string
+        }
+        Insert: {
+          action: string
+          changed_by?: string | null
+          changed_by_name?: string | null
+          created_at?: string
+          details?: Json | null
+          equipment_id: string
+          id?: string
+        }
+        Update: {
+          action?: string
+          changed_by?: string | null
+          changed_by_name?: string | null
+          created_at?: string
+          details?: Json | null
+          equipment_id?: string
+          id?: string
         }
         Relationships: []
       }
@@ -227,6 +356,7 @@ export type Database = {
           id: string
           maintenance_date: string
           maintenance_type: string
+          next_service_date: string | null
           parts_replaced: string | null
           performed_by: string | null
         }
@@ -239,6 +369,7 @@ export type Database = {
           id?: string
           maintenance_date: string
           maintenance_type?: string
+          next_service_date?: string | null
           parts_replaced?: string | null
           performed_by?: string | null
         }
@@ -251,6 +382,7 @@ export type Database = {
           id?: string
           maintenance_date?: string
           maintenance_type?: string
+          next_service_date?: string | null
           parts_replaced?: string | null
           performed_by?: string | null
         }
