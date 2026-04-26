@@ -231,6 +231,7 @@ export function getTestRequestAIActions(requestNumber: string): AskAIAction[] {
       emoji: "✉️",
       description: "Draft a status email to the customer.",
       prompt: `Draft a customer status update email for test request "${requestNumber}". Be transparent about progress, blockers, and expected completion.`,
+      draftKind: "email",
     },
     {
       label: "Risk check",
