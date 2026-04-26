@@ -1,15 +1,10 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
-  Sparkles,
   Send,
-  Plus,
-  MessageSquare,
-  Trash2,
   Bot,
   User as UserIcon,
   Loader2,
-  Pin,
   ShieldCheck,
   Eye,
 } from "lucide-react";
@@ -18,45 +13,13 @@ import remarkGfm from "remark-gfm";
 import { useCopilot } from "@/hooks/useCopilot";
 import { ToolCallStrip } from "@/components/copilot/ToolCallStrip";
 import { DraftReviewModal, type DraftKind } from "@/components/copilot/DraftReviewModal";
+import { ConversationSidebar } from "@/components/copilot/ConversationSidebar";
+import { SkillModeChips } from "@/components/copilot/SkillModeChips";
+import { SKILL_MODES, getMode, type SkillModeId } from "@/components/copilot/skillModes";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { formatDistanceToNow } from "date-fns";
-
-const STARTER_PROMPTS = [
-  {
-    icon: "📊",
-    title: "Lab snapshot",
-    prompt: "Give me a snapshot of the lab right now — open work, NG count, equipment due for calibration, overdue requests.",
-  },
-  {
-    icon: "🔬",
-    title: "Diagnose NG",
-    prompt: "Show me all samples currently judged NG and identify any patterns across material, customer, or test method.",
-  },
-  {
-    icon: "📝",
-    title: "Draft a test report",
-    prompt: "Help me draft a test report for sample [paste sample code or ID].",
-  },
-  {
-    icon: "📅",
-    title: "What's overdue",
-    prompt: "List all overdue customer test requests sorted by how late they are, and suggest which ones to prioritise.",
-  },
-  {
-    icon: "⚠️",
-    title: "Calibration risk",
-    prompt: "Which equipment is due for calibration in the next 30 days? Flag anything already overdue.",
-  },
-  {
-    icon: "🧪",
-    title: "Suggest a program",
-    prompt: "Recommend a test program for an automotive seat fabric sample from a new OEM customer.",
-  },
-];
 
 export default function CopilotPage() {
   const {
@@ -69,16 +32,21 @@ export default function CopilotPage() {
     send,
     newConversation,
     deleteConversation,
+    updateConversationMode,
   } = useCopilot();
 
   const [input, setInput] = useState("");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  // Pending mode for a NEW (yet-to-exist) conversation. Once a conv is active,
+  // the mode is read from the conversation row.
+  const [pendingMode, setPendingMode] = useState<SkillModeId>("general");
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const autoLaunchedRef = useRef(false);
 
-  // Pending draft expectation: when the user fires a draft action ("Draft report" / "Draft email"),
-  // we remember the kind + label, then pop the review modal as soon as the agent's response arrives.
+  // Pending draft expectation for the review modal
   const pendingDraftRef = useRef<{ kind: DraftKind; label: string } | null>(null);
   const lastReviewedContentRef = useRef<string | null>(null);
   const [reviewState, setReviewState] = useState<{
@@ -89,29 +57,43 @@ export default function CopilotPage() {
     content: string;
   } | null>(null);
 
-  // Auto-launch: when navigated here from an "Ask AI" button with state,
-  // open a fresh conversation pinned to the entity context and fire the prompt.
+  // Resolve the active mode: from active conversation or pending selection.
+  const activeMode = useMemo<SkillModeId>(() => {
+    if (activeId) {
+      const c = conversations.find((c) => c.id === activeId);
+      return ((c?.mode as SkillModeId) ?? "general");
+    }
+    return pendingMode;
+  }, [activeId, conversations, pendingMode]);
+
+  const mode = getMode(activeMode);
+
+  // Auto-launch from inline "Ask AI" buttons.
   useEffect(() => {
     const auto = (location.state as any)?.autoLaunch;
     if (!auto || autoLaunchedRef.current) return;
     autoLaunchedRef.current = true;
-    // Clear router state so a refresh doesn't re-fire
     navigate(location.pathname, { replace: true, state: {} });
 
     if (auto.draftKind) {
       pendingDraftRef.current = { kind: auto.draftKind, label: auto.actionLabel ?? "AI draft" };
     }
+    // If the launch was a draft action, force Report Drafting mode.
+    const launchMode: SkillModeId = auto.draftKind === "report" || auto.draftKind === "email"
+      ? "report_drafting"
+      : auto.draftKind === "diagnosis"
+      ? "ng_diagnosis"
+      : "general";
 
     (async () => {
-      const id = await newConversation(auto.context);
+      const id = await newConversation(auto.context, launchMode);
       if (id) {
-        // Slight defer so activeId state settles before sending
-        setTimeout(() => send(auto.prompt, auto.context), 50);
+        setTimeout(() => send(auto.prompt, auto.context, launchMode), 50);
       }
     })();
   }, [location, navigate, newConversation, send]);
 
-  // When a fresh assistant message arrives AND a draft is pending, open the review modal.
+  // Open review modal when a draft response arrives.
   useEffect(() => {
     if (sending) return;
     const pending = pendingDraftRef.current;
@@ -121,8 +103,7 @@ export default function CopilotPage() {
     if (lastReviewedContentRef.current === last.content) return;
     lastReviewedContentRef.current = last.content;
     pendingDraftRef.current = null;
-    const ctxLabel =
-      conversations.find((c) => c.id === activeId)?.context_label ?? undefined;
+    const ctxLabel = conversations.find((c) => c.id === activeId)?.context_label ?? undefined;
     setReviewState({
       open: true,
       kind: pending.kind,
@@ -132,7 +113,6 @@ export default function CopilotPage() {
     });
   }, [messages, sending, conversations, activeId]);
 
-  // Heuristic: lets the user re-open review on any assistant message that looks draft-y.
   const detectDraftKind = (content: string): DraftKind | null => {
     const c = content.toLowerCase();
     if (/(^|\n)\s*(subject:|dear |hi |hello )/i.test(content) || c.includes("kind regards") || c.includes("best regards")) return "email";
@@ -143,15 +123,8 @@ export default function CopilotPage() {
 
   const openManualReview = (content: string) => {
     const kind = detectDraftKind(content) ?? "generic";
-    const ctxLabel =
-      conversations.find((c) => c.id === activeId)?.context_label ?? undefined;
-    setReviewState({
-      open: true,
-      kind,
-      title: "Manual review",
-      contextLabel: ctxLabel,
-      content,
-    });
+    const ctxLabel = conversations.find((c) => c.id === activeId)?.context_label ?? undefined;
+    setReviewState({ open: true, kind, title: "Manual review", contextLabel: ctxLabel, content });
   };
 
   useEffect(() => {
@@ -162,7 +135,6 @@ export default function CopilotPage() {
     if (!input.trim() || sending) return;
     const text = input;
     setInput("");
-    // Detect "draft an email/report" intent in free-form input so the modal still triggers.
     const lower = text.toLowerCase();
     if (/\bdraft\b.*\bemail\b|\bemail draft\b|\bcompose .* email\b/.test(lower)) {
       pendingDraftRef.current = { kind: "email", label: "Email draft" };
@@ -171,7 +143,7 @@ export default function CopilotPage() {
     } else if (/\bdiagnos(e|is)\b|\bng\b.*\b(why|root cause)\b/.test(lower)) {
       pendingDraftRef.current = { kind: "diagnosis", label: "NG diagnosis" };
     }
-    send(text);
+    send(text, undefined, activeMode);
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -181,97 +153,71 @@ export default function CopilotPage() {
     }
   };
 
+  const handleModeChange = async (id: SkillModeId) => {
+    if (activeId) {
+      await updateConversationMode(activeId, id);
+    } else {
+      setPendingMode(id);
+    }
+  };
+
+  const handleNewConversation = () => {
+    setActiveId(null);
+    // Keep pending mode so a fresh chat starts in whatever the user was browsing.
+  };
+
+  const Icon = mode.icon;
+
   return (
     <div className="flex h-[calc(100vh-3.5rem)] -m-6 bg-background">
-      {/* Sidebar: conversations */}
-      <aside className="w-72 border-r border-border bg-card/30 flex flex-col">
-        <div className="p-3 border-b border-border">
-          <Button
-            onClick={() => newConversation()}
-            className="w-full gap-2 bg-gradient-primary hover:opacity-90 shadow-sm"
-            size="sm"
-          >
-            <Plus className="h-4 w-4" />
-            New conversation
-          </Button>
-        </div>
-        <ScrollArea className="flex-1">
-          <div className="p-2 space-y-0.5">
-            {conversations.length === 0 && (
-              <p className="text-xs text-muted-foreground p-3 text-center">
-                No conversations yet. Start a new one above.
-              </p>
-            )}
-            {conversations.map((c) => (
-              <div
-                key={c.id}
-                onClick={() => setActiveId(c.id)}
-                className={cn(
-                  "group flex items-start gap-2 p-2 rounded-md cursor-pointer transition-colors",
-                  activeId === c.id
-                    ? "bg-primary/10 text-primary-foreground"
-                    : "hover:bg-muted/60"
-                )}
-              >
-                <MessageSquare className="h-3.5 w-3.5 mt-0.5 shrink-0 text-muted-foreground" />
-                <div className="flex-1 min-w-0">
-                  <p className={cn("text-xs font-medium truncate", activeId === c.id ? "text-primary" : "text-foreground")}>
-                    {c.title}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    {formatDistanceToNow(new Date(c.last_message_at), { addSuffix: true })}
-                    {c.message_count > 0 && ` · ${c.message_count} msgs`}
-                  </p>
-                </div>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    deleteConversation(c.id);
-                  }}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
-                  aria-label="Delete"
-                >
-                  <Trash2 className="h-3 w-3" />
-                </button>
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
-        <div className="p-3 border-t border-border bg-muted/20">
-          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-            <ShieldCheck className="h-3 w-3 text-success" />
-            <span className="font-medium">Suggest mode</span>
-            <span>· no auto-writes</span>
-          </div>
-        </div>
-      </aside>
+      <ConversationSidebar
+        conversations={conversations}
+        activeId={activeId}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed((c) => !c)}
+        onSelect={setActiveId}
+        onNew={handleNewConversation}
+        onDelete={deleteConversation}
+      />
 
-      {/* Main chat */}
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="border-b border-border px-6 py-3 bg-card/40 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-gradient-primary flex items-center justify-center shadow-sm">
-              <Sparkles className="h-4 w-4 text-primary-foreground" />
+        <header className="border-b border-border px-6 pt-3 pb-2 bg-card/40">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center shadow-sm shrink-0", mode.accentBg)}>
+                <Icon className={cn("h-4 w-4", mode.accentText)} />
+              </div>
+              <div className="min-w-0">
+                <h1 className="text-sm font-semibold tracking-tight text-foreground flex items-center gap-2">
+                  Lab Copilot
+                  <Badge variant="outline" className="text-[10px] h-4 px-1.5 font-normal">
+                    Gemini 2.5 Pro
+                  </Badge>
+                  <Badge className={cn("text-[10px] h-4 px-1.5 font-medium border-transparent", mode.accentBg, mode.accentText)}>
+                    {mode.label}
+                  </Badge>
+                </h1>
+                <p className="text-[11px] text-muted-foreground truncate">{mode.description}</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-sm font-semibold tracking-tight text-foreground flex items-center gap-2">
-                Lab Copilot
-                <Badge variant="outline" className="text-[10px] h-4 px-1.5 font-normal">
-                  Gemini 2.5 Pro
-                </Badge>
-              </h1>
-              <p className="text-[11px] text-muted-foreground">
-                Senior lab manager AI · full read access · drafts everything for your approval
-              </p>
+            <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground shrink-0">
+              <ShieldCheck className="h-3 w-3 text-success" />
+              <span className="font-medium">Suggest mode</span>
             </div>
           </div>
+          <SkillModeChips active={activeMode} onSelect={handleModeChange} compact />
         </header>
 
         {/* Messages */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto">
           {messages.length === 0 && !activeId ? (
-            <WelcomeScreen onPrompt={(p) => { setInput(p); }} />
+            <WelcomeScreen
+              modeId={activeMode}
+              onPrompt={(p) => {
+                setInput(p);
+              }}
+            />
           ) : (
             <div className="max-w-3xl mx-auto px-6 py-6 space-y-6">
               {messages.map((m, i) => (
@@ -298,12 +244,17 @@ export default function CopilotPage() {
         {/* Composer */}
         <div className="border-t border-border bg-card/40 p-4">
           <div className="max-w-3xl mx-auto">
-            <div className="relative rounded-xl border border-border bg-background shadow-sm focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all">
+            <div
+              className={cn(
+                "relative rounded-xl border bg-background shadow-sm transition-all",
+                "border-border focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10"
+              )}
+            >
               <Textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={onKeyDown}
-                placeholder="Ask anything about your lab — samples, results, customers, equipment, standards…"
+                placeholder={`Ask in ${mode.label} mode…`}
                 rows={2}
                 className="border-0 resize-none focus-visible:ring-0 bg-transparent text-sm py-3 pr-14"
                 disabled={sending}
@@ -312,7 +263,10 @@ export default function CopilotPage() {
                 onClick={submit}
                 disabled={!input.trim() || sending}
                 size="icon"
-                className="absolute right-2 bottom-2 h-8 w-8 bg-gradient-primary hover:opacity-90"
+                className={cn(
+                  "absolute right-2 bottom-2 h-8 w-8 hover:opacity-90 text-primary-foreground",
+                  mode.sendBtnClass
+                )}
               >
                 {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
               </Button>
@@ -324,13 +278,10 @@ export default function CopilotPage() {
         </div>
       </main>
 
-      {/* Confirmation modal — review drafts before "sending" */}
       {reviewState && (
         <DraftReviewModal
           open={reviewState.open}
-          onOpenChange={(open) =>
-            setReviewState((s) => (s ? { ...s, open } : s))
-          }
+          onOpenChange={(open) => setReviewState((s) => (s ? { ...s, open } : s))}
           kind={reviewState.kind}
           title={reviewState.title}
           contextLabel={reviewState.contextLabel}
@@ -408,33 +359,45 @@ function MessageBubble({
   );
 }
 
-function WelcomeScreen({ onPrompt }: { onPrompt: (p: string) => void }) {
+function WelcomeScreen({
+  modeId,
+  onPrompt,
+}: {
+  modeId: SkillModeId;
+  onPrompt: (p: string) => void;
+}) {
+  const mode = SKILL_MODES[modeId];
+  const Icon = mode.icon;
+
   return (
     <div className="max-w-3xl mx-auto px-6 py-12">
       <div className="text-center mb-10">
-        <div className="inline-flex h-14 w-14 rounded-2xl bg-gradient-primary items-center justify-center shadow-elevated mb-4">
-          <Sparkles className="h-7 w-7 text-primary-foreground" />
+        <div className={cn("inline-flex h-14 w-14 rounded-2xl items-center justify-center shadow-elevated mb-4", mode.accentBg)}>
+          <Icon className={cn("h-7 w-7", mode.accentText)} />
         </div>
         <h2 className="text-2xl font-bold tracking-tight text-foreground mb-2">
-          Hi, I'm your Lab Copilot
+          {mode.welcome.headline}
         </h2>
         <p className="text-sm text-muted-foreground max-w-md mx-auto">
-          I have full read access to your samples, materials, customers, suppliers, equipment, methods and standards.
-          Ask me anything, or pick a starter prompt.
+          {mode.welcome.blurb}
         </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-        {STARTER_PROMPTS.map((s) => (
+        {mode.starters.map((s) => (
           <button
             key={s.title}
             onClick={() => onPrompt(s.prompt)}
-            className="group text-left p-4 rounded-xl border border-border bg-card hover:bg-card/80 hover:border-primary/40 hover:shadow-sm transition-all"
+            className={cn(
+              "group text-left p-4 rounded-xl border bg-card hover:bg-card/80 transition-all",
+              "border-border hover:shadow-sm",
+              `hover:border-current/40`
+            )}
           >
             <div className="flex items-start gap-3">
-              <span className="text-xl shrink-0">{s.icon}</span>
+              <span className="text-xl shrink-0">{s.emoji}</span>
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-foreground mb-0.5 group-hover:text-primary transition-colors">
+                <p className={cn("text-sm font-semibold mb-0.5 transition-colors text-foreground group-hover:" + mode.accentText.replace("text-", "text-"))}>
                   {s.title}
                 </p>
                 <p className="text-xs text-muted-foreground line-clamp-2">{s.prompt}</p>
@@ -449,7 +412,8 @@ function WelcomeScreen({ onPrompt }: { onPrompt: (p: string) => void }) {
           <ShieldCheck className="h-4 w-4 text-success shrink-0 mt-0.5" />
           <div className="text-xs text-muted-foreground">
             <span className="font-semibold text-foreground">Suggest mode is active.</span>{" "}
-            Lab Copilot will never create, edit, or delete records on its own. It only reads data and drafts content for you to approve. Every tool call is logged.
+            Lab Copilot will never create, edit, or delete records on its own. Switch skill modes any
+            time using the chips above — each mode tunes the agent's focus and starter prompts.
           </div>
         </div>
       </div>
