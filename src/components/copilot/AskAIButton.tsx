@@ -255,6 +255,7 @@ export function getReportAIActions(reportNumber: string): AskAIAction[] {
       emoji: "✉️",
       description: "Professional cover email to deliver this report to the customer.",
       prompt: `Draft a professional cover email to deliver test report "${reportNumber}" to the customer. Include a 2-3 line summary of findings and the overall judgment, and an offer to discuss.`,
+      draftKind: "email",
     },
     {
       label: "Explain NG findings",
