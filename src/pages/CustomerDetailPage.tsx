@@ -29,6 +29,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CustomerStatusBadge, CustomerTypeBadge, StarRating } from '@/components/customers/CustomerBadges';
 import { CustomerFormDialog } from '@/components/customers/CustomerFormDialog';
+import { CustomerTestRequestsTab } from '@/components/customers/CustomerTestRequestsTab';
+import { CustomerReportsTab } from '@/components/customers/CustomerReportsTab';
 import { EmptyState } from '@/components/data/EmptyState';
 
 export default function CustomerDetailPage() {
