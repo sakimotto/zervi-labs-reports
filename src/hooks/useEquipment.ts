@@ -219,7 +219,7 @@ export function useEquipmentLinkedMethods(equipmentId: string | null) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('method_equipment')
-        .select('id, is_mandatory, calibration_required, model_required, notes, test_item_id, test_items:test_items(id, code, name, category)')
+        .select('id, is_mandatory, calibration_required, model_required, notes, test_item_id, test_items:test_items(id, method_code, name, category)')
         .eq('equipment_id', equipmentId!);
       if (error) throw error;
       return data;
