@@ -341,32 +341,3 @@ function KpiCard({
   );
 }
 
-function FilterSelect({
-  label,
-  value,
-  onChange,
-  options,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  options: readonly string[];
-}) {
-  return (
-    <div className="flex items-center gap-1.5">
-      <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{label}</span>
-      <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="h-8 w-[140px] text-xs">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {options.map((o) => (
-            <SelectItem key={o} value={o} className="text-xs">
-              {o === 'all' ? 'All' : o}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
-  );
-}
