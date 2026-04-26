@@ -187,6 +187,7 @@ export function useCopilot() {
     send,
     newConversation,
     deleteConversation,
+    updateConversationMode,
     refresh: loadConversations,
   };
 }
