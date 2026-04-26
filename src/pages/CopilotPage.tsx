@@ -77,6 +77,18 @@ export default function CopilotPage() {
   const navigate = useNavigate();
   const autoLaunchedRef = useRef(false);
 
+  // Pending draft expectation: when the user fires a draft action ("Draft report" / "Draft email"),
+  // we remember the kind + label, then pop the review modal as soon as the agent's response arrives.
+  const pendingDraftRef = useRef<{ kind: DraftKind; label: string } | null>(null);
+  const lastReviewedContentRef = useRef<string | null>(null);
+  const [reviewState, setReviewState] = useState<{
+    open: boolean;
+    kind: DraftKind;
+    title: string;
+    contextLabel?: string;
+    content: string;
+  } | null>(null);
+
   // Auto-launch: when navigated here from an "Ask AI" button with state,
   // open a fresh conversation pinned to the entity context and fire the prompt.
   useEffect(() => {
@@ -86,6 +98,10 @@ export default function CopilotPage() {
     // Clear router state so a refresh doesn't re-fire
     navigate(location.pathname, { replace: true, state: {} });
 
+    if (auto.draftKind) {
+      pendingDraftRef.current = { kind: auto.draftKind, label: auto.actionLabel ?? "AI draft" };
+    }
+
     (async () => {
       const id = await newConversation(auto.context);
       if (id) {
@@ -94,6 +110,49 @@ export default function CopilotPage() {
       }
     })();
   }, [location, navigate, newConversation, send]);
+
+  // When a fresh assistant message arrives AND a draft is pending, open the review modal.
+  useEffect(() => {
+    if (sending) return;
+    const pending = pendingDraftRef.current;
+    if (!pending) return;
+    const last = messages[messages.length - 1];
+    if (!last || last.role !== "assistant" || !last.content || last.content === "...") return;
+    if (lastReviewedContentRef.current === last.content) return;
+    lastReviewedContentRef.current = last.content;
+    pendingDraftRef.current = null;
+    const ctxLabel =
+      conversations.find((c) => c.id === activeId)?.context_label ?? undefined;
+    setReviewState({
+      open: true,
+      kind: pending.kind,
+      title: pending.label,
+      contextLabel: ctxLabel,
+      content: last.content,
+    });
+  }, [messages, sending, conversations, activeId]);
+
+  // Heuristic: lets the user re-open review on any assistant message that looks draft-y.
+  const detectDraftKind = (content: string): DraftKind | null => {
+    const c = content.toLowerCase();
+    if (/(^|\n)\s*(subject:|dear |hi |hello )/i.test(content) || c.includes("kind regards") || c.includes("best regards")) return "email";
+    if (c.includes("test report") || c.includes("executive summary") || c.includes("overall judgment")) return "report";
+    if (c.includes("root cause") || c.includes("ng diagnosis") || c.includes("corrective action")) return "diagnosis";
+    return null;
+  };
+
+  const openManualReview = (content: string) => {
+    const kind = detectDraftKind(content) ?? "generic";
+    const ctxLabel =
+      conversations.find((c) => c.id === activeId)?.context_label ?? undefined;
+    setReviewState({
+      open: true,
+      kind,
+      title: "Manual review",
+      contextLabel: ctxLabel,
+      content,
+    });
+  };
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
