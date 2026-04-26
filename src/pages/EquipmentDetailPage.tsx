@@ -493,7 +493,7 @@ function MaintenanceTable({ rows, onEdit, onDelete }: { rows: any[]; onEdit: (r:
 
 function EditCalibrationDialog({ row, onClose, onSave, isPending }: { row: any | null; onClose: () => void; onSave: (id: string, updates: any) => void; isPending: boolean }) {
   const [form, setForm] = useState<CalibrationFormState>(blankCalibrationForm);
-  useMemo(() => {
+  useEffect(() => {
     if (row) {
       setForm({
         calibration_date: row.calibration_date || '', next_due_date: row.next_due_date || '',
@@ -519,7 +519,7 @@ function EditCalibrationDialog({ row, onClose, onSave, isPending }: { row: any |
 
 function EditMaintenanceDialog({ row, onClose, onSave, isPending }: { row: any | null; onClose: () => void; onSave: (id: string, updates: any) => void; isPending: boolean }) {
   const [form, setForm] = useState<MaintenanceFormState>(blankMaintenanceForm);
-  useMemo(() => {
+  useEffect(() => {
     if (row) {
       setForm({
         maintenance_date: row.maintenance_date || '', maintenance_type: row.maintenance_type || 'Preventive',
