@@ -324,6 +324,13 @@ export default function EquipmentPage() {
                 ]
               : []),
           ]}
+          savedViews={{
+            views: savedViews.views,
+            activeId: savedViews.activeId,
+            onApply: applySavedView,
+            onSave: saveCurrentView,
+            onDelete: savedViews.deleteView,
+          }}
         />
 
         {isLoading ? (
@@ -335,6 +342,9 @@ export default function EquipmentPage() {
             rowKey={(r) => r.id}
             onRowClick={(r) => navigate(`/equipment/${r.id}`)}
             defaultSort={{ key: 'name', direction: 'asc' }}
+            selectable
+            selectedIds={selected}
+            onSelectionChange={setSelected}
             emptyState={
               <EmptyState
                 icon={Cpu}
@@ -356,6 +366,43 @@ export default function EquipmentPage() {
           />
         )}
       </PageBody>
+
+      <BulkActionBar count={selected.size} onClear={clearSelection}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8"
+          onClick={() => {
+            const rows = equipment.filter((e) => selected.has(e.id));
+            const csv = [
+              ['Name', 'Asset Tag', 'Category', 'Status', 'Manufacturer', 'Model', 'Location'].join(','),
+              ...rows.map((r) =>
+                [r.name, r.asset_tag, r.category, r.status, r.manufacturer, r.model, r.location]
+                  .map((v) => `"${(v ?? '').toString().replace(/"/g, '""')}"`)
+                  .join(','),
+              ),
+            ].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `equipment-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            toast.success(`Exported ${rows.length} units`);
+          }}
+        >
+          <Download className="h-3.5 w-3.5 mr-1.5" /> Export CSV
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 text-destructive hover:text-destructive"
+          onClick={() => toast.info('Bulk delete coming soon')}
+        >
+          <Trash2 className="h-3.5 w-3.5 mr-1.5" /> Delete
+        </Button>
+      </BulkActionBar>
     </div>
   );
 }
