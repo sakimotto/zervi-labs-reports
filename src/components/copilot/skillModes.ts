@@ -95,10 +95,10 @@ You are now in **failure investigation mode**. Default behaviour:
 - Flag systemic patterns (same material across customers, same method across samples, same operator, same equipment).
 - Be blunt about uncertainty — if data is missing, say what you'd need.`,
     starters: [
-      { emoji: "🔍", title: "All current NGs", prompt: "Show me all samples currently judged NG. Group by material and customer, identify any patterns." },
-      { emoji: "📉", title: "NG trend", prompt: "What's our NG rate this month vs last month? Break down by test method and flag any methods with spiking failures." },
-      { emoji: "🧩", title: "Root cause", prompt: "Diagnose the most recent NG result in the system — root cause, similar historical failures, corrective actions." },
-      { emoji: "⚠️", title: "Repeat offenders", prompt: "Which materials or customers have produced the most NG results in the last 90 days?" },
+      { emoji: "🔍", title: "Show all samples currently judged NG", prompt: "Show me all samples currently judged NG. Group by material and customer, identify any patterns." },
+      { emoji: "📉", title: "How is our NG rate trending this month?", prompt: "What's our NG rate this month vs last month? Break down by test method and flag any methods with spiking failures." },
+      { emoji: "🧩", title: "Diagnose the most recent NG result", prompt: "Diagnose the most recent NG result in the system — root cause, similar historical failures, corrective actions." },
+      { emoji: "⚠️", title: "Which materials fail most often?", prompt: "Which materials or customers have produced the most NG results in the last 90 days?" },
     ],
   },
 
