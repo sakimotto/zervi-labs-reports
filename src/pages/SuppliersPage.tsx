@@ -206,19 +206,32 @@ export default function SuppliersPage() {
               <DialogHeader>
                 <DialogTitle>New Supplier</DialogTitle>
               </DialogHeader>
-              <div className="grid grid-cols-2 gap-3">
-                <FormField label="Name *" value={form.name} onChange={(v) => setForm((p) => ({ ...p, name: v }))} />
-                <FormField
-                  label="Contact Person"
-                  value={form.contact_person}
-                  onChange={(v) => setForm((p) => ({ ...p, contact_person: v }))}
-                />
-                <FormField label="Email" value={form.email} onChange={(v) => setForm((p) => ({ ...p, email: v }))} />
-                <FormField label="Phone" value={form.phone} onChange={(v) => setForm((p) => ({ ...p, phone: v }))} />
-              </div>
-              <Button onClick={handleCreate} disabled={createSupplier.isPending} className="w-full mt-2">
-                {createSupplier.isPending ? 'Creating…' : 'Create Supplier'}
-              </Button>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleCreate();
+                }}
+                className="space-y-4"
+              >
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField label="Name *" value={form.name} onChange={(v) => setForm((p) => ({ ...p, name: v }))} autoFocus />
+                  <FormField
+                    label="Contact Person"
+                    value={form.contact_person}
+                    onChange={(v) => setForm((p) => ({ ...p, contact_person: v }))}
+                  />
+                  <FormField label="Email" value={form.email} onChange={(v) => setForm((p) => ({ ...p, email: v }))} type="email" />
+                  <FormField label="Phone" value={form.phone} onChange={(v) => setForm((p) => ({ ...p, phone: v }))} />
+                </div>
+                <div className="flex justify-end gap-2 pt-2 border-t border-border">
+                  <Button type="button" variant="outline" onClick={() => setShowNew(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={createSupplier.isPending}>
+                    {createSupplier.isPending ? 'Creating…' : 'Create Supplier'}
+                  </Button>
+                </div>
+              </form>
             </DialogContent>
           </Dialog>
         }
@@ -269,15 +282,19 @@ function FormField({
   label,
   value,
   onChange,
+  type = 'text',
+  autoFocus,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
+  type?: string;
+  autoFocus?: boolean;
 }) {
   return (
     <div className="space-y-1.5">
       <Label className="text-xs">{label}</Label>
-      <Input value={value} onChange={(e) => onChange(e.target.value)} />
+      <Input type={type} value={value} onChange={(e) => onChange(e.target.value)} autoFocus={autoFocus} />
     </div>
   );
 }

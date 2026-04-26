@@ -4,17 +4,21 @@ import { useMaterials, useCreateMaterial } from '@/hooks/useMaterials';
 import { useTestPrograms } from '@/hooks/useTestPrograms';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Search, Flame, Sun, Shield, AlertCircle } from 'lucide-react';
+import { Plus, Search, Flame, Sun, Shield, Layers, Package, Settings, FileText } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { PageHeader, PageBody } from '@/components/layout/PageHeader';
 import { CardGridSkeleton, EmptyState } from '@/components/data/EmptyState';
-import { Layers } from 'lucide-react';
+import {
+  FormSection,
+  FormGrid,
+  FormField,
+  FormInput,
+} from '@/components/form/FormPrimitives';
 import {
   materialCreateSchema,
   STRUCTURE_VALUES,
@@ -111,73 +115,134 @@ export default function MaterialsPage() {
           <DialogTrigger asChild>
             <Button size="sm" className="h-8"><Plus className="h-4 w-4 mr-1" /> Add Material</Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader><DialogTitle>Register Material</DialogTitle></DialogHeader>
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <Label className="text-xs">Material Name *</Label>
-                  <Input aria-invalid={!!errors.name} className={errors.name ? 'border-destructive' : ''} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
-                  {errors.name && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.name}</p>}
-                </div>
-                <div>
-                  <Label className="text-xs">Material Code</Label>
-                  <Input aria-invalid={!!errors.material_code} className={errors.material_code ? 'border-destructive' : ''} placeholder="e.g. FAB-001" value={form.material_code} onChange={e => setForm(f => ({ ...f, material_code: e.target.value }))} />
-                  {errors.material_code && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.material_code}</p>}
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0">
+            <DialogHeader className="px-6 pt-6 pb-2">
+              <DialogTitle className="flex items-center gap-2">
+                <span className="h-7 w-7 rounded-md bg-primary-soft text-primary inline-flex items-center justify-center">
+                  <Layers className="h-4 w-4" />
+                </span>
+                Register Material
+              </DialogTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                Add the essentials now — you can refine certifications, suppliers, and full specs on the detail page.
+              </p>
+            </DialogHeader>
+            <form
+              onSubmit={(e) => { e.preventDefault(); handleCreate(); }}
+              className="px-6 pb-6 space-y-4"
+            >
+              <FormSection bare icon={Package} title="Identity" description="Name and type — required to save.">
+                <FormGrid cols={2}>
+                  <FormField label="Material name" required error={errors.name}>
+                    <FormInput
+                      value={form.name}
+                      error={!!errors.name}
+                      onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                      autoFocus
+                    />
+                  </FormField>
+                  <FormField label="Material code" hint="Unique reference, e.g. FAB-001" error={errors.material_code}>
+                    <FormInput
+                      value={form.material_code}
+                      error={!!errors.material_code}
+                      placeholder="e.g. FAB-001"
+                      onChange={e => setForm(f => ({ ...f, material_code: e.target.value }))}
+                    />
+                  </FormField>
+                </FormGrid>
+              </FormSection>
+
+              <FormSection bare icon={Settings} title="Classification">
+                <FormGrid cols={3}>
+                  <FormField label="Type" required error={errors.material_type}>
+                    <Select value={form.material_type} onValueChange={v => setForm(f => ({ ...f, material_type: v }))}>
+                      <SelectTrigger className={errors.material_type ? 'border-destructive' : ''}><SelectValue /></SelectTrigger>
+                      <SelectContent>{TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </FormField>
+                  <FormField label="Structure" error={errors.structure}>
+                    <Select value={form.structure} onValueChange={v => setForm(f => ({ ...f, structure: v }))}>
+                      <SelectTrigger className={errors.structure ? 'border-destructive' : ''}><SelectValue placeholder="—" /></SelectTrigger>
+                      <SelectContent>{STRUCTURES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </FormField>
+                  <FormField label="Composition" error={errors.composition}>
+                    <FormInput
+                      value={form.composition}
+                      error={!!errors.composition}
+                      placeholder="100% Polyester"
+                      onChange={e => setForm(f => ({ ...f, composition: e.target.value }))}
+                    />
+                  </FormField>
+                </FormGrid>
+              </FormSection>
+
+              <FormSection bare icon={Settings} title="Physical specs">
+                <FormGrid cols={4}>
+                  <FormField label="Weight (gsm)" error={errors.weight_gsm}>
+                    <FormInput
+                      type="number" min={0} max={10000}
+                      value={form.weight_gsm}
+                      error={!!errors.weight_gsm}
+                      onChange={e => setForm(f => ({ ...f, weight_gsm: e.target.value }))}
+                    />
+                  </FormField>
+                  <FormField label="Width (cm)" error={errors.width_cm}>
+                    <FormInput
+                      type="number" min={0} max={1000}
+                      value={form.width_cm}
+                      error={!!errors.width_cm}
+                      onChange={e => setForm(f => ({ ...f, width_cm: e.target.value }))}
+                    />
+                  </FormField>
+                  <FormField label="Color">
+                    <FormInput
+                      value={form.color}
+                      onChange={e => setForm(f => ({ ...f, color: e.target.value }))}
+                    />
+                  </FormField>
+                  <FormField label="Finish" hint="WR, FR, etc.">
+                    <FormInput
+                      value={form.finish}
+                      placeholder="WR, FR…"
+                      onChange={e => setForm(f => ({ ...f, finish: e.target.value }))}
+                    />
+                  </FormField>
+                </FormGrid>
+              </FormSection>
+
+              <FormSection bare icon={FileText} title="Default test program & notes">
+                <FormGrid cols={1}>
+                  <FormField label="Default test program" hint="New samples of this material will use this program">
+                    <Select value={form.default_test_program_id} onValueChange={v => setForm(f => ({ ...f, default_test_program_id: v }))}>
+                      <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
+                      <SelectContent>{programs.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </FormField>
+                  <FormField label="Notes" error={errors.notes}>
+                    <Textarea
+                      aria-invalid={!!errors.notes}
+                      className={errors.notes ? 'border-destructive' : ''}
+                      value={form.notes}
+                      onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+                      rows={2}
+                    />
+                  </FormField>
+                </FormGrid>
+              </FormSection>
+
+              <div className="flex items-center justify-between gap-3 pt-3 border-t border-border -mx-6 px-6 sticky bottom-0 bg-card/95 backdrop-blur-md py-3">
+                <p className="text-xs text-muted-foreground">
+                  More specs can be added on the detail page after creation.
+                </p>
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button>
+                  <Button type="submit" disabled={createMaterial.isPending}>
+                    {createMaterial.isPending ? 'Saving…' : 'Save & Open Detail'}
+                  </Button>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                <div>
-                  <Label className="text-xs">Type *</Label>
-                  <Select value={form.material_type} onValueChange={v => setForm(f => ({ ...f, material_type: v }))}>
-                    <SelectTrigger className={errors.material_type ? 'border-destructive' : ''}><SelectValue /></SelectTrigger>
-                    <SelectContent>{TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                  </Select>
-                  {errors.material_type && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.material_type}</p>}
-                </div>
-                <div>
-                  <Label className="text-xs">Structure</Label>
-                  <Select value={form.structure} onValueChange={v => setForm(f => ({ ...f, structure: v }))}>
-                    <SelectTrigger className={errors.structure ? 'border-destructive' : ''}><SelectValue placeholder="—" /></SelectTrigger>
-                    <SelectContent>{STRUCTURES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-                  </Select>
-                  {errors.structure && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.structure}</p>}
-                </div>
-                <div>
-                  <Label className="text-xs">Composition</Label>
-                  <Input aria-invalid={!!errors.composition} className={errors.composition ? 'border-destructive' : ''} placeholder="100% Polyester" value={form.composition} onChange={e => setForm(f => ({ ...f, composition: e.target.value }))} />
-                  {errors.composition && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.composition}</p>}
-                </div>
-              </div>
-              <div className="grid grid-cols-4 gap-2">
-                <div>
-                  <Label className="text-xs">Weight (gsm)</Label>
-                  <Input type="number" min={0} max={10000} aria-invalid={!!errors.weight_gsm} className={errors.weight_gsm ? 'border-destructive' : ''} value={form.weight_gsm} onChange={e => setForm(f => ({ ...f, weight_gsm: e.target.value }))} />
-                  {errors.weight_gsm && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.weight_gsm}</p>}
-                </div>
-                <div>
-                  <Label className="text-xs">Width (cm)</Label>
-                  <Input type="number" min={0} max={1000} aria-invalid={!!errors.width_cm} className={errors.width_cm ? 'border-destructive' : ''} value={form.width_cm} onChange={e => setForm(f => ({ ...f, width_cm: e.target.value }))} />
-                  {errors.width_cm && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.width_cm}</p>}
-                </div>
-                <div><Label className="text-xs">Color</Label><Input value={form.color} onChange={e => setForm(f => ({ ...f, color: e.target.value }))} /></div>
-                <div><Label className="text-xs">Finish</Label><Input placeholder="WR, FR…" value={form.finish} onChange={e => setForm(f => ({ ...f, finish: e.target.value }))} /></div>
-              </div>
-              <div>
-                <Label className="text-xs">Default Test Program</Label>
-                <Select value={form.default_test_program_id} onValueChange={v => setForm(f => ({ ...f, default_test_program_id: v }))}>
-                  <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
-                  <SelectContent>{programs.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-xs">Notes</Label>
-                <Textarea aria-invalid={!!errors.notes} className={errors.notes ? 'border-destructive' : ''} value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={2} />
-                {errors.notes && <p className="text-[11px] text-destructive flex items-center gap-1 mt-1"><AlertCircle className="h-3 w-3" />{errors.notes}</p>}
-              </div>
-              <p className="text-xs text-muted-foreground">More detailed specs (yarn count, performance, certifications) can be added on the detail page after creation.</p>
-              <Button onClick={handleCreate} disabled={createMaterial.isPending} className="w-full">Save & Open Detail</Button>
-            </div>
+            </form>
           </DialogContent>
         </Dialog>
         }

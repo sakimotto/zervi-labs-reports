@@ -2,9 +2,9 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEquipment, useCreateEquipment } from '@/hooks/useEquipment';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, AlertTriangle, Cpu } from 'lucide-react';
+import { Plus, AlertTriangle, Cpu, Trash2, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   EquipmentFormFields,
@@ -23,6 +23,8 @@ import { PageHeader, PageBody } from '@/components/layout/PageHeader';
 import { DataTable, type Column } from '@/components/data/DataTable';
 import { FilterBar } from '@/components/data/FilterBar';
 import { EmptyState, TableSkeleton } from '@/components/data/EmptyState';
+import { BulkActionBar } from '@/components/data/BulkActionBar';
+import { useSavedViews } from '@/hooks/useSavedViews';
 
 type Eq = ReturnType<typeof useEquipment>['data'] extends (infer T)[] | undefined ? T : never;
 
@@ -40,6 +42,34 @@ export default function EquipmentPage() {
   const [fStatus, setFStatus] = useState('all');
   const [fCalStatus, setFCalStatus] = useState('all');
   const [fLocation, setFLocation] = useState('all');
+
+  // Saved views
+  const savedViews = useSavedViews<{
+    q: string;
+    fCategory: string;
+    fStatus: string;
+    fCalStatus: string;
+    fLocation: string;
+  }>('equipment');
+
+  const applySavedView = (id: string) => {
+    const state = savedViews.applyView(id);
+    if (!state) return;
+    setQ(state.q);
+    setFCategory(state.fCategory);
+    setFStatus(state.fStatus);
+    setFCalStatus(state.fCalStatus);
+    setFLocation(state.fLocation);
+  };
+
+  const saveCurrentView = (name: string) => {
+    savedViews.saveView(name, { q, fCategory, fStatus, fCalStatus, fLocation });
+    toast.success(`View "${name}" saved`);
+  };
+
+  // Bulk selection
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const clearSelection = () => setSelected(new Set());
 
   const locations = useMemo(
     () => Array.from(new Set(equipment.map((e) => e.location).filter(Boolean))) as string[],
@@ -224,18 +254,35 @@ export default function EquipmentPage() {
                   <Plus className="h-4 w-4 mr-1" /> Add Equipment
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>Add Equipment</DialogTitle>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+                <DialogHeader className="px-6 pt-6 pb-2">
+                  <DialogTitle className="flex items-center gap-2">
+                    <span className="h-7 w-7 rounded-md bg-primary-soft text-primary inline-flex items-center justify-center">
+                      <Cpu className="h-4 w-4" />
+                    </span>
+                    Add Equipment
+                  </DialogTitle>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Fill in identity to save — full calibration program & specs can be edited later.
+                  </p>
                 </DialogHeader>
-                <EquipmentFormFields form={form} setForm={setForm} errors={errors} />
-                <Button
-                  onClick={handleCreate}
-                  disabled={createEquipment.isPending}
-                  className="w-full"
+                <form
+                  onSubmit={(e) => { e.preventDefault(); handleCreate(); }}
+                  className="px-6 pb-6"
                 >
-                  Save
-                </Button>
+                  <EquipmentFormFields form={form} setForm={setForm} errors={errors} />
+                  <div className="flex items-center justify-between gap-3 pt-3 mt-4 border-t border-border -mx-6 px-6 sticky bottom-0 bg-card/95 backdrop-blur-md py-3">
+                    <p className="text-xs text-muted-foreground">
+                      Required: Name. Other fields can be filled after creation.
+                    </p>
+                    <div className="flex gap-2">
+                      <Button type="button" variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button>
+                      <Button type="submit" disabled={createEquipment.isPending}>
+                        {createEquipment.isPending ? 'Saving…' : 'Save & Open Detail'}
+                      </Button>
+                    </div>
+                  </div>
+                </form>
               </DialogContent>
             </Dialog>
           </>
@@ -294,6 +341,13 @@ export default function EquipmentPage() {
                 ]
               : []),
           ]}
+          savedViews={{
+            views: savedViews.views,
+            activeId: savedViews.activeId,
+            onApply: applySavedView,
+            onSave: saveCurrentView,
+            onDelete: savedViews.deleteView,
+          }}
         />
 
         {isLoading ? (
@@ -305,6 +359,9 @@ export default function EquipmentPage() {
             rowKey={(r) => r.id}
             onRowClick={(r) => navigate(`/equipment/${r.id}`)}
             defaultSort={{ key: 'name', direction: 'asc' }}
+            selectable
+            selectedIds={selected}
+            onSelectionChange={setSelected}
             emptyState={
               <EmptyState
                 icon={Cpu}
@@ -326,6 +383,43 @@ export default function EquipmentPage() {
           />
         )}
       </PageBody>
+
+      <BulkActionBar count={selected.size} onClear={clearSelection}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8"
+          onClick={() => {
+            const rows = equipment.filter((e) => selected.has(e.id));
+            const csv = [
+              ['Name', 'Asset Tag', 'Category', 'Status', 'Manufacturer', 'Model', 'Location'].join(','),
+              ...rows.map((r) =>
+                [r.name, r.asset_tag, r.category, r.status, r.manufacturer, r.model, r.location]
+                  .map((v) => `"${(v ?? '').toString().replace(/"/g, '""')}"`)
+                  .join(','),
+              ),
+            ].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `equipment-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            toast.success(`Exported ${rows.length} units`);
+          }}
+        >
+          <Download className="h-3.5 w-3.5 mr-1.5" /> Export CSV
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 text-destructive hover:text-destructive"
+          onClick={() => toast.info('Bulk delete coming soon')}
+        >
+          <Trash2 className="h-3.5 w-3.5 mr-1.5" /> Delete
+        </Button>
+      </BulkActionBar>
     </div>
   );
 }

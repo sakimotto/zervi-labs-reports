@@ -1,11 +1,22 @@
-import { ReactNode } from 'react';
-import { Search, X, SlidersHorizontal } from 'lucide-react';
+import { ReactNode, useState } from 'react';
+import { Search, X, SlidersHorizontal, Bookmark, BookmarkPlus, Check, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/card';
+import type { SavedView } from '@/hooks/useSavedViews';
 
 export interface FilterDef {
   key: string;
@@ -15,6 +26,14 @@ export interface FilterDef {
   onChange: (v: string) => void;
   /** Value treated as "no filter applied" (default 'all') */
   allValue?: string;
+}
+
+interface SavedViewsConfig {
+  views: SavedView<any>[];
+  activeId: string | null;
+  onApply: (id: string) => void;
+  onSave: (name: string) => void;
+  onDelete: (id: string) => void;
 }
 
 interface FilterBarProps {
@@ -27,6 +46,8 @@ interface FilterBarProps {
   /** Left-aligned summary above the bar (e.g. result count) */
   summary?: ReactNode;
   className?: string;
+  /** Optional saved-views integration */
+  savedViews?: SavedViewsConfig;
 }
 
 export function FilterBar({
@@ -37,6 +58,7 @@ export function FilterBar({
   actions,
   summary,
   className,
+  savedViews,
 }: FilterBarProps) {
   const activeFilters = filters.filter((f) => f.value !== (f.allValue ?? 'all') && f.value !== '');
   const hasActive = !!search || activeFilters.length > 0;
@@ -92,6 +114,8 @@ export function FilterBar({
           </Select>
         ))}
 
+        {savedViews && <SavedViewsMenu config={savedViews} canSave={hasActive} />}
+
         <div className="flex-1" />
 
         {actions}
@@ -121,6 +145,121 @@ export function FilterBar({
         </div>
       )}
     </Card>
+  );
+}
+
+function SavedViewsMenu({ config, canSave }: { config: SavedViewsConfig; canSave: boolean }) {
+  const [savePopoverOpen, setSavePopoverOpen] = useState(false);
+  const [name, setName] = useState('');
+  const active = config.views.find((v) => v.id === config.activeId);
+
+  const handleSave = () => {
+    if (!name.trim()) return;
+    config.onSave(name.trim());
+    setName('');
+    setSavePopoverOpen(false);
+  };
+
+  return (
+    <div className="flex items-center gap-1">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            className={cn(
+              'h-9 gap-1.5',
+              active && 'bg-primary-soft text-primary border-primary/30',
+            )}
+          >
+            <Bookmark className="h-3.5 w-3.5" />
+            <span className="text-xs">{active ? active.name : 'Views'}</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-60">
+          <DropdownMenuLabel className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            Saved views
+          </DropdownMenuLabel>
+          {config.views.length === 0 ? (
+            <div className="px-2 py-3 text-xs text-muted-foreground text-center">
+              No saved views yet.
+              <br />
+              Apply filters and save one.
+            </div>
+          ) : (
+            config.views.map((v) => (
+              <DropdownMenuItem
+                key={v.id}
+                onSelect={(e) => e.preventDefault()}
+                className="flex items-center justify-between gap-2 group"
+              >
+                <button
+                  onClick={() => config.onApply(v.id)}
+                  className="flex-1 flex items-center gap-2 min-w-0 text-left"
+                >
+                  {config.activeId === v.id ? (
+                    <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+                  ) : (
+                    <Bookmark className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  )}
+                  <span className="truncate text-xs">{v.name}</span>
+                </button>
+                <button
+                  onClick={() => config.onDelete(v.id)}
+                  className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
+                  aria-label={`Delete view ${v.name}`}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </DropdownMenuItem>
+            ))
+          )}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onSelect={(e) => {
+              e.preventDefault();
+              setSavePopoverOpen(true);
+            }}
+            disabled={!canSave}
+          >
+            <BookmarkPlus className="h-3.5 w-3.5 mr-2" />
+            <span className="text-xs">
+              {canSave ? 'Save current filters…' : 'Apply filters to save'}
+            </span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Popover open={savePopoverOpen} onOpenChange={setSavePopoverOpen}>
+        <PopoverTrigger asChild>
+          <span />
+        </PopoverTrigger>
+        <PopoverContent align="end" className="w-64">
+          <Label className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            Save view as
+          </Label>
+          <Input
+            autoFocus
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSave();
+              if (e.key === 'Escape') setSavePopoverOpen(false);
+            }}
+            placeholder="e.g. Urgent open items"
+            className="mt-2 h-9"
+          />
+          <div className="flex justify-end gap-2 mt-3">
+            <Button variant="outline" size="sm" onClick={() => setSavePopoverOpen(false)}>
+              Cancel
+            </Button>
+            <Button size="sm" onClick={handleSave} disabled={!name.trim()}>
+              Save
+            </Button>
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 }
 
