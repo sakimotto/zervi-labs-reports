@@ -7,7 +7,10 @@ import {
   Loader2,
   ShieldCheck,
   Eye,
+  Pencil,
 } from "lucide-react";
+import { StarterEditorModal } from "@/components/copilot/StarterEditorModal";
+import { useStarterOverrides } from "@/hooks/useStarterOverrides";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useCopilot } from "@/hooks/useCopilot";
@@ -368,6 +371,10 @@ function WelcomeScreen({
 }) {
   const mode = SKILL_MODES[modeId];
   const Icon = mode.icon;
+  const { getStarters, saveStarters, resetStarters, isCustomized } = useStarterOverrides();
+  const [editorOpen, setEditorOpen] = useState(false);
+  const starters = getStarters(modeId);
+  const customized = isCustomized(modeId);
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-12">
@@ -383,10 +390,32 @@ function WelcomeScreen({
         </p>
       </div>
 
+      <div className="flex items-center justify-between mb-3 px-0.5">
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
+            Starter prompts
+          </span>
+          {customized && (
+            <Badge variant="outline" className="text-[9px] h-4 px-1.5 font-normal">
+              Customized
+            </Badge>
+          )}
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setEditorOpen(true)}
+          className="h-7 px-2 text-[11px] text-muted-foreground hover:text-primary gap-1.5"
+        >
+          <Pencil className="h-3 w-3" />
+          Customize
+        </Button>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {mode.starters.map((s) => (
+        {starters.map((s, i) => (
           <button
-            key={s.title}
+            key={`${s.title}-${i}`}
             onClick={() => onPrompt(s.prompt)}
             className={cn(
               "group text-left px-4 py-3.5 rounded-xl border bg-card transition-all",
@@ -410,6 +439,15 @@ function WelcomeScreen({
           </div>
         </div>
       </div>
+
+      <StarterEditorModal
+        open={editorOpen}
+        onOpenChange={setEditorOpen}
+        modeId={modeId}
+        currentStarters={starters}
+        onSave={saveStarters}
+        onReset={resetStarters}
+      />
     </div>
   );
 }
