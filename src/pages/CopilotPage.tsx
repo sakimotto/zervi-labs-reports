@@ -162,6 +162,15 @@ export default function CopilotPage() {
     if (!input.trim() || sending) return;
     const text = input;
     setInput("");
+    // Detect "draft an email/report" intent in free-form input so the modal still triggers.
+    const lower = text.toLowerCase();
+    if (/\bdraft\b.*\bemail\b|\bemail draft\b|\bcompose .* email\b/.test(lower)) {
+      pendingDraftRef.current = { kind: "email", label: "Email draft" };
+    } else if (/\bdraft\b.*\breport\b|\btest report draft\b/.test(lower)) {
+      pendingDraftRef.current = { kind: "report", label: "Test report draft" };
+    } else if (/\bdiagnos(e|is)\b|\bng\b.*\b(why|root cause)\b/.test(lower)) {
+      pendingDraftRef.current = { kind: "diagnosis", label: "NG diagnosis" };
+    }
     send(text);
   };
 
