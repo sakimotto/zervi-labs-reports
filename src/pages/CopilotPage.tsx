@@ -388,16 +388,12 @@ function WelcomeScreen({
           <button
             key={s.title}
             onClick={() => onPrompt(s.prompt)}
-            className={cn(
-              "group text-left p-4 rounded-xl border bg-card hover:bg-card/80 transition-all",
-              "border-border hover:shadow-sm",
-              `hover:border-current/40`
-            )}
+            className="group text-left p-4 rounded-xl border bg-card hover:bg-card/80 transition-all border-border hover:shadow-sm hover:border-primary/40"
           >
             <div className="flex items-start gap-3">
               <span className="text-xl shrink-0">{s.emoji}</span>
               <div className="min-w-0">
-                <p className={cn("text-sm font-semibold mb-0.5 transition-colors text-foreground group-hover:" + mode.accentText.replace("text-", "text-"))}>
+                <p className={cn("text-sm font-semibold mb-0.5 transition-colors text-foreground group-hover:" + (mode.accentText.includes("primary") ? "text-primary" : ""), mode.accentText && `group-hover:${mode.accentText}`)}>
                   {s.title}
                 </p>
                 <p className="text-xs text-muted-foreground line-clamp-2">{s.prompt}</p>
