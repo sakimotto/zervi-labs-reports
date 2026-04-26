@@ -2,9 +2,9 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEquipment, useCreateEquipment } from '@/hooks/useEquipment';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Plus, AlertTriangle, Cpu } from 'lucide-react';
+import { Plus, AlertTriangle, Cpu, Trash2, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   EquipmentFormFields,
@@ -23,6 +23,8 @@ import { PageHeader, PageBody } from '@/components/layout/PageHeader';
 import { DataTable, type Column } from '@/components/data/DataTable';
 import { FilterBar } from '@/components/data/FilterBar';
 import { EmptyState, TableSkeleton } from '@/components/data/EmptyState';
+import { BulkActionBar } from '@/components/data/BulkActionBar';
+import { useSavedViews } from '@/hooks/useSavedViews';
 
 type Eq = ReturnType<typeof useEquipment>['data'] extends (infer T)[] | undefined ? T : never;
 
