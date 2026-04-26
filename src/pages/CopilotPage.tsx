@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Sparkles,
   Send,
@@ -70,6 +71,27 @@ export default function CopilotPage() {
 
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const autoLaunchedRef = useRef(false);
+
+  // Auto-launch: when navigated here from an "Ask AI" button with state,
+  // open a fresh conversation pinned to the entity context and fire the prompt.
+  useEffect(() => {
+    const auto = (location.state as any)?.autoLaunch;
+    if (!auto || autoLaunchedRef.current) return;
+    autoLaunchedRef.current = true;
+    // Clear router state so a refresh doesn't re-fire
+    navigate(location.pathname, { replace: true, state: {} });
+
+    (async () => {
+      const id = await newConversation(auto.context);
+      if (id) {
+        // Slight defer so activeId state settles before sending
+        setTimeout(() => send(auto.prompt, auto.context), 50);
+      }
+    })();
+  }, [location, navigate, newConversation, send]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });

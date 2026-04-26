@@ -37,6 +37,7 @@ import {
 import { useCustomerTestRequests } from '@/hooks/useTestRequests';
 import { TestReportFormDialog } from './TestReportFormDialog';
 import { ReportStatusBadge } from './TestRequestBadges';
+import { AskAIButton, getReportAIActions } from '@/components/copilot/AskAIButton';
 
 interface Props {
   customerId: string;
@@ -269,6 +270,12 @@ export function CustomerReportsTab({ customerId, customerEmail, customerName }: 
                     )}
                   </td>
                   <td className="px-4 py-2.5 text-right whitespace-nowrap">
+                    <AskAIButton
+                      iconOnly
+                      title="Ask AI about this report"
+                      context={{ type: 'test_report', id: r.id, label: r.report_number }}
+                      actions={getReportAIActions(r.report_number)}
+                    />
                     {r.document_url && (
                       <Button size="sm" variant="ghost" asChild>
                         <a href={r.document_url} target="_blank" rel="noopener noreferrer" title="Open document">

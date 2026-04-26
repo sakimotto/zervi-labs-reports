@@ -32,6 +32,7 @@ import {
 } from '@/hooks/useTestRequests';
 import { TestRequestFormDialog } from './TestRequestFormDialog';
 import { RequestStatusBadge, PriorityBadge } from './TestRequestBadges';
+import { AskAIButton, getTestRequestAIActions } from '@/components/copilot/AskAIButton';
 
 interface Props {
   customerId: string;
@@ -169,6 +170,12 @@ export function CustomerTestRequestsTab({ customerId }: Props) {
                     </td>
                     <td className="px-4 py-2.5 font-mono text-xs">{r.po_number ?? '—'}</td>
                     <td className="px-4 py-2.5 text-right whitespace-nowrap">
+                      <AskAIButton
+                        iconOnly
+                        title="Ask AI about this request"
+                        context={{ type: 'test_request', id: r.id, label: r.request_number }}
+                        actions={getTestRequestAIActions(r.request_number)}
+                      />
                       <Button
                         size="sm"
                         variant="ghost"
