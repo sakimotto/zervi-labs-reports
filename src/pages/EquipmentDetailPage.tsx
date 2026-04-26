@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import {
   useEquipmentDetail, useUpdateEquipment, useDeleteEquipment,
