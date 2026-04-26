@@ -393,7 +393,7 @@ function WelcomeScreen({
             <div className="flex items-start gap-3">
               <span className="text-xl shrink-0">{s.emoji}</span>
               <div className="min-w-0">
-                <p className={cn("text-sm font-semibold mb-0.5 text-foreground transition-colors", `group-hover:${mode.accentText}`)}>
+                <p className="text-sm font-semibold mb-0.5 text-foreground group-hover:text-primary transition-colors">
                   {s.title}
                 </p>
                 <p className="text-xs text-muted-foreground line-clamp-2">{s.prompt}</p>
