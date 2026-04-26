@@ -406,6 +406,39 @@ async function runTool(supabase: any, name: string, args: any): Promise<any> {
         const { data: docs } = await supabase.from("supplier_documents").select("*").eq("supplier_id", args.supplier_id);
         return { supplier: s, materials_supplied: mats, documents: docs };
       }
+      case "get_test_request_detail": {
+        let q = supabase.from("customer_test_requests").select("*, customers(name, email)").limit(1);
+        if (args.request_id) q = q.eq("id", args.request_id);
+        else if (args.request_number) q = q.eq("request_number", args.request_number);
+        else throw new Error("Provide request_id or request_number");
+        const { data: req, error } = await q.maybeSingle();
+        if (error) throw error;
+        if (!req) return { error: "Test request not found" };
+        const { data: samples } = await supabase
+          .from("samples")
+          .select("id, sample_code, sample_name, status, overall_judgment, material_id")
+          .eq("test_request_id", req.id);
+        return { test_request: req, linked_samples: samples };
+      }
+      case "get_test_report_detail": {
+        let q = supabase.from("test_reports").select("*, customers(name, email)").limit(1);
+        if (args.report_id) q = q.eq("id", args.report_id);
+        else if (args.report_number) q = q.eq("report_number", args.report_number);
+        else throw new Error("Provide report_id or report_number");
+        const { data: rep, error } = await q.maybeSingle();
+        if (error) throw error;
+        if (!rep) return { error: "Test report not found" };
+        // Pull linked test request + its samples for context
+        let request = null;
+        let samples: any[] = [];
+        if (rep.test_request_id) {
+          const { data: r } = await supabase.from("customer_test_requests").select("*").eq("id", rep.test_request_id).maybeSingle();
+          request = r;
+          const { data: s } = await supabase.from("samples").select("id, sample_code, sample_name, status, overall_judgment").eq("test_request_id", rep.test_request_id);
+          samples = s ?? [];
+        }
+        return { test_report: rep, test_request: request, samples };
+      }
       case "list_test_methods": {
         let q = supabase.from("test_items").select("id, test_name, category, sub_category, description").limit(args.limit ?? 30);
         if (args.category) q = q.eq("category", args.category);
