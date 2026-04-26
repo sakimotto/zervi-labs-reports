@@ -187,12 +187,14 @@ export function getSampleAIActions(sampleLabel: string): AskAIAction[] {
       emoji: "🔍",
       description: "Root cause + corrective actions for any failed tests on this sample.",
       prompt: `Run a full NG diagnosis for sample "${sampleLabel}". For every NG result: explain why it failed (compare actual vs spec), list 3-5 likely root causes, find similar historical failures, and propose corrective actions.`,
+      draftKind: "diagnosis",
     },
     {
       label: "Draft test report",
       emoji: "📝",
       description: "Full formal report with executive summary, per-test commentary, conclusion.",
       prompt: `Draft a formal test report for sample "${sampleLabel}". Include executive summary, sample identification table, test methods used, per-test results table with judgments, conclusion and overall judgment.`,
+      draftKind: "report",
     },
     {
       label: "Compare to spec",
@@ -205,6 +207,7 @@ export function getSampleAIActions(sampleLabel: string): AskAIAction[] {
       emoji: "✉️",
       description: "Professional email summarising results for the customer.",
       prompt: `Draft a professional customer email to deliver the results of sample "${sampleLabel}". Tone: confident, technical, transparent about any issues. Include a brief summary, key findings, and clear next steps.`,
+      draftKind: "email",
     },
   ];
 }
