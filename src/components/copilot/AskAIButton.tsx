@@ -31,6 +31,8 @@ interface Props {
   size?: "sm" | "default";
   variant?: "default" | "outline" | "ghost";
   className?: string;
+  iconOnly?: boolean; // compact mode for table rows
+  title?: string;
 }
 
 /**
@@ -45,6 +47,8 @@ export function AskAIButton({
   size = "sm",
   variant = "outline",
   className,
+  iconOnly = false,
+  title = "Ask AI",
 }: Props) {
   const navigate = useNavigate();
   const primary = primaryAction ?? actions[0];
@@ -59,6 +63,50 @@ export function AskAIButton({
       },
     });
   };
+
+  if (iconOnly) {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            size="sm"
+            variant="ghost"
+            className={cn(
+              "h-8 w-8 p-0 text-primary hover:bg-primary/10 hover:text-primary",
+              className
+            )}
+            title={title}
+            aria-label={title}
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-72">
+          <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+            Lab Copilot · 1-click actions
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {actions.map((a, i) => (
+            <DropdownMenuItem
+              key={i}
+              onClick={() => launch(a)}
+              className="flex flex-col items-start gap-0.5 py-2 cursor-pointer"
+            >
+              <div className="flex items-center gap-2 text-sm font-medium">
+                {a.emoji && <span>{a.emoji}</span>}
+                {a.label}
+              </div>
+              {a.description && (
+                <p className="text-[11px] text-muted-foreground line-clamp-2 pl-6">
+                  {a.description}
+                </p>
+              )}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
 
   return (
     <div className={cn("inline-flex items-stretch rounded-md shadow-sm", className)}>
