@@ -63,6 +63,8 @@ export function AskAIButton({
         autoLaunch: {
           context,
           prompt: action.prompt,
+          draftKind: action.draftKind,
+          actionLabel: action.label,
         },
       },
     });
