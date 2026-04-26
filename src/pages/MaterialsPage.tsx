@@ -12,6 +12,9 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Search, Flame, Sun, Shield, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { PageHeader, PageBody } from '@/components/layout/PageHeader';
+import { CardGridSkeleton, EmptyState } from '@/components/data/EmptyState';
+import { Layers } from 'lucide-react';
 import {
   materialCreateSchema,
   STRUCTURE_VALUES,
@@ -98,15 +101,15 @@ export default function MaterialsPage() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Material Database</h1>
-          <p className="text-sm text-muted-foreground">Detailed textile specifications, certifications, suppliers and version control</p>
-        </div>
+    <div className="flex flex-col">
+      <PageHeader
+        eyebrow="Lab Resources"
+        title="Material Database"
+        description="Detailed textile specifications, certifications, suppliers, and version control."
+        actions={
         <Dialog open={showAdd} onOpenChange={setShowAdd}>
           <DialogTrigger asChild>
-            <Button size="sm"><Plus className="h-4 w-4 mr-1" /> Add Material</Button>
+            <Button size="sm" className="h-8"><Plus className="h-4 w-4 mr-1" /> Add Material</Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader><DialogTitle>Register Material</DialogTitle></DialogHeader>
