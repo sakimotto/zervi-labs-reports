@@ -9,6 +9,7 @@ import { StatusBadge } from './StatusBadge';
 import { SpecBar } from './SpecBar';
 import { PrintableReport } from './PrintableReport';
 import { DeleteSampleDialog } from './DeleteSampleDialog';
+import { AskAIButton, getSampleAIActions } from '@/components/copilot/AskAIButton';
 import { ArrowLeft, FlaskConical, Save, Loader2, Printer, Pencil, Trash2, X, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -266,6 +267,10 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
           )}
         </div>
         <div className="flex items-center gap-2">
+          <AskAIButton
+            context={{ type: 'sample', id: sampleId, label: sample.sample_id }}
+            actions={getSampleAIActions(sample.sample_id)}
+          />
           {nextStatus && statusAction && (
             <button onClick={handleStatusAdvance}
               className="h-8 px-3 flex items-center gap-1.5 text-xs font-medium bg-accent text-accent-foreground rounded-md hover:bg-accent/80 transition-colors">
