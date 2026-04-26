@@ -1,9 +1,40 @@
-import { useState } from 'react';
-import { useCustomers, useCreateCustomer, useUpdateCustomer, useDeleteCustomer } from '@/hooks/useCustomers';
-import { Search, Plus, Pencil, Trash2, X, Check, Loader2 } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import {
+  useCustomers,
+  useCreateCustomer,
+  useUpdateCustomer,
+  useDeleteCustomer,
+} from '@/hooks/useCustomers';
+import { Plus, Pencil, Trash2, X, Check, Users } from 'lucide-react';
 import { toast } from 'sonner';
+import { PageHeader, PageBody } from '@/components/layout/PageHeader';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { DataTable, RowActions, type Column } from '@/components/data/DataTable';
+import { FilterBar } from '@/components/data/FilterBar';
+import { EmptyState, TableSkeleton } from '@/components/data/EmptyState';
 
 const TYPES = ['OEM', 'Client'] as const;
+
+type Customer = {
+  id: string;
+  name: string;
+  customer_type: string;
+  contact_person: string | null;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+};
 
 export default function CustomersPage() {
   const { data: customers = [], isLoading } = useCustomers();
@@ -11,21 +42,47 @@ export default function CustomersPage() {
   const updateCustomer = useUpdateCustomer();
   const deleteCustomer = useDeleteCustomer();
   const [search, setSearch] = useState('');
-  const [typeFilter, setTypeFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState('all');
   const [showNew, setShowNew] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: '', customer_type: 'OEM' as string, contact_person: '', email: '', phone: '', address: '' });
-
-  const filtered = customers.filter(c => {
-    const matchSearch = c.name.toLowerCase().includes(search.toLowerCase()) ||
-      (c.contact_person || '').toLowerCase().includes(search.toLowerCase());
-    const matchType = !typeFilter || c.customer_type === typeFilter;
-    return matchSearch && matchType;
+  const [form, setForm] = useState({
+    name: '',
+    customer_type: 'OEM',
+    contact_person: '',
+    email: '',
+    phone: '',
+    address: '',
   });
 
-  const startEdit = (c: typeof customers[0]) => {
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase().trim();
+    return customers.filter((c) => {
+      if (typeFilter !== 'all' && c.customer_type !== typeFilter) return false;
+      if (!q) return true;
+      return (
+        c.name.toLowerCase().includes(q) ||
+        (c.contact_person || '').toLowerCase().includes(q) ||
+        (c.email || '').toLowerCase().includes(q)
+      );
+    });
+  }, [customers, search, typeFilter]);
+
+  const typeCounts = useMemo(() => {
+    const map: Record<string, number> = {};
+    customers.forEach((c) => (map[c.customer_type] = (map[c.customer_type] || 0) + 1));
+    return map;
+  }, [customers]);
+
+  const startEdit = (c: Customer) => {
     setEditingId(c.id);
-    setForm({ name: c.name, customer_type: c.customer_type, contact_person: c.contact_person || '', email: c.email || '', phone: c.phone || '', address: c.address || '' });
+    setForm({
+      name: c.name,
+      customer_type: c.customer_type,
+      contact_person: c.contact_person || '',
+      email: c.email || '',
+      phone: c.phone || '',
+      address: c.address || '',
+    });
   };
 
   const saveEdit = async () => {
@@ -34,17 +91,24 @@ export default function CustomersPage() {
       await updateCustomer.mutateAsync({ id: editingId, ...form });
       setEditingId(null);
       toast.success('Customer updated');
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
 
   const handleCreate = async () => {
-    if (!form.name.trim()) { toast.error('Name is required'); return; }
+    if (!form.name.trim()) {
+      toast.error('Name is required');
+      return;
+    }
     try {
       await createCustomer.mutateAsync(form);
       setShowNew(false);
       setForm({ name: '', customer_type: 'OEM', contact_person: '', email: '', phone: '', address: '' });
       toast.success('Customer created');
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -52,127 +116,215 @@ export default function CustomersPage() {
     try {
       await deleteCustomer.mutateAsync(id);
       toast.success('Customer deleted');
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
 
-  return (
-    <div className="p-6 max-w-6xl mx-auto space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight">Customers</h1>
-          <p className="text-sm text-muted-foreground">{customers.length} customers (OEM brands & clients)</p>
-        </div>
-        <button onClick={() => { setShowNew(true); setForm({ name: '', customer_type: 'OEM', contact_person: '', email: '', phone: '', address: '' }); }}
-          className="h-9 px-3 flex items-center gap-1.5 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
-          <Plus className="h-3.5 w-3.5" /> Add Customer
-        </button>
-      </div>
-
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <input type="text" placeholder="Search customers..." value={search} onChange={e => setSearch(e.target.value)}
-            className="w-full h-9 pl-8 pr-3 text-sm bg-card border rounded-md shadow-card focus:outline-none focus:ring-2 focus:ring-primary/50" />
-        </div>
-        <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
-          className="h-9 px-3 text-sm bg-card border rounded-md shadow-card focus:outline-none focus:ring-2 focus:ring-primary/50">
-          <option value="">All Types</option>
-          {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-        </select>
-      </div>
-
-      {showNew && (
-        <div className="bg-card rounded-lg shadow-card p-4 border-2 border-primary/20">
-          <div className="text-sm font-semibold mb-3">New Customer</div>
-          <div className="grid grid-cols-3 gap-3">
-            <Field label="Name *" value={form.name} onChange={v => setForm(p => ({ ...p, name: v }))} />
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Type</label>
-              <select value={form.customer_type} onChange={e => setForm(p => ({ ...p, customer_type: e.target.value }))}
-                className="w-full h-9 px-3 text-sm bg-background border rounded-md">
-                {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </div>
-            <Field label="Contact Person" value={form.contact_person} onChange={v => setForm(p => ({ ...p, contact_person: v }))} />
-            <Field label="Email" value={form.email} onChange={v => setForm(p => ({ ...p, email: v }))} />
-            <Field label="Phone" value={form.phone} onChange={v => setForm(p => ({ ...p, phone: v }))} />
-            <Field label="Address" value={form.address} onChange={v => setForm(p => ({ ...p, address: v }))} />
-          </div>
-          <div className="flex gap-2 mt-3">
-            <button onClick={handleCreate} disabled={createCustomer.isPending} className="h-8 px-3 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50">
-              {createCustomer.isPending ? 'Creating...' : 'Create'}
-            </button>
-            <button onClick={() => setShowNew(false)} className="h-8 px-3 text-xs font-medium text-muted-foreground hover:bg-muted rounded-md">Cancel</button>
-          </div>
-        </div>
-      )}
-
-      <div className="bg-card rounded-lg shadow-card overflow-hidden">
-        {isLoading ? (
-          <div className="flex justify-center py-12"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+  const columns: Column<Customer>[] = [
+    {
+      key: 'name',
+      header: 'Name',
+      sortValue: (r) => r.name,
+      cell: (c) =>
+        editingId === c.id ? (
+          <Input value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} className="h-7" />
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b bg-muted/50">
-                <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Name</th>
-                <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Type</th>
-                <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Contact</th>
-                <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email</th>
-                <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Phone</th>
-                <th className="text-right px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(c => (
-                <tr key={c.id} className="border-b last:border-b-0 hover:bg-muted/30 transition-colors h-10">
-                  {editingId === c.id ? (
-                    <>
-                      <td className="px-3 py-1"><input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className="w-full h-7 px-2 text-sm bg-background border rounded-sm" /></td>
-                      <td className="px-3 py-1">
-                        <select value={form.customer_type} onChange={e => setForm(p => ({ ...p, customer_type: e.target.value }))} className="h-7 px-2 text-sm bg-background border rounded-sm">
-                          {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                        </select>
-                      </td>
-                      <td className="px-3 py-1"><input value={form.contact_person} onChange={e => setForm(p => ({ ...p, contact_person: e.target.value }))} className="w-full h-7 px-2 text-sm bg-background border rounded-sm" /></td>
-                      <td className="px-3 py-1"><input value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} className="w-full h-7 px-2 text-sm bg-background border rounded-sm" /></td>
-                      <td className="px-3 py-1"><input value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} className="w-full h-7 px-2 text-sm bg-background border rounded-sm" /></td>
-                      <td className="px-3 py-1 text-right">
-                        <button onClick={saveEdit} className="p-1 text-success hover:bg-success/10 rounded"><Check className="h-3.5 w-3.5" /></button>
-                        <button onClick={() => setEditingId(null)} className="p-1 text-muted-foreground hover:bg-muted rounded ml-1"><X className="h-3.5 w-3.5" /></button>
-                      </td>
-                    </>
-                  ) : (
-                    <>
-                      <td className="px-3 py-1 font-medium">{c.name}</td>
-                      <td className="px-3 py-1"><span className={`text-xs px-1.5 py-0.5 rounded-sm font-medium ${c.customer_type === 'OEM' ? 'bg-primary/10 text-primary' : 'bg-muted'}`}>{c.customer_type}</span></td>
-                      <td className="px-3 py-1 text-muted-foreground">{c.contact_person || '—'}</td>
-                      <td className="px-3 py-1 text-muted-foreground">{c.email || '—'}</td>
-                      <td className="px-3 py-1 text-muted-foreground">{c.phone || '—'}</td>
-                      <td className="px-3 py-1 text-right">
-                        <button onClick={() => startEdit(c)} className="p-1 text-muted-foreground hover:bg-muted rounded"><Pencil className="h-3.5 w-3.5" /></button>
-                        <button onClick={() => handleDelete(c.id)} className="p-1 text-destructive hover:bg-destructive/10 rounded ml-1"><Trash2 className="h-3.5 w-3.5" /></button>
-                      </td>
-                    </>
-                  )}
-                </tr>
-              ))}
-              {filtered.length === 0 && (
-                <tr><td colSpan={6} className="px-3 py-8 text-center text-muted-foreground">No customers found</td></tr>
-              )}
-            </tbody>
-          </table>
+          <span className="font-medium">{c.name}</span>
+        ),
+    },
+    {
+      key: 'type',
+      header: 'Type',
+      sortValue: (r) => r.customer_type,
+      cell: (c) =>
+        editingId === c.id ? (
+          <Select value={form.customer_type} onValueChange={(v) => setForm((p) => ({ ...p, customer_type: v }))}>
+            <SelectTrigger className="h-7"><SelectValue /></SelectTrigger>
+            <SelectContent>{TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+          </Select>
+        ) : (
+          <Badge
+            variant="outline"
+            className={
+              c.customer_type === 'OEM'
+                ? 'bg-primary-soft text-primary border-primary/20 text-[10px]'
+                : 'bg-muted text-muted-foreground border-border text-[10px]'
+            }
+          >
+            {c.customer_type}
+          </Badge>
+        ),
+    },
+    {
+      key: 'contact',
+      header: 'Contact',
+      sortValue: (r) => r.contact_person ?? '',
+      cell: (c) =>
+        editingId === c.id ? (
+          <Input value={form.contact_person} onChange={(e) => setForm((p) => ({ ...p, contact_person: e.target.value }))} className="h-7" />
+        ) : (
+          <span className="text-muted-foreground">{c.contact_person || '—'}</span>
+        ),
+    },
+    {
+      key: 'email',
+      header: 'Email',
+      hideBelow: 'md',
+      cell: (c) =>
+        editingId === c.id ? (
+          <Input value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} className="h-7" />
+        ) : (
+          <span className="text-muted-foreground text-xs">{c.email || '—'}</span>
+        ),
+    },
+    {
+      key: 'phone',
+      header: 'Phone',
+      hideBelow: 'lg',
+      cell: (c) =>
+        editingId === c.id ? (
+          <Input value={form.phone} onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))} className="h-7" />
+        ) : (
+          <span className="text-muted-foreground text-xs font-mono">{c.phone || '—'}</span>
+        ),
+    },
+    {
+      key: 'actions',
+      header: '',
+      align: 'right',
+      width: '120px',
+      cell: (c) => (
+        <RowActions>
+          {editingId === c.id ? (
+            <>
+              <Button size="icon" variant="ghost" onClick={saveEdit} className="h-7 w-7 text-success">
+                <Check className="h-3.5 w-3.5" />
+              </Button>
+              <Button size="icon" variant="ghost" onClick={() => setEditingId(null)} className="h-7 w-7">
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button size="icon" variant="ghost" onClick={() => startEdit(c)} className="h-7 w-7">
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+              <Button size="icon" variant="ghost" onClick={() => handleDelete(c.id)} className="h-7 w-7 text-destructive hover:text-destructive">
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </>
+          )}
+        </RowActions>
+      ),
+    },
+  ];
+
+  return (
+    <div className="flex flex-col">
+      <PageHeader
+        eyebrow="Directory"
+        title="Customers"
+        description="OEM brands and direct clients with contact information."
+        actions={
+          <Dialog open={showNew} onOpenChange={setShowNew}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="h-8">
+                <Plus className="h-4 w-4 mr-1" /> Add Customer
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>New Customer</DialogTitle>
+              </DialogHeader>
+              <div className="grid grid-cols-2 gap-3">
+                <FormField label="Name *" value={form.name} onChange={(v) => setForm((p) => ({ ...p, name: v }))} />
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Type</Label>
+                  <Select value={form.customer_type} onValueChange={(v) => setForm((p) => ({ ...p, customer_type: v }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>{TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+                <FormField label="Contact Person" value={form.contact_person} onChange={(v) => setForm((p) => ({ ...p, contact_person: v }))} />
+                <FormField label="Email" value={form.email} onChange={(v) => setForm((p) => ({ ...p, email: v }))} />
+                <FormField label="Phone" value={form.phone} onChange={(v) => setForm((p) => ({ ...p, phone: v }))} />
+                <FormField label="Address" value={form.address} onChange={(v) => setForm((p) => ({ ...p, address: v }))} />
+              </div>
+              <Button onClick={handleCreate} disabled={createCustomer.isPending} className="w-full mt-2">
+                {createCustomer.isPending ? 'Creating…' : 'Create Customer'}
+              </Button>
+            </DialogContent>
+          </Dialog>
+        }
+      />
+
+      <PageBody className="space-y-4">
+        <FilterBar
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search customers…"
+          summary={`${filtered.length} of ${customers.length} customers`}
+          filters={[
+            {
+              key: 'type',
+              label: 'Type',
+              value: typeFilter,
+              onChange: setTypeFilter,
+              options: [
+                { value: 'all', label: 'All types' },
+                ...TYPES.map((t) => ({ value: t, label: t, count: typeCounts[t] || 0 })),
+              ],
+            },
+          ]}
+        />
+
+        {isLoading ? (
+          <TableSkeleton columns={6} rows={6} />
+        ) : (
+          <DataTable
+            data={filtered}
+            columns={columns}
+            rowKey={(r) => r.id}
+            defaultSort={{ key: 'name', direction: 'asc' }}
+            emptyState={
+              <EmptyState
+                icon={Users}
+                title={customers.length === 0 ? 'No customers yet' : 'No matches'}
+                description={
+                  customers.length === 0
+                    ? 'Add your first OEM or client to start linking samples.'
+                    : 'Try a different search or clear your filters.'
+                }
+                action={
+                  customers.length === 0 && (
+                    <Button size="sm" onClick={() => setShowNew(true)}>
+                      <Plus className="h-4 w-4 mr-1" /> Add Customer
+                    </Button>
+                  )
+                }
+              />
+            }
+          />
         )}
-      </div>
+      </PageBody>
     </div>
   );
 }
 
-function Field({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+function FormField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
   return (
-    <div>
-      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{label}</label>
-      <input type="text" value={value} onChange={e => onChange(e.target.value)}
-        className="w-full h-9 px-3 text-sm bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50" />
+    <div className="space-y-1.5">
+      <Label className="text-xs">{label}</Label>
+      <Input value={value} onChange={(e) => onChange(e.target.value)} />
     </div>
   );
 }
