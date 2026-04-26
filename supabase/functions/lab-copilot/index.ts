@@ -619,7 +619,7 @@ Deno.serve(async (req) => {
     const { data: { user } } = await supabase.auth.getUser(authHeader.replace("Bearer ", ""));
     if (!user) return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
-    const { conversation_id, messages: userMessages, context } = await req.json();
+    const { conversation_id, messages: userMessages, context, mode } = await req.json();
 
     // Build conversation context line
     let contextLine = "";
@@ -627,8 +627,9 @@ Deno.serve(async (req) => {
       contextLine = `\n\nCurrent context: User is viewing a ${context.type} (id: ${context.id}${context.label ? `, "${context.label}"` : ""}). Use this as the default subject when ambiguous.`;
     }
 
+    const modeAddendum = MODE_ADDENDA[mode as string] ?? "";
     const messages: any[] = [
-      { role: "system", content: SYSTEM_PROMPT + contextLine },
+      { role: "system", content: SYSTEM_PROMPT + modeAddendum + contextLine },
       ...userMessages,
     ];
 
