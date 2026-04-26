@@ -12,6 +12,9 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Search, Flame, Sun, Shield, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { PageHeader, PageBody } from '@/components/layout/PageHeader';
+import { CardGridSkeleton, EmptyState } from '@/components/data/EmptyState';
+import { Layers } from 'lucide-react';
 import {
   materialCreateSchema,
   STRUCTURE_VALUES,
@@ -98,15 +101,15 @@ export default function MaterialsPage() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Material Database</h1>
-          <p className="text-sm text-muted-foreground">Detailed textile specifications, certifications, suppliers and version control</p>
-        </div>
+    <div className="flex flex-col">
+      <PageHeader
+        eyebrow="Lab Resources"
+        title="Material Database"
+        description="Detailed textile specifications, certifications, suppliers, and version control."
+        actions={
         <Dialog open={showAdd} onOpenChange={setShowAdd}>
           <DialogTrigger asChild>
-            <Button size="sm"><Plus className="h-4 w-4 mr-1" /> Add Material</Button>
+            <Button size="sm" className="h-8"><Plus className="h-4 w-4 mr-1" /> Add Material</Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader><DialogTitle>Register Material</DialogTitle></DialogHeader>
@@ -177,8 +180,10 @@ export default function MaterialsPage() {
             </div>
           </DialogContent>
         </Dialog>
-      </div>
+        }
+      />
 
+      <PageBody className="space-y-4">
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative flex-1 min-w-[240px]">
@@ -209,12 +214,23 @@ export default function MaterialsPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <CardGridSkeleton count={6} />
+      ) : filtered.length === 0 ? (
+        <Card className="p-0">
+          <EmptyState
+            icon={Layers}
+            title={materials.length === 0 ? 'No materials registered' : 'No matches'}
+            description={materials.length === 0 ? 'Add your first material to start linking specs and test programs.' : 'Try adjusting your search or filters.'}
+            action={materials.length === 0 && (
+              <Button size="sm" onClick={() => setShowAdd(true)}><Plus className="h-4 w-4 mr-1" /> Add Material</Button>
+            )}
+          />
+        </Card>
       ) : (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map(mat => (
             <Link key={mat.id} to={`/materials/${mat.id}`} className="block">
-              <Card className="cursor-pointer hover:border-primary/50 transition-colors h-full">
+              <Card className="cursor-pointer hover:border-primary/50 hover:shadow-elevated transition-all h-full">
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
@@ -248,13 +264,9 @@ export default function MaterialsPage() {
               </Card>
             </Link>
           ))}
-          {filtered.length === 0 && (
-            <p className="text-sm text-muted-foreground col-span-full text-center py-8">
-              {materials.length === 0 ? 'No materials registered yet.' : 'No materials match your filters.'}
-            </p>
-          )}
         </div>
       )}
+      </PageBody>
     </div>
   );
 }

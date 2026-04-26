@@ -4,8 +4,24 @@ import { useTestItems } from '@/hooks/useTestData';
 import { useStandards } from '@/hooks/useReferenceData';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
-import { Search, Plus, Trash2, Filter, Loader2, ExternalLink } from 'lucide-react';
+import { Plus, Trash2, ExternalLink, TestTubes } from 'lucide-react';
 import { toast } from 'sonner';
+import { PageHeader, PageBody } from '@/components/layout/PageHeader';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { DataTable, RowActions, type Column } from '@/components/data/DataTable';
+import { FilterBar } from '@/components/data/FilterBar';
+import { EmptyState, TableSkeleton } from '@/components/data/EmptyState';
 
 const CATEGORIES = ['Physical', 'Mechanical', 'Durability', 'Chemical', 'Safety', 'Visual', 'Other'];
 const STATUSES = ['Draft', 'Active', 'Archived'];
@@ -20,21 +36,33 @@ function buildMethodCode(category: string, existingCodes: string[]): string {
   return `${prefix}-${String(next).padStart(3, '0')}`;
 }
 
+type TestItem = {
+  id: number;
+  name: string;
+  category: string;
+  unit?: string | null;
+  method_code?: string | null;
+  status?: string | null;
+  version?: number | null;
+};
+
 export default function TestMethodsPage() {
   const navigate = useNavigate();
   const { data: items = [], isLoading } = useTestItems();
   const { data: standards = [] } = useStandards();
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [showNew, setShowNew] = useState(false);
   const [newForm, setNewForm] = useState({
-    name: '', category: 'Physical', unit: '',
-    standard_id: '', summary: '',
+    name: '',
+    category: 'Physical',
+    unit: '',
+    standard_id: '',
+    summary: '',
   });
 
-  // Pull primary standards from method_standards (canonical source).
   const { data: primaryStandards = [] } = useQuery({
     queryKey: ['method-primary-standards'],
     queryFn: async () => {
@@ -53,7 +81,6 @@ export default function TestMethodsPage() {
     return map;
   }, [standards]);
 
-  // Map test_item_id -> primary standard label (from method_standards).
   const primaryStandardByItem = useMemo(() => {
     const map = new Map<number, string>();
     primaryStandards.forEach((row: any) => {
@@ -66,21 +93,22 @@ export default function TestMethodsPage() {
   }, [primaryStandards, standardsMap]);
 
   const filtered = useMemo(() => {
-    return items.filter((item) => {
+    return (items as TestItem[]).filter((item) => {
       const primary = primaryStandardByItem.get(item.id) || '';
-      const matchSearch = !search ||
+      const matchSearch =
+        !search ||
         item.name.toLowerCase().includes(search.toLowerCase()) ||
         (item.method_code || '').toLowerCase().includes(search.toLowerCase()) ||
         primary.toLowerCase().includes(search.toLowerCase());
-      const matchCat = !categoryFilter || item.category === categoryFilter;
-      const matchStatus = !statusFilter || (item as any).status === statusFilter;
+      const matchCat = categoryFilter === 'all' || item.category === categoryFilter;
+      const matchStatus = statusFilter === 'all' || item.status === statusFilter;
       return matchSearch && matchCat && matchStatus;
     });
   }, [items, search, categoryFilter, statusFilter, primaryStandardByItem]);
 
-  const categories = useMemo(() => {
+  const categoryCounts = useMemo(() => {
     const counts = new Map<string, number>();
-    items.forEach((i) => counts.set(i.category, (counts.get(i.category) || 0) + 1));
+    items.forEach((i: any) => counts.set(i.category, (counts.get(i.category) || 0) + 1));
     return counts;
   }, [items]);
 
@@ -88,14 +116,23 @@ export default function TestMethodsPage() {
     e.stopPropagation();
     if (!confirm('Delete this test method? All versions and detail data will be removed.')) return;
     const { error } = await supabase.from('test_items').delete().eq('id', id);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success('Test method deleted');
     qc.invalidateQueries({ queryKey: ['test-items'] });
   };
 
   const handleCreate = async () => {
-    if (!newForm.name.trim()) { toast.error('Name is required'); return; }
-    const method_code = buildMethodCode(newForm.category, items.map((i) => (i as any).method_code).filter(Boolean));
+    if (!newForm.name.trim()) {
+      toast.error('Name is required');
+      return;
+    }
+    const method_code = buildMethodCode(
+      newForm.category,
+      items.map((i: any) => i.method_code).filter(Boolean),
+    );
     const { standard_id, ...rest } = newForm;
     const payload = {
       ...rest,
@@ -109,7 +146,10 @@ export default function TestMethodsPage() {
       display_order: items.length + 1,
     };
     const { data, error } = await supabase.from('test_items').insert(payload).select().single();
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success(`Created ${method_code}`);
     setShowNew(false);
     setNewForm({ name: '', category: 'Physical', unit: '', standard_id: '', summary: '' });
@@ -118,155 +158,281 @@ export default function TestMethodsPage() {
   };
 
   const statusBadge = (status?: string | null) => {
-    const cls = status === 'Active' ? 'bg-success/15 text-success'
-      : status === 'Archived' ? 'bg-muted text-muted-foreground'
-      : 'bg-warning/15 text-warning-foreground';
-    return <span className={`text-xs px-1.5 py-0.5 rounded-sm font-medium ${cls}`}>{status || 'Draft'}</span>;
+    const cls =
+      status === 'Active'
+        ? 'bg-success-soft text-success border-success/30'
+        : status === 'Archived'
+          ? 'bg-muted text-muted-foreground border-border'
+          : 'bg-warning-soft text-warning border-warning/30';
+    return (
+      <Badge variant="outline" className={`text-[10px] ${cls}`}>
+        {status || 'Draft'}
+      </Badge>
+    );
   };
 
-  return (
-    <div className="p-6 max-w-7xl mx-auto space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight">Test Methods Library</h1>
-          <p className="text-sm text-muted-foreground">{items.length} methods · ISO/IEC 17025 method definitions</p>
-        </div>
-        <button onClick={() => setShowNew(true)} className="h-9 px-3 flex items-center gap-1.5 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
-          <Plus className="h-3.5 w-3.5" /> Add Method
-        </button>
-      </div>
-
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="relative flex-1 max-w-md min-w-[240px]">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search by name, code, or standard..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-9 pl-8 pr-3 text-sm bg-card border rounded-md shadow-card focus:outline-none focus:ring-2 focus:ring-primary/50"
-          />
-        </div>
-        <div className="flex items-center gap-1">
-          <Filter className="h-3.5 w-3.5 text-muted-foreground" />
-          <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="h-9 px-3 text-sm bg-card border rounded-md shadow-card focus:outline-none focus:ring-2 focus:ring-primary/50">
-            <option value="">All Categories</option>
-            {Array.from(categories.entries()).map(([cat, count]) => (
-              <option key={cat} value={cat}>{cat} ({count})</option>
-            ))}
-          </select>
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="h-9 px-3 text-sm bg-card border rounded-md shadow-card focus:outline-none focus:ring-2 focus:ring-primary/50">
-            <option value="">All Statuses</option>
-            {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
-        </div>
-      </div>
-
-      {showNew && (
-        <div className="bg-card rounded-lg shadow-card p-4 border-2 border-primary/20">
-          <div className="text-sm font-semibold mb-3">New Test Method</div>
-          <p className="text-xs text-muted-foreground mb-3">Create a basic record, then open the detail page to add standards, equipment, procedure steps, and acceptance criteria.</p>
-          <div className="grid grid-cols-3 gap-3">
-            <FormField label="Name *" value={newForm.name} onChange={(v) => setNewForm((p) => ({ ...p, name: v }))} />
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Category</label>
-              <select value={newForm.category} onChange={(e) => setNewForm((p) => ({ ...p, category: e.target.value }))} className="w-full h-9 px-3 text-sm bg-background border rounded-md">
-                {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
-            <FormField label="Unit" value={newForm.unit} onChange={(v) => setNewForm((p) => ({ ...p, unit: v }))} />
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Primary Standard</label>
-              <select value={newForm.standard_id} onChange={(e) => setNewForm((p) => ({ ...p, standard_id: e.target.value }))} className="w-full h-9 px-3 text-sm bg-background border rounded-md">
-                <option value="">— None —</option>
-                {standards.map((s) => <option key={s.id} value={s.id}>{s.code}{s.version ? `:${s.version}` : ''} ({s.organization})</option>)}
-              </select>
-            </div>
-            <FormField label="Summary" value={newForm.summary} onChange={(v) => setNewForm((p) => ({ ...p, summary: v }))} />
-          </div>
-          <div className="flex gap-2 mt-3">
-            <button onClick={handleCreate} className="h-8 px-3 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90">Create & Open</button>
-            <button onClick={() => setShowNew(false)} className="h-8 px-3 text-xs font-medium text-muted-foreground hover:bg-muted rounded-md">Cancel</button>
-          </div>
-        </div>
-      )}
-
-      <div className="bg-card rounded-lg shadow-card overflow-hidden">
-        {isLoading ? (
-          <div className="flex justify-center py-12"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+  const columns: Column<TestItem>[] = [
+    {
+      key: 'method_code',
+      header: 'Code',
+      sortValue: (r) => r.method_code ?? `#${r.id}`,
+      width: '120px',
+      cell: (i) => (
+        <span className="font-mono text-xs text-primary font-medium">
+          {i.method_code || `#${i.id}`}
+        </span>
+      ),
+    },
+    {
+      key: 'name',
+      header: 'Name',
+      sortValue: (r) => r.name,
+      cell: (i) => <span className="font-medium">{i.name}</span>,
+    },
+    {
+      key: 'category',
+      header: 'Category',
+      sortValue: (r) => r.category,
+      hideBelow: 'sm',
+      cell: (i) => (
+        <Badge variant="outline" className="text-[10px] bg-muted/50 border-border font-normal">
+          {i.category}
+        </Badge>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      sortValue: (r) => r.status ?? '',
+      cell: (i) => statusBadge(i.status),
+    },
+    {
+      key: 'version',
+      header: 'Ver',
+      sortValue: (r) => r.version ?? 0,
+      hideBelow: 'md',
+      cell: (i) => (
+        <span className="text-xs text-muted-foreground font-mono">v{i.version || 1}</span>
+      ),
+    },
+    {
+      key: 'unit',
+      header: 'Unit',
+      hideBelow: 'lg',
+      cell: (i) => <span className="text-muted-foreground text-xs">{i.unit || '—'}</span>,
+    },
+    {
+      key: 'standard',
+      header: 'Standard',
+      hideBelow: 'md',
+      cell: (i) => {
+        const std = primaryStandardByItem.get(i.id);
+        return std ? (
+          <Badge
+            variant="outline"
+            className="text-[10px] bg-primary-soft text-primary border-primary/20 font-mono"
+          >
+            {std}
+          </Badge>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b bg-muted/50">
-                <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Code</th>
-                <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Name</th>
-                <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Category</th>
-                <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</th>
-                <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ver</th>
-                <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Unit</th>
-                <th className="text-left px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Standard</th>
-                <th className="text-right px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((item) => (
-                <tr
-                  key={item.id}
-                  onClick={() => navigate(`/test-methods/${item.id}`)}
-                  className="border-b last:border-b-0 hover:bg-muted/30 transition-colors h-10 cursor-pointer"
-                >
-                  <td className="px-3 py-1 font-mono text-xs text-primary">{(item as any).method_code || `#${item.id}`}</td>
-                  <td className="px-3 py-1 font-medium">{item.name}</td>
-                  <td className="px-3 py-1"><span className="text-xs px-1.5 py-0.5 rounded-sm bg-muted font-medium">{item.category}</span></td>
-                  <td className="px-3 py-1">{statusBadge((item as any).status)}</td>
-                  <td className="px-3 py-1 text-xs text-muted-foreground font-mono">v{(item as any).version || 1}</td>
-                  <td className="px-3 py-1 text-muted-foreground">{item.unit || '—'}</td>
-                  <td className="px-3 py-1 text-xs text-muted-foreground">
-                    {primaryStandardByItem.get(item.id) ? (
-                      <span className="px-1.5 py-0.5 rounded-sm bg-primary/10 text-primary font-mono">{primaryStandardByItem.get(item.id)}</span>
-                    ) : (
-                      '—'
-                    )}
-                  </td>
-                  <td className="px-3 py-1 text-right">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); navigate(`/test-methods/${item.id}`); }}
-                      className="p-1 text-muted-foreground hover:bg-muted rounded"
-                      title="Open detail"
-                    >
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      onClick={(e) => handleDelete(item.id, e)}
-                      className="p-1 text-destructive hover:bg-destructive/10 rounded ml-1"
-                      title="Delete"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {filtered.length === 0 && (
-                <tr><td colSpan={8} className="px-3 py-8 text-center text-muted-foreground">No test methods found</td></tr>
-              )}
-            </tbody>
-          </table>
+          <span className="text-xs text-muted-foreground">—</span>
+        );
+      },
+    },
+    {
+      key: 'actions',
+      header: '',
+      align: 'right',
+      width: '90px',
+      cell: (i) => (
+        <RowActions>
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/test-methods/${i.id}`);
+            }}
+            className="h-7 w-7"
+            title="Open"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+          </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={(e) => handleDelete(i.id, e)}
+            className="h-7 w-7 text-destructive hover:text-destructive"
+            title="Delete"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </Button>
+        </RowActions>
+      ),
+    },
+  ];
+
+  return (
+    <div className="flex flex-col">
+      <PageHeader
+        eyebrow="Lab Resources"
+        title="Test Methods Library"
+        description="ISO/IEC 17025-aligned method definitions with versioned standards and procedures."
+        actions={
+          <Dialog open={showNew} onOpenChange={setShowNew}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="h-8">
+                <Plus className="h-4 w-4 mr-1" /> Add Method
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>New Test Method</DialogTitle>
+              </DialogHeader>
+              <p className="text-xs text-muted-foreground">
+                Create a basic record, then open the detail page to add standards, equipment,
+                procedure steps, and acceptance criteria.
+              </p>
+              <div className="grid grid-cols-3 gap-3">
+                <FormField
+                  label="Name *"
+                  value={newForm.name}
+                  onChange={(v) => setNewForm((p) => ({ ...p, name: v }))}
+                />
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Category</Label>
+                  <Select
+                    value={newForm.category}
+                    onValueChange={(v) => setNewForm((p) => ({ ...p, category: v }))}
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {CATEGORIES.map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <FormField
+                  label="Unit"
+                  value={newForm.unit}
+                  onChange={(v) => setNewForm((p) => ({ ...p, unit: v }))}
+                />
+                <div className="col-span-2 space-y-1.5">
+                  <Label className="text-xs">Primary Standard</Label>
+                  <Select
+                    value={newForm.standard_id || 'none'}
+                    onValueChange={(v) =>
+                      setNewForm((p) => ({ ...p, standard_id: v === 'none' ? '' : v }))
+                    }
+                  >
+                    <SelectTrigger><SelectValue placeholder="— None —" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">— None —</SelectItem>
+                      {standards.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>
+                          {s.code}
+                          {s.version ? `:${s.version}` : ''} ({s.organization})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <FormField
+                  label="Summary"
+                  value={newForm.summary}
+                  onChange={(v) => setNewForm((p) => ({ ...p, summary: v }))}
+                />
+              </div>
+              <Button onClick={handleCreate} className="w-full mt-2">
+                Create &amp; Open
+              </Button>
+            </DialogContent>
+          </Dialog>
+        }
+      />
+
+      <PageBody className="space-y-4">
+        <FilterBar
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Search by name, code, or standard…"
+          summary={`${filtered.length} of ${items.length} methods`}
+          filters={[
+            {
+              key: 'category',
+              label: 'Category',
+              value: categoryFilter,
+              onChange: setCategoryFilter,
+              options: [
+                { value: 'all', label: 'All categories' },
+                ...Array.from(categoryCounts.entries()).map(([cat, count]) => ({
+                  value: cat,
+                  label: cat,
+                  count,
+                })),
+              ],
+            },
+            {
+              key: 'status',
+              label: 'Status',
+              value: statusFilter,
+              onChange: setStatusFilter,
+              options: [
+                { value: 'all', label: 'All statuses' },
+                ...STATUSES.map((s) => ({ value: s, label: s })),
+              ],
+            },
+          ]}
+        />
+
+        {isLoading ? (
+          <TableSkeleton columns={7} rows={8} />
+        ) : (
+          <DataTable
+            data={filtered}
+            columns={columns}
+            rowKey={(r) => r.id}
+            onRowClick={(r) => navigate(`/test-methods/${r.id}`)}
+            defaultSort={{ key: 'method_code', direction: 'asc' }}
+            emptyState={
+              <EmptyState
+                icon={TestTubes}
+                title={items.length === 0 ? 'No test methods yet' : 'No matches'}
+                description={
+                  items.length === 0
+                    ? 'Add your first test method to start building the library.'
+                    : 'Try adjusting your search or filters.'
+                }
+                action={
+                  items.length === 0 && (
+                    <Button size="sm" onClick={() => setShowNew(true)}>
+                      <Plus className="h-4 w-4 mr-1" /> Add Method
+                    </Button>
+                  )
+                }
+              />
+            }
+          />
         )}
-      </div>
+      </PageBody>
     </div>
   );
 }
 
-function FormField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+function FormField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
   return (
-    <div>
-      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{label}</label>
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full h-9 px-3 text-sm bg-background border rounded-md focus:outline-none focus:ring-2 focus:ring-primary/50"
-      />
+    <div className="space-y-1.5">
+      <Label className="text-xs">{label}</Label>
+      <Input value={value} onChange={(e) => onChange(e.target.value)} />
     </div>
   );
 }

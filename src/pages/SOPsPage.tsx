@@ -4,6 +4,7 @@ import { useTestItems } from '@/hooks/useTestData';
 import { Search, Plus, Trash2, Pencil, Eye, Clock, FileText, Loader2, ChevronDown, ChevronRight } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 const STATUS_OPTIONS = ['Draft', 'Under Review', 'Approved', 'Archived'];
 
@@ -73,18 +74,20 @@ export default function SOPsPage() {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight">Standard Operating Procedures</h1>
-          <p className="text-sm text-muted-foreground">{sops.length} SOPs — Testing machine setup & procedures</p>
-        </div>
-        <button onClick={() => setShowNew(true)}
-          className="h-9 px-3 flex items-center gap-1.5 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
-          <Plus className="h-3.5 w-3.5" /> New SOP
-        </button>
-      </div>
+    <div className="flex flex-col">
+      <PageHeader
+        eyebrow="Lab Resources"
+        title="Standard Operating Procedures"
+        description="Testing machine setup & versioned procedures for ISO/IEC 17025 traceability."
+        actions={
+          <button onClick={() => setShowNew(true)}
+            className="h-8 px-3 flex items-center gap-1.5 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 shadow-card">
+            <Plus className="h-3.5 w-3.5" /> New SOP
+          </button>
+        }
+      />
 
+      <div className="px-6 py-5 space-y-4 max-w-6xl">
       <div className="relative max-w-md">
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
         <input type="text" placeholder="Search SOPs..." value={search} onChange={e => setSearch(e.target.value)}
@@ -175,6 +178,7 @@ export default function SOPsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </div>
     </div>
   );
 }
