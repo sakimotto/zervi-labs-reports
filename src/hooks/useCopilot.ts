@@ -165,7 +165,7 @@ export function useCopilot() {
         setSending(false);
       }
     },
-    [activeId, messages, sending, newConversation, loadConversations]
+    [activeId, messages, sending, newConversation, loadConversations, conversations]
   );
 
   const deleteConversation = useCallback(
