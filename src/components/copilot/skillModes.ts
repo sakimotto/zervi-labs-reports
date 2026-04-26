@@ -155,10 +155,10 @@ You are now in **operations / SLA mode**. Default behaviour:
 - Quantify risk: number of customer requests, monetary value if available, days of delay.
 - If asked anything ambiguous, default scope to "next 14 days".`,
     starters: [
-      { emoji: "🚨", title: "Overdue now", prompt: "List every overdue customer test request, sorted by days overdue, with the blocker for each." },
-      { emoji: "📅", title: "Due in 7 days", prompt: "What's due in the next 7 days? Flag anything at risk of slipping." },
-      { emoji: "🛠️", title: "Calibration block", prompt: "Which equipment is due for calibration in the next 14 days, and which active test requests depend on it?" },
-      { emoji: "📦", title: "Awaiting samples", prompt: "Which test requests are blocked because samples haven't been received yet?" },
+      { emoji: "🚨", title: "List every overdue customer test request", prompt: "List every overdue customer test request, sorted by days overdue, with the blocker for each." },
+      { emoji: "📅", title: "What's due in the next 7 days?", prompt: "What's due in the next 7 days? Flag anything at risk of slipping." },
+      { emoji: "🛠️", title: "Which calibrations could block delivery?", prompt: "Which equipment is due for calibration in the next 14 days, and which active test requests depend on it?" },
+      { emoji: "📦", title: "What's blocked waiting on samples?", prompt: "Which test requests are blocked because samples haven't been received yet?" },
     ],
   },
 
