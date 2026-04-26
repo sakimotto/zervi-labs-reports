@@ -1569,36 +1569,137 @@ export type Database = {
         }
         Relationships: []
       }
+      supplier_documents: {
+        Row: {
+          created_at: string
+          document_number: string | null
+          document_type: string
+          document_url: string | null
+          id: string
+          issuer: string | null
+          notes: string | null
+          supplier_id: string
+          updated_at: string
+          valid_from: string | null
+          valid_to: string | null
+        }
+        Insert: {
+          created_at?: string
+          document_number?: string | null
+          document_type: string
+          document_url?: string | null
+          id?: string
+          issuer?: string | null
+          notes?: string | null
+          supplier_id: string
+          updated_at?: string
+          valid_from?: string | null
+          valid_to?: string | null
+        }
+        Update: {
+          created_at?: string
+          document_number?: string | null
+          document_type?: string
+          document_url?: string | null
+          id?: string
+          issuer?: string | null
+          notes?: string | null
+          supplier_id?: string
+          updated_at?: string
+          valid_from?: string | null
+          valid_to?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "supplier_documents_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       suppliers: {
         Row: {
+          address_line: string | null
+          approval_status: string
+          approved_at: string | null
+          city: string | null
           contact_person: string | null
+          country: string | null
           created_at: string
+          currency: string | null
           email: string | null
           id: string
           is_active: boolean
           name: string
+          notes: string | null
+          payment_terms: string | null
           phone: string | null
+          postal_code: string | null
+          rating: number | null
+          secondary_email: string | null
+          state_region: string | null
+          status: string
+          supplier_code: string | null
+          supplier_type: string
+          tax_id: string | null
           updated_at: string
+          website: string | null
         }
         Insert: {
+          address_line?: string | null
+          approval_status?: string
+          approved_at?: string | null
+          city?: string | null
           contact_person?: string | null
+          country?: string | null
           created_at?: string
+          currency?: string | null
           email?: string | null
           id?: string
           is_active?: boolean
           name: string
+          notes?: string | null
+          payment_terms?: string | null
           phone?: string | null
+          postal_code?: string | null
+          rating?: number | null
+          secondary_email?: string | null
+          state_region?: string | null
+          status?: string
+          supplier_code?: string | null
+          supplier_type?: string
+          tax_id?: string | null
           updated_at?: string
+          website?: string | null
         }
         Update: {
+          address_line?: string | null
+          approval_status?: string
+          approved_at?: string | null
+          city?: string | null
           contact_person?: string | null
+          country?: string | null
           created_at?: string
+          currency?: string | null
           email?: string | null
           id?: string
           is_active?: boolean
           name?: string
+          notes?: string | null
+          payment_terms?: string | null
           phone?: string | null
+          postal_code?: string | null
+          rating?: number | null
+          secondary_email?: string | null
+          state_region?: string | null
+          status?: string
+          supplier_code?: string | null
+          supplier_type?: string
+          tax_id?: string | null
           updated_at?: string
+          website?: string | null
         }
         Relationships: []
       }
