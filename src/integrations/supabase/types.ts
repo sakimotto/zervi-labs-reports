@@ -163,6 +163,7 @@ export type Database = {
           id: string
           last_message_at: string
           message_count: number
+          mode: string
           pinned: boolean
           title: string
           updated_at: string
@@ -177,6 +178,7 @@ export type Database = {
           id?: string
           last_message_at?: string
           message_count?: number
+          mode?: string
           pinned?: boolean
           title?: string
           updated_at?: string
@@ -191,6 +193,7 @@ export type Database = {
           id?: string
           last_message_at?: string
           message_count?: number
+          mode?: string
           pinned?: boolean
           title?: string
           updated_at?: string
