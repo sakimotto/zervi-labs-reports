@@ -4,17 +4,21 @@ import { useMaterials, useCreateMaterial } from '@/hooks/useMaterials';
 import { useTestPrograms } from '@/hooks/useTestPrograms';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Search, Flame, Sun, Shield, AlertCircle } from 'lucide-react';
+import { Plus, Search, Flame, Sun, Shield, Layers, Package, Settings, FileText } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { PageHeader, PageBody } from '@/components/layout/PageHeader';
 import { CardGridSkeleton, EmptyState } from '@/components/data/EmptyState';
-import { Layers } from 'lucide-react';
+import {
+  FormSection,
+  FormGrid,
+  FormField,
+  FormInput,
+} from '@/components/form/FormPrimitives';
 import {
   materialCreateSchema,
   STRUCTURE_VALUES,
