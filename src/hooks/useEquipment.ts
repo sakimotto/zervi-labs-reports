@@ -217,12 +217,20 @@ export function useEquipmentLinkedMethods(equipmentId: string | null) {
     queryKey: ['equipment-linked-methods', equipmentId],
     enabled: !!equipmentId,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: links, error } = await supabase
         .from('method_equipment')
-        .select('id, is_mandatory, calibration_required, model_required, notes, test_item_id, test_items:test_items(id, method_code, name, category)')
+        .select('id, is_mandatory, calibration_required, model_required, notes, test_item_id')
         .eq('equipment_id', equipmentId!);
       if (error) throw error;
-      return data;
+      if (!links?.length) return [];
+      const ids = Array.from(new Set(links.map(l => l.test_item_id)));
+      const { data: items, error: e2 } = await supabase
+        .from('test_items')
+        .select('id, method_code, name, category')
+        .in('id', ids);
+      if (e2) throw e2;
+      const byId = new Map(items?.map(i => [i.id, i]) ?? []);
+      return links.map(l => ({ ...l, test_item: byId.get(l.test_item_id) ?? null }));
     },
   });
 }
