@@ -125,10 +125,10 @@ You are now in **formal report mode**. Default behaviour:
 - Always end with: "**This is a draft for your review** — please verify all values against source data before issuing."
 - For emails: subject line, professional greeting, 2-3 line summary, key findings, clear next steps, sign-off placeholder.`,
     starters: [
-      { emoji: "📝", title: "Draft a report", prompt: "Help me draft a formal test report for sample [paste sample code or ID]. Include all the standard sections." },
-      { emoji: "✉️", title: "Cover email", prompt: "Draft a professional cover email to deliver test report [paste report number] to the customer." },
-      { emoji: "📋", title: "Findings summary", prompt: "Summarise the key findings from the most recent issued test report in 3 bullet points for an executive audience." },
-      { emoji: "🔁", title: "Revise draft", prompt: "Take the last draft you produced and tighten the executive summary — more direct, less hedging." },
+      { emoji: "📝", title: "Draft a formal test report for a sample", prompt: "Help me draft a formal test report for sample [paste sample code or ID]. Include all the standard sections." },
+      { emoji: "✉️", title: "Write a cover email for a test report", prompt: "Draft a professional cover email to deliver test report [paste report number] to the customer." },
+      { emoji: "📋", title: "Summarise the latest report for executives", prompt: "Summarise the key findings from the most recent issued test report in 3 bullet points for an executive audience." },
+      { emoji: "🔁", title: "Tighten the executive summary in my last draft", prompt: "Take the last draft you produced and tighten the executive summary — more direct, less hedging." },
     ],
   },
 
