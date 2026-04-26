@@ -12,7 +12,7 @@ import {
 import { PageHeader, PageBody } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 import { DataTable, RowActions, type Column } from '@/components/data/DataTable';
 import { FilterBar } from '@/components/data/FilterBar';
 import { EmptyState, TableSkeleton } from '@/components/data/EmptyState';
