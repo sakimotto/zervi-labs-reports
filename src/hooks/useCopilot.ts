@@ -22,6 +22,7 @@ export type CopilotConversation = {
   message_count: number;
   last_message_at: string;
   created_at: string;
+  mode: string;
 };
 
 export function useCopilot() {
