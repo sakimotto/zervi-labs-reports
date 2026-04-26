@@ -5,18 +5,14 @@ import {
   Truck,
   Users,
   BookOpen,
-  ClipboardList,
   ChevronLeft,
   Cpu,
   Layers,
   BookMarked,
-  LogOut,
+  ClipboardList,
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { useUserRoles } from '@/hooks/useUserRole';
-import { toast } from 'sonner';
+import { useLocation } from 'react-router-dom';
 import {
   Sidebar,
   SidebarContent,
@@ -54,124 +50,72 @@ export function AppSidebar() {
   const { state, toggleSidebar } = useSidebar();
   const collapsed = state === 'collapsed';
   const location = useLocation();
-  const navigate = useNavigate();
   const currentPath = location.pathname;
-  const { user, signOut } = useAuth();
-  const { data: roles = [] } = useUserRoles();
-  const primaryRole = roles[0] ?? 'viewer';
-
-  const handleSignOut = async () => {
-    await signOut();
-    toast.success('Signed out');
-    navigate('/auth', { replace: true });
-  };
 
   const isActive = (path: string) =>
     path === '/' ? currentPath === '/' : currentPath.startsWith(path);
 
+  const renderGroup = (label: string, items: typeof mainNav) => (
+    <SidebarGroup>
+      {!collapsed && (
+        <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-[0.1em] text-sidebar-foreground/50 px-3">
+          {label}
+        </SidebarGroupLabel>
+      )}
+      <SidebarGroupContent>
+        <SidebarMenu>
+          {items.map((item) => {
+            const active = isActive(item.url);
+            return (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={active}
+                  className="data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[active=true]:font-medium hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground transition-colors relative"
+                >
+                  <NavLink to={item.url} end={item.url === '/'}>
+                    {active && (
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.5 rounded-r bg-sidebar-primary" />
+                    )}
+                    <item.icon className="h-4 w-4" />
+                    {!collapsed && <span className="text-sm">{item.title}</span>}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border px-3 py-3">
-        <div className="flex items-center gap-2">
-          <FlaskConical className="h-5 w-5 text-primary shrink-0" />
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+      <SidebarHeader className="border-b border-sidebar-border px-3 py-3.5">
+        <div className="flex items-center gap-2.5">
+          <div className="h-8 w-8 rounded-md bg-gradient-primary flex items-center justify-center shadow-elevated shrink-0">
+            <FlaskConical className="h-4 w-4 text-primary-foreground" />
+          </div>
           {!collapsed && (
-            <div className="flex flex-col">
-              <span className="text-xs font-bold tracking-tight">ZERVI ASIA</span>
-              <span className="text-[10px] text-muted-foreground leading-none">Laboratory Management</span>
+            <div className="flex flex-col min-w-0">
+              <span className="text-xs font-bold tracking-tight text-sidebar-foreground">ZERVI ASIA</span>
+              <span className="text-[10px] text-sidebar-foreground/60 leading-none">Laboratory Management</span>
             </div>
           )}
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Main</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {mainNav.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <NavLink
-                      to={item.url}
-                      end={item.url === '/'}
-                      className="hover:bg-sidebar-accent"
-                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                    >
-                      <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Lab Resources</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {labNav.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <NavLink
-                      to={item.url}
-                      className="hover:bg-sidebar-accent"
-                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                    >
-                      <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>Directory</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {directoryNav.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <NavLink
-                      to={item.url}
-                      className="hover:bg-sidebar-accent"
-                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                    >
-                      <item.icon className="h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <SidebarContent className="py-2">
+        {renderGroup('Main', mainNav)}
+        {renderGroup('Lab Resources', labNav)}
+        {renderGroup('Directory', directoryNav)}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border p-2 space-y-1">
-        {user && !collapsed && (
-          <div className="px-2 py-1.5 mb-1">
-            <div className="text-xs font-medium truncate">{user.email}</div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
-              {primaryRole.replace('_', ' ')}
-            </div>
-          </div>
-        )}
-        <button
-          onClick={handleSignOut}
-          title="Sign out"
-          className="flex items-center gap-2 w-full h-8 px-2 rounded-md hover:bg-sidebar-accent transition-colors text-xs"
-        >
-          <LogOut className="h-4 w-4 shrink-0" />
-          {!collapsed && <span>Sign out</span>}
-        </button>
+      <SidebarFooter className="border-t border-sidebar-border p-2">
         <button
           onClick={toggleSidebar}
-          className="flex items-center justify-center w-full h-8 rounded-md hover:bg-sidebar-accent transition-colors"
+          className="flex items-center justify-center w-full h-8 rounded-md hover:bg-sidebar-accent transition-colors text-sidebar-foreground/70 hover:text-sidebar-foreground"
+          aria-label="Toggle sidebar"
         >
           <ChevronLeft className={`h-4 w-4 transition-transform ${collapsed ? 'rotate-180' : ''}`} />
         </button>
