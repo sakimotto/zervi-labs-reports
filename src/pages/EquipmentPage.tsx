@@ -18,6 +18,7 @@ import {
 import {
   EQUIPMENT_CATEGORIES, EQUIPMENT_STATUSES, CAL_STATUSES, deriveCalStatus,
 } from '@/lib/equipment-constants';
+import { PageHeader, PageBody } from '@/components/layout/PageHeader';
 
 export default function EquipmentPage() {
   const navigate = useNavigate();
@@ -81,28 +82,35 @@ export default function EquipmentPage() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-start justify-between gap-3 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold">Equipment Registry</h1>
-          <p className="text-sm text-muted-foreground">Manage lab equipment, calibration program, and maintenance</p>
-        </div>
-        <div className="flex items-center gap-2">
-          {dueCount > 0 && (
-            <Badge variant="outline" className="bg-amber-500/10 text-amber-700 border-amber-500/30">
-              <AlertTriangle className="h-3 w-3 mr-1" /> {dueCount} calibration{dueCount > 1 ? 's' : ''} due / overdue
-            </Badge>
-          )}
-          <Dialog open={showAdd} onOpenChange={(o) => { setShowAdd(o); if (!o) { setForm(blankEquipmentForm); setErrors({}); } }}>
-            <DialogTrigger asChild><Button size="sm"><Plus className="h-4 w-4 mr-1" /> Add Equipment</Button></DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader><DialogTitle>Add Equipment</DialogTitle></DialogHeader>
-              <EquipmentFormFields form={form} setForm={setForm} errors={errors} />
-              <Button onClick={handleCreate} disabled={createEquipment.isPending} className="w-full">Save</Button>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
+    <div className="flex flex-col">
+      <PageHeader
+        eyebrow="Lab Resources"
+        title="Equipment Registry"
+        description="Manage lab equipment, calibration program, and maintenance across all benches."
+        actions={
+          <>
+            {dueCount > 0 && (
+              <Badge variant="outline" className="bg-warning-soft text-warning border-warning/30 h-8 px-3">
+                <AlertTriangle className="h-3.5 w-3.5 mr-1.5" /> {dueCount} due / overdue
+              </Badge>
+            )}
+            <Dialog open={showAdd} onOpenChange={(o) => { setShowAdd(o); if (!o) { setForm(blankEquipmentForm); setErrors({}); } }}>
+              <DialogTrigger asChild>
+                <Button size="sm" className="h-8 shadow-card">
+                  <Plus className="h-4 w-4 mr-1" /> Add Equipment
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader><DialogTitle>Add Equipment</DialogTitle></DialogHeader>
+                <EquipmentFormFields form={form} setForm={setForm} errors={errors} />
+                <Button onClick={handleCreate} disabled={createEquipment.isPending} className="w-full">Save</Button>
+              </DialogContent>
+            </Dialog>
+          </>
+        }
+      />
+
+      <PageBody className="space-y-4">
 
       {/* FILTERS */}
       <Card className="p-3">
