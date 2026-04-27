@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+export type OcrStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'skipped';
+
 export interface TaskAttachment {
   id: string;
   task_id: string;
@@ -12,6 +14,10 @@ export interface TaskAttachment {
   uploaded_by: string | null;
   uploaded_by_name: string | null;
   created_at: string;
+  ocr_text: string | null;
+  ocr_status: OcrStatus;
+  ocr_error: string | null;
+  ocr_completed_at: string | null;
 }
 
 const BUCKET = 'task-attachments';
