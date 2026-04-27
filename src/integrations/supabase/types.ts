@@ -14,6 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
+      calendar_events: {
+        Row: {
+          all_day: boolean
+          color: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          ends_at: string | null
+          equipment_id: string | null
+          id: string
+          kind: string
+          location: string | null
+          owner_team_id: string | null
+          owner_user_id: string | null
+          sample_id: string | null
+          source: string | null
+          starts_at: string
+          task_id: string | null
+          test_request_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          all_day?: boolean
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          ends_at?: string | null
+          equipment_id?: string | null
+          id?: string
+          kind?: string
+          location?: string | null
+          owner_team_id?: string | null
+          owner_user_id?: string | null
+          sample_id?: string | null
+          source?: string | null
+          starts_at: string
+          task_id?: string | null
+          test_request_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          all_day?: boolean
+          color?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          ends_at?: string | null
+          equipment_id?: string | null
+          id?: string
+          kind?: string
+          location?: string | null
+          owner_team_id?: string | null
+          owner_user_id?: string | null
+          sample_id?: string | null
+          source?: string | null
+          starts_at?: string
+          task_id?: string | null
+          test_request_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_events_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_owner_team_id_fkey"
+            columns: ["owner_team_id"]
+            isOneToOne: false
+            referencedRelation: "lab_teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_sample_id_fkey"
+            columns: ["sample_id"]
+            isOneToOne: false
+            referencedRelation: "samples"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_test_request_id_fkey"
+            columns: ["test_request_id"]
+            isOneToOne: false
+            referencedRelation: "customer_test_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calibration_records: {
         Row: {
           accreditation_body: string | null
@@ -657,6 +759,71 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      lab_team_members: {
+        Row: {
+          created_at: string
+          id: string
+          role_in_team: string | null
+          team_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role_in_team?: string | null
+          team_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role_in_team?: string | null
+          team_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lab_team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "lab_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lab_teams: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       maintenance_logs: {
         Row: {
@@ -2522,6 +2689,151 @@ export type Database = {
           website?: string | null
         }
         Relationships: []
+      }
+      task_comments: {
+        Row: {
+          author_name: string | null
+          author_user_id: string | null
+          body: string
+          created_at: string
+          id: string
+          task_id: string
+        }
+        Insert: {
+          author_name?: string | null
+          author_user_id?: string | null
+          body: string
+          created_at?: string
+          id?: string
+          task_id: string
+        }
+        Update: {
+          author_name?: string | null
+          author_user_id?: string | null
+          body?: string
+          created_at?: string
+          id?: string
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_comments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          ai_rationale: string | null
+          ai_suggested: boolean
+          assignee_team_id: string | null
+          assignee_user_id: string | null
+          calibration_id: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          equipment_id: string | null
+          estimated_hours: number | null
+          id: string
+          planned_date: string | null
+          priority: string
+          sample_id: string | null
+          sample_test_item_id: string | null
+          status: string
+          tags: string[] | null
+          task_number: string | null
+          test_request_id: string | null
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          ai_rationale?: string | null
+          ai_suggested?: boolean
+          assignee_team_id?: string | null
+          assignee_user_id?: string | null
+          calibration_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          equipment_id?: string | null
+          estimated_hours?: number | null
+          id?: string
+          planned_date?: string | null
+          priority?: string
+          sample_id?: string | null
+          sample_test_item_id?: string | null
+          status?: string
+          tags?: string[] | null
+          task_number?: string | null
+          test_request_id?: string | null
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          ai_rationale?: string | null
+          ai_suggested?: boolean
+          assignee_team_id?: string | null
+          assignee_user_id?: string | null
+          calibration_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          equipment_id?: string | null
+          estimated_hours?: number | null
+          id?: string
+          planned_date?: string | null
+          priority?: string
+          sample_id?: string | null
+          sample_test_item_id?: string | null
+          status?: string
+          tags?: string[] | null
+          task_number?: string | null
+          test_request_id?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_assignee_team_id_fkey"
+            columns: ["assignee_team_id"]
+            isOneToOne: false
+            referencedRelation: "lab_teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_sample_id_fkey"
+            columns: ["sample_id"]
+            isOneToOne: false
+            referencedRelation: "samples"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_test_request_id_fkey"
+            columns: ["test_request_id"]
+            isOneToOne: false
+            referencedRelation: "customer_test_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       test_items: {
         Row: {
