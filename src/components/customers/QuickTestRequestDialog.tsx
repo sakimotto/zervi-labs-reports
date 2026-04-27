@@ -55,6 +55,11 @@ const schema = z
       .min(1, 'Describe what should be tested')
       .max(2000, 'Must be 2000 characters or less'),
     po_number: z.string().trim().max(100).optional(),
+    sku: z.string().trim().max(100).optional(),
+    batch_number: z.string().trim().max(100).optional(),
+    sales_order_number: z.string().trim().max(100).optional(),
+    delivery_note_number: z.string().trim().max(100).optional(),
+    customer_reference: z.string().trim().max(100).optional(),
     requested_date: z.string().optional(),
     due_date: z.string().optional(),
     priority: z.string().refine((v) => (REQUEST_PRIORITIES as readonly string[]).includes(v)),
