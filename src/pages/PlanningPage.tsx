@@ -17,6 +17,7 @@ import {
 import { ChevronLeft, ChevronRight, Plus, FlaskConical, Cpu, ClipboardList, Calendar as CalIcon, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
+import { AskAIButton, getPlanningAIActions } from '@/components/copilot/AskAIButton';
 
 const KIND_META: Record<EventKind, { label: string; color: string; icon: any }> = {
   test_job:    { label: 'Test job',     color: '#3B82F6', icon: FlaskConical },
