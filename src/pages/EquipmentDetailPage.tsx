@@ -28,6 +28,7 @@ import {
 import { EquipmentAuditPanel } from '@/components/equipment/EquipmentAuditPanel';
 import { deriveCalStatus } from '@/lib/equipment-constants';
 import { format } from 'date-fns';
+import { AskAIButton, getEquipmentAIActions } from '@/components/copilot/AskAIButton';
 
 function StatBadge({ status }: { status?: string | null }) {
   if (!status) return null;
