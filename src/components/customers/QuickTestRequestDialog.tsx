@@ -55,6 +55,11 @@ const schema = z
       .min(1, 'Describe what should be tested')
       .max(2000, 'Must be 2000 characters or less'),
     po_number: z.string().trim().max(100).optional(),
+    sku: z.string().trim().max(100).optional(),
+    batch_number: z.string().trim().max(100).optional(),
+    sales_order_number: z.string().trim().max(100).optional(),
+    delivery_note_number: z.string().trim().max(100).optional(),
+    customer_reference: z.string().trim().max(100).optional(),
     requested_date: z.string().optional(),
     due_date: z.string().optional(),
     priority: z.string().refine((v) => (REQUEST_PRIORITIES as readonly string[]).includes(v)),
@@ -84,6 +89,18 @@ const schema = z
         message: 'Department is required for internal requests',
       });
     }
+    // Smart conditional: incoming goods needs PO or delivery note for traceability
+    if (
+      data.request_type === 'incoming_goods' &&
+      !data.po_number?.trim() &&
+      !data.delivery_note_number?.trim()
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['delivery_note_number'],
+        message: 'Incoming goods need a PO or delivery note number',
+      });
+    }
   });
 
 type Values = z.infer<typeof schema>;
@@ -96,6 +113,11 @@ const defaults = (): Values => ({
   test_program_id: '',
   description: '',
   po_number: '',
+  sku: '',
+  batch_number: '',
+  sales_order_number: '',
+  delivery_note_number: '',
+  customer_reference: '',
   requested_date: new Date().toISOString().slice(0, 10),
   due_date: '',
   priority: 'Normal',
@@ -187,6 +209,11 @@ export function QuickTestRequestDialog({
       test_program_id: data.test_program_id || null,
       description: data.description.trim(),
       po_number: data.po_number?.trim() || null,
+      sku: data.sku?.trim() || null,
+      batch_number: data.batch_number?.trim() || null,
+      sales_order_number: data.sales_order_number?.trim() || null,
+      delivery_note_number: data.delivery_note_number?.trim() || null,
+      customer_reference: data.customer_reference?.trim() || null,
       requested_date: data.requested_date || null,
       due_date: data.due_date || null,
       priority: data.priority,
@@ -404,12 +431,62 @@ export function QuickTestRequestDialog({
             </FormGrid>
           </FormSection>
 
-          {/* Step 3 — Logistics */}
-          <FormSection title="3. Logistics" description="Tracking, dates, priority" bare>
+          {/* Step 3 — Traceability (always visible, smart emphasis per origin) */}
+          <FormSection
+            title="3. Traceability & references"
+            description="Material identity and originating business document. Leave blank if not applicable."
+            bare
+          >
             <FormGrid cols={2}>
-              <FormField label="PO number" error={errors.po_number?.message}>
+              <FormField
+                label="SKU / Part No."
+                error={errors.sku?.message}
+                hint="Internal SKU. Auto-fills from a linked catalog material."
+              >
+                <FormInput {...register('sku')} error={!!errors.sku} maxLength={100} placeholder="e.g. ZV-PVC-1042" />
+              </FormField>
+              <FormField
+                label="Batch number"
+                error={errors.batch_number?.message}
+                hint="Default batch — overridable per sample."
+              >
+                <FormInput {...register('batch_number')} error={!!errors.batch_number} maxLength={100} placeholder="e.g. B-2026-0418" />
+              </FormField>
+              <FormField
+                label={requestType === 'incoming_goods' ? 'PO number *' : 'PO number'}
+                error={errors.po_number?.message}
+                hint={requestType === 'incoming_goods' ? 'PO or delivery note required for incoming goods' : undefined}
+              >
                 <FormInput {...register('po_number')} error={!!errors.po_number} maxLength={100} />
               </FormField>
+              <FormField
+                label="Sales order"
+                error={errors.sales_order_number?.message}
+                hint={requestType === 'customer' ? 'Useful for pre-shipment testing' : undefined}
+              >
+                <FormInput {...register('sales_order_number')} error={!!errors.sales_order_number} maxLength={100} />
+              </FormField>
+              <FormField
+                label={requestType === 'incoming_goods' ? 'Delivery note / GRN *' : 'Delivery note / GRN'}
+                error={errors.delivery_note_number?.message}
+                hint={requestType === 'incoming_goods' ? 'PO or delivery note required for incoming goods' : undefined}
+              >
+                <FormInput {...register('delivery_note_number')} error={!!errors.delivery_note_number} maxLength={100} />
+              </FormField>
+              <FormField
+                label={requestType === 'customer' ? 'Customer reference' : 'External reference'}
+                error={errors.customer_reference?.message}
+                hint="Their PO or internal ref"
+              >
+                <FormInput {...register('customer_reference')} error={!!errors.customer_reference} maxLength={100} />
+              </FormField>
+            </FormGrid>
+          </FormSection>
+
+          {/* Step 4 — Logistics */}
+          <FormSection title="4. Logistics" description="Dates and priority" bare>
+            <FormGrid cols={2}>
+
               <FormField label="Requested date" error={errors.requested_date?.message}>
                 <FormInput type="date" {...register('requested_date')} error={!!errors.requested_date} />
               </FormField>
