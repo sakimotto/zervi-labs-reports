@@ -92,6 +92,7 @@ export function TaskAttachmentsSection({ taskId }: { taskId: string }) {
   const uploadMut = useUploadTaskAttachment();
   const deleteMut = useDeleteTaskAttachment();
   const retryMut = useRetryAttachmentOcr();
+  const langMut = useUpdateAttachmentLanguage();
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const [search, setSearch] = useState('');
