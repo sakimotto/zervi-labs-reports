@@ -177,12 +177,12 @@ export default function DashboardPage() {
 
         {/* Bottom: status breakdown + quick links */}
         <div className="grid lg:grid-cols-3 gap-4">
-          <Card className="lg:col-span-2 p-4 shadow-card">
+          <Card className="lg:col-span-2 p-4 bg-gradient-card hover-lift">
             <div className="text-sm font-semibold mb-3">This Week's Schedule</div>
             <div className="space-y-1 max-h-72 overflow-y-auto">
               {weekEvents.slice(0, 12).map(ev => (
-                <div key={ev.id} className="flex items-center gap-3 p-2 rounded hover:bg-muted/40 text-sm">
-                  <span className="h-2 w-2 rounded-full shrink-0" style={{ background: ev.color || '#6B7280' }} />
+                <div key={ev.id} className="flex items-center gap-3 p-2 rounded-md hover-tint transition-colors text-sm">
+                  <span className="h-2 w-2 rounded-full shrink-0 ring-2 ring-background" style={{ background: ev.color || 'hsl(var(--muted-foreground))' }} />
                   <span className="text-xs font-mono text-muted-foreground w-16">{format(parseISO(ev.starts_at), 'EEE d')}</span>
                   <span className="flex-1 truncate">{ev.title}</span>
                   <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{ev.kind.replace('_', ' ')}</span>
@@ -195,7 +195,7 @@ export default function DashboardPage() {
           </Card>
 
           <div className="space-y-4">
-            <Card className="p-4 shadow-card">
+            <Card className="p-4 bg-gradient-card hover-lift">
               <div className="text-sm font-semibold mb-3">Quick Access</div>
               <div className="space-y-1">
                 <QuickLink icon={TestTubes} label="Test Methods" count={testItems.length} href="/test-methods" />
@@ -205,7 +205,7 @@ export default function DashboardPage() {
               </div>
             </Card>
 
-            <Card className="p-4 shadow-card">
+            <Card className="p-4 bg-gradient-card hover-lift">
               <div className="text-sm font-semibold mb-3">Sample Status</div>
               <div className="space-y-3">
                 <BarItem label="Pending" value={pending.length} total={samples.length} className="bg-warning" />
