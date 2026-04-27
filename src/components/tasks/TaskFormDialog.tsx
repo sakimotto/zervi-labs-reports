@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sparkles } from 'lucide-react';
+import { AskAIButton, getTaskAIActions } from '@/components/copilot/AskAIButton';
 
 interface Props {
   open: boolean;
