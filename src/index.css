@@ -9,67 +9,84 @@
     --font-sans: 'IBM Plex Sans', -apple-system, sans-serif;
     --font-mono: 'IBM Plex Mono', monospace;
 
-    /* Surfaces: tinted canvas + crisp cards for clear hierarchy */
-    --background: 215 28% 95%;
-    --foreground: 222 47% 11%;
+    /* Surfaces: cooler, deeper canvas so white cards pop with clear separation */
+    --background: 215 32% 91%;
+    --foreground: 222 47% 10%;
 
-    --surface: 210 25% 97%;
-    --surface-foreground: 222 47% 11%;
+    --surface: 215 28% 94%;
+    --surface-foreground: 222 47% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --card-muted: 210 30% 98%;
+    --card-foreground: 222 47% 10%;
+    --card-muted: 215 30% 97%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 222 47% 10%;
 
     /* Brand: industrial cobalt, slightly richer */
     --primary: 222 84% 48%;
     --primary-foreground: 0 0% 100%;
-    --primary-soft: 222 84% 96%;
+    --primary-soft: 222 84% 95%;
     --primary-glow: 222 90% 60%;
 
-    --secondary: 215 20% 91%;
+    --secondary: 215 22% 88%;
     --secondary-foreground: 222 47% 11%;
 
-    --muted: 215 25% 93%;
-    --muted-foreground: 215 16% 42%;
+    --muted: 215 25% 90%;
+    --muted-foreground: 215 16% 38%;
 
-    --accent: 222 84% 96%;
-    --accent-foreground: 222 84% 30%;
+    --accent: 222 84% 95%;
+    --accent-foreground: 222 84% 28%;
 
     --destructive: 0 78% 55%;
     --destructive-foreground: 0 0% 100%;
 
     --success: 152 64% 36%;
     --success-foreground: 0 0% 100%;
-    --success-soft: 152 60% 94%;
+    --success-soft: 152 60% 93%;
 
     --warning: 32 96% 48%;
     --warning-foreground: 0 0% 100%;
-    --warning-soft: 38 95% 94%;
+    --warning-soft: 38 95% 92%;
 
     --info: 199 90% 45%;
     --info-foreground: 0 0% 100%;
-    --info-soft: 199 90% 95%;
+    --info-soft: 199 90% 94%;
 
-    --border: 215 20% 87%;
-    --border-strong: 215 20% 78%;
-    --input: 215 20% 87%;
+    --border: 215 22% 82%;
+    --border-strong: 215 22% 72%;
+    --input: 215 22% 82%;
     --ring: 222 84% 48%;
 
     --radius: 8px;
 
-    /* Elevation system */
-    --shadow-xs: 0 1px 2px 0 hsl(222 47% 11% / 0.04);
-    --shadow-card: 0 1px 0 0 hsl(222 47% 11% / 0.04), 0 1px 3px -1px hsl(222 47% 11% / 0.06);
-    --shadow-elevated: 0 4px 12px -2px hsl(222 47% 11% / 0.08), 0 2px 4px -2px hsl(222 47% 11% / 0.04);
-    --shadow-popover: 0 12px 32px -8px hsl(222 47% 11% / 0.18), 0 4px 8px -4px hsl(222 47% 11% / 0.08);
-    --shadow-focus: 0 0 0 3px hsl(var(--primary) / 0.18);
+    /* Elevation system — richer, slightly cobalt-tinted shadows for depth */
+    --shadow-xs: 0 1px 2px 0 hsl(222 47% 11% / 0.05);
+    --shadow-card:
+      0 0 0 1px hsl(215 22% 80% / 0.5),
+      0 1px 2px -1px hsl(222 47% 11% / 0.06),
+      0 2px 6px -2px hsl(222 47% 11% / 0.08);
+    --shadow-elevated:
+      0 0 0 1px hsl(215 22% 75% / 0.6),
+      0 6px 16px -4px hsl(222 47% 11% / 0.12),
+      0 3px 6px -3px hsl(222 47% 11% / 0.08);
+    --shadow-popover:
+      0 0 0 1px hsl(215 22% 70% / 0.5),
+      0 16px 40px -12px hsl(222 47% 11% / 0.22),
+      0 6px 12px -6px hsl(222 47% 11% / 0.1);
+    --shadow-focus: 0 0 0 3px hsl(var(--primary) / 0.22);
+    --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.25), 0 8px 24px -6px hsl(var(--primary) / 0.28);
 
-    /* Gradients */
-    --gradient-surface: linear-gradient(180deg, hsl(215 28% 96%), hsl(215 28% 94%));
+    /* Gradients — subtle cobalt-tinted canvas with corner halos */
+    --gradient-surface:
+      radial-gradient(ellipse 80% 50% at 0% 0%, hsl(222 60% 88% / 0.55), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 100% 100%, hsl(199 60% 88% / 0.4), transparent 55%),
+      linear-gradient(180deg, hsl(215 32% 92%), hsl(215 30% 89%));
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(215 30% 99%));
+
+    /* Motion */
+    --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 
     /* Sidebar — darker industrial frame */
     --sidebar-background: 222 47% 9%;
@@ -131,12 +148,22 @@
     --ring: 222 84% 62%;
 
     --shadow-xs: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
-    --shadow-card: 0 1px 0 0 hsl(0 0% 0% / 0.3), 0 1px 3px -1px hsl(0 0% 0% / 0.4);
-    --shadow-elevated: 0 4px 12px -2px hsl(0 0% 0% / 0.5), 0 2px 4px -2px hsl(0 0% 0% / 0.3);
-    --shadow-popover: 0 12px 32px -8px hsl(0 0% 0% / 0.6);
+    --shadow-card:
+      0 0 0 1px hsl(222 30% 22% / 0.6),
+      0 1px 3px -1px hsl(0 0% 0% / 0.4),
+      0 4px 10px -4px hsl(0 0% 0% / 0.4);
+    --shadow-elevated:
+      0 0 0 1px hsl(222 30% 28% / 0.6),
+      0 8px 20px -4px hsl(0 0% 0% / 0.55);
+    --shadow-popover: 0 16px 40px -10px hsl(0 0% 0% / 0.7);
     --shadow-focus: 0 0 0 3px hsl(var(--primary) / 0.4);
+    --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.4), 0 8px 24px -6px hsl(var(--primary) / 0.45);
 
-    --gradient-surface: linear-gradient(180deg, hsl(222 47% 7%), hsl(222 47% 5%));
+    --gradient-surface:
+      radial-gradient(ellipse 70% 50% at 0% 0%, hsl(222 70% 14% / 0.6), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 100% 100%, hsl(199 70% 12% / 0.5), transparent 55%),
+      linear-gradient(180deg, hsl(222 47% 7%), hsl(222 47% 5%));
+    --gradient-card: linear-gradient(180deg, hsl(222 40% 12%), hsl(222 40% 10%));
 
     --sidebar-background: 222 50% 5%;
     --sidebar-foreground: 215 25% 80%;
@@ -192,14 +219,55 @@
   .shadow-card { box-shadow: var(--shadow-card); }
   .shadow-elevated { box-shadow: var(--shadow-elevated); }
   .shadow-popover { box-shadow: var(--shadow-popover); }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
 
   .bg-gradient-surface { background-image: var(--gradient-surface); }
   .bg-gradient-primary { background-image: var(--gradient-primary); }
+  .bg-gradient-card { background-image: var(--gradient-card); }
 
   /* Surface tokens */
   .bg-surface { background-color: hsl(var(--surface)); }
   .bg-card-muted { background-color: hsl(var(--card-muted)); }
   .border-strong { border-color: hsl(var(--border-strong)); }
+
+  /* Glassy translucent panel — for chrome/headers */
+  .bg-glass {
+    background-color: hsl(var(--card) / 0.72);
+    backdrop-filter: saturate(140%) blur(10px);
+    -webkit-backdrop-filter: saturate(140%) blur(10px);
+  }
+  .bg-glass-muted {
+    background-color: hsl(var(--card) / 0.55);
+    backdrop-filter: saturate(140%) blur(8px);
+    -webkit-backdrop-filter: saturate(140%) blur(8px);
+  }
+
+  /* Hover lift — smooth elevation + tiny translate */
+  .hover-lift {
+    transition:
+      transform 220ms var(--ease-out-soft),
+      box-shadow 220ms var(--ease-out-soft),
+      border-color 220ms var(--ease-out-soft),
+      background-color 220ms var(--ease-out-soft);
+    will-change: transform;
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-elevated);
+    border-color: hsl(var(--border-strong));
+  }
+
+  /* Subtle interactive surface tint on hover */
+  .hover-tint:hover {
+    background-color: hsl(var(--accent) / 0.6);
+  }
+
+  /* Top accent bar (1px gradient) for category cards */
+  .accent-top-primary { box-shadow: inset 0 2px 0 0 hsl(var(--primary)); }
+  .accent-top-warning { box-shadow: inset 0 2px 0 0 hsl(var(--warning)); }
+  .accent-top-success { box-shadow: inset 0 2px 0 0 hsl(var(--success)); }
+  .accent-top-destructive { box-shadow: inset 0 2px 0 0 hsl(var(--destructive)); }
+  .accent-top-info { box-shadow: inset 0 2px 0 0 hsl(var(--info)); }
 
   .disabled-stripe {
     opacity: 0.4;
