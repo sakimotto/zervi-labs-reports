@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ClipboardList, Search, CalendarClock, ExternalLink } from 'lucide-react';
+import { ClipboardList, Search, CalendarClock, ExternalLink, Plus } from 'lucide-react';
+import { QuickTestRequestDialog } from '@/components/customers/QuickTestRequestDialog';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -40,6 +41,7 @@ export default function TestRequestsPage() {
   const [status, setStatus] = useState<string>('all');
   const [priority, setPriority] = useState<string>('all');
   const [overdueOnly, setOverdueOnly] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
 
   const rows = data as unknown as Row[];
 
@@ -85,7 +87,15 @@ export default function TestRequestsPage() {
       <PageHeader
         title="Test Requests"
         description="All customer test requests (CTR) across the lab."
+        actions={
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
+            <Plus className="h-4 w-4 mr-1" />
+            New test request
+          </Button>
+        }
       />
+
+      <QuickTestRequestDialog open={createOpen} onOpenChange={setCreateOpen} />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Kpi label="Total" value={summary.total} />
