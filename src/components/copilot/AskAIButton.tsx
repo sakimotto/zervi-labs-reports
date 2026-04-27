@@ -30,7 +30,9 @@ export type AskAIContext = {
     | "customer"
     | "supplier"
     | "material"
-    | "equipment";
+    | "equipment"
+    | "task"
+    | "planning";
   id: string;
   label?: string;
 };
