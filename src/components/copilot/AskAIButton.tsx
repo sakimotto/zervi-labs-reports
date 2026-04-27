@@ -389,3 +389,75 @@ export function getCustomerAIActions(customerName: string): AskAIAction[] {
     },
   ];
 }
+
+export function getTaskAIActions(taskLabel: string): AskAIAction[] {
+  return [
+    {
+      label: "Break down task",
+      emoji: "🧩",
+      description: "Split this task into clear, ordered subtasks with estimated effort.",
+      prompt: `Break down task "${taskLabel}" into a clear, ordered list of subtasks. For each subtask: give a 1-line description, estimated effort in hours, suggested owner role, and any dependency on previous subtasks.`,
+    },
+    {
+      label: "Suggest assignee",
+      emoji: "👤",
+      description: "Recommend the best team or person based on skills, load, and history.",
+      prompt: `For task "${taskLabel}", recommend the best team and (if possible) individual to assign. Justify based on the task type, required skills, current workload across teams, and past performance on similar tasks.`,
+    },
+    {
+      label: "Risk & blockers",
+      emoji: "⚠️",
+      description: "What could go wrong, prerequisites, and mitigation steps.",
+      prompt: `Run a risk assessment on task "${taskLabel}". List likely blockers, missing prerequisites (samples, calibrated equipment, approvals), realistic completion risk, and mitigation steps.`,
+    },
+    {
+      label: "Draft instructions",
+      emoji: "📋",
+      description: "Step-by-step instructions the assignee can follow without follow-up.",
+      prompt: `Draft clear, step-by-step instructions for completing task "${taskLabel}". Assume the assignee is competent but new to this exact task. Include preparation, execution steps, quality checks, and what "done" looks like.`,
+      draftKind: "report",
+    },
+    {
+      label: "Status update",
+      emoji: "✉️",
+      description: "Short status note for the requester or team chat.",
+      prompt: `Draft a concise status update for task "${taskLabel}" suitable for posting to the team or sending to the requester. Cover: current status, what was done, what's next, any blockers.`,
+      draftKind: "email",
+    },
+  ];
+}
+
+export function getPlanningAIActions(monthLabel: string): AskAIAction[] {
+  return [
+    {
+      label: "Plan my week",
+      emoji: "📅",
+      description: "Prioritised plan for the next 7 days based on tasks, deadlines, and capacity.",
+      prompt: `Build a prioritised plan for the next 7 days. Pull from open tasks, request due dates, scheduled test jobs, and equipment calibrations. Group by day, flag overloaded days, and highlight the top 3 critical items.`,
+    },
+    {
+      label: "Capacity check",
+      emoji: "📊",
+      description: "Spot bottlenecks and overloaded teams or equipment in this period.",
+      prompt: `Run a capacity check for ${monthLabel}. Identify overloaded teams, equipment booked past safe utilisation, and scheduling conflicts. Recommend which jobs to reschedule and to when.`,
+    },
+    {
+      label: "Deadline risk scan",
+      emoji: "⚠️",
+      description: "All deadlines at risk this period and why.",
+      prompt: `Scan all deadlines (request due dates, calibration dues, scheduled jobs) for ${monthLabel}. List every item at risk of slipping, the reason, the customer/internal impact, and one recommended action per risk.`,
+    },
+    {
+      label: "Calibration outlook",
+      emoji: "🔧",
+      description: "Upcoming calibrations, methods affected if they slip.",
+      prompt: `Summarise the calibration outlook for ${monthLabel}. List every equipment due for calibration, its calibration date, methods that depend on it, and the downstream impact if the calibration is missed or delayed.`,
+    },
+    {
+      label: "Optimise schedule",
+      emoji: "💡",
+      description: "Suggest schedule changes to smooth load and hit more deadlines.",
+      prompt: `Suggest schedule optimisations for ${monthLabel}. Reorder, batch, or move jobs to: smooth team load, reduce equipment idle time between similar tests, and increase the chance of hitting customer deadlines. Justify each suggested move.`,
+    },
+  ];
+}
