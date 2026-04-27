@@ -227,16 +227,23 @@ function WorkColumn({ title, icon: Icon, tone, href, empty, children }: {
     primary: 'text-primary',
     warning: 'text-warning',
     destructive: 'text-destructive',
+    success: 'text-success',
+  };
+  const accentMap: Record<string, string> = {
+    primary: 'accent-top-primary',
+    warning: 'accent-top-warning',
+    destructive: 'accent-top-destructive',
+    success: 'accent-top-success',
   };
   const items = Array.isArray(children) ? children : [children];
   return (
-    <Card className="p-3 shadow-card flex flex-col">
-      <div className="flex items-center justify-between mb-2 px-1">
+    <Card className={`p-3 flex flex-col bg-gradient-card hover-lift ${accentMap[tone] || ''}`}>
+      <div className="flex items-center justify-between mb-2 px-1 pt-1">
         <div className={`flex items-center gap-1.5 text-sm font-semibold ${toneMap[tone] || ''}`}>
           <Icon className="h-3.5 w-3.5" />
           {title}
         </div>
-        <Link to={href} className="text-xs text-muted-foreground hover:text-foreground">
+        <Link to={href} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
           <ArrowUpRight className="h-3 w-3" />
         </Link>
       </div>
@@ -259,21 +266,27 @@ function StatCard({ icon: Icon, label, value, variant, href }: {
     destructive: 'text-destructive',
   };
   const ringMap: Record<string, string> = {
-    primary: 'bg-primary-soft text-primary',
-    success: 'bg-success-soft text-success',
-    warning: 'bg-warning-soft text-warning',
-    destructive: 'bg-destructive/15 text-destructive',
+    primary: 'bg-primary-soft text-primary ring-1 ring-primary/20',
+    success: 'bg-success-soft text-success ring-1 ring-success/20',
+    warning: 'bg-warning-soft text-warning ring-1 ring-warning/25',
+    destructive: 'bg-destructive/10 text-destructive ring-1 ring-destructive/20',
+  };
+  const accentMap: Record<string, string> = {
+    primary: 'accent-top-primary',
+    success: 'accent-top-success',
+    warning: 'accent-top-warning',
+    destructive: 'accent-top-destructive',
   };
   return (
     <Link
       to={href}
-      className="group bg-card rounded-lg shadow-card hover:shadow-elevated hover:border-strong border border-border transition-all p-3 relative overflow-hidden"
+      className={`group bg-gradient-card rounded-lg shadow-card hover-lift border border-border/80 p-3 relative overflow-hidden ${variant ? accentMap[variant] || '' : ''}`}
     >
       <div className="flex items-start justify-between mb-2">
-        <div className={`h-7 w-7 rounded-md flex items-center justify-center ${variant ? ringMap[variant] : 'bg-muted text-muted-foreground'}`}>
+        <div className={`h-7 w-7 rounded-md flex items-center justify-center transition-transform group-hover:scale-105 ${variant ? ringMap[variant] : 'bg-muted text-muted-foreground ring-1 ring-border'}`}>
           <Icon className="h-3.5 w-3.5" />
         </div>
-        <ArrowUpRight className="h-3 w-3 text-muted-foreground/0 group-hover:text-muted-foreground transition-colors" />
+        <ArrowUpRight className="h-3 w-3 text-muted-foreground/0 group-hover:text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
       </div>
       <div className={`text-xl font-bold tabular-nums leading-none ${variant ? colorMap[variant] || '' : ''}`}>{value}</div>
       <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mt-1">{label}</div>
