@@ -13,9 +13,11 @@ import {
   ArrowDown,
   Eye,
   EyeOff,
+  History,
   ShieldAlert,
   Loader2,
 } from 'lucide-react';
+import { TemplateHistorySheet } from '@/components/admin/TemplateHistorySheet';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
@@ -94,6 +96,7 @@ export default function RequestTemplatesAdminPage() {
   const [editing, setEditing] = useState<DbTestRequestTemplate | null>(null);
   const [creating, setCreating] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<DbTestRequestTemplate | null>(null);
+  const [historyFor, setHistoryFor] = useState<DbTestRequestTemplate | null>(null);
 
   const move = (index: number, direction: -1 | 1) => {
     const next = [...templates];
@@ -249,6 +252,14 @@ export default function RequestTemplatesAdminPage() {
                   <button
                     type="button"
                     className="p-2 rounded hover:bg-muted text-muted-foreground"
+                    onClick={() => setHistoryFor(t)}
+                    title="Version history"
+                  >
+                    <History className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    className="p-2 rounded hover:bg-muted text-muted-foreground"
                     onClick={() => setEditing(t)}
                     title="Edit"
                   >
@@ -278,6 +289,12 @@ export default function RequestTemplatesAdminPage() {
         open={!!editing}
         onOpenChange={(v) => !v && setEditing(null)}
         template={editing}
+      />
+
+      <TemplateHistorySheet
+        template={historyFor}
+        open={!!historyFor}
+        onOpenChange={(v) => !v && setHistoryFor(null)}
       />
 
       <AlertDialog open={!!confirmDelete} onOpenChange={(v) => !v && setConfirmDelete(null)}>

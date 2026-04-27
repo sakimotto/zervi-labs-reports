@@ -106,3 +106,57 @@ export function useReorderTestRequestTemplates() {
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
   });
 }
+
+/* ----------------------------- Version history ---------------------------- */
+
+export type DbTestRequestTemplateVersion = Tables<'test_request_template_versions'>;
+
+const VERSIONS_KEY = ['test_request_template_versions'] as const;
+
+export function useTemplateVersions(templateId: string | null) {
+  return useQuery({
+    queryKey: [...VERSIONS_KEY, templateId],
+    enabled: !!templateId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('test_request_template_versions')
+        .select('*')
+        .eq('template_id', templateId!)
+        .order('version_number', { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as DbTestRequestTemplateVersion[];
+    },
+  });
+}
+
+/**
+ * Restore a template to a prior version. Writes the snapshot back onto the
+ * head row — the audit trigger automatically captures the pre-restore state
+ * as a new history entry, so the chain is preserved.
+ */
+export function useRestoreTemplateVersion() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (version: DbTestRequestTemplateVersion) => {
+      const { data, error } = await supabase
+        .from('test_request_templates')
+        .update({
+          label: version.label,
+          description: version.description,
+          scope: version.scope,
+          materials: version.materials,
+          is_active: version.is_active,
+          // sort_order intentionally NOT restored — current ordering wins.
+        })
+        .eq('id', version.template_id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data as DbTestRequestTemplate;
+    },
+    onSuccess: (_d, version) => {
+      qc.invalidateQueries({ queryKey: KEY });
+      qc.invalidateQueries({ queryKey: [...VERSIONS_KEY, version.template_id] });
+    },
+  });
+}

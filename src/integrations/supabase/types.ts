@@ -3173,6 +3173,65 @@ export type Database = {
           },
         ]
       }
+      test_request_template_versions: {
+        Row: {
+          change_kind: string
+          change_note: string | null
+          changed_at: string
+          changed_by: string | null
+          changed_by_name: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          label: string
+          materials: string
+          scope: string
+          sort_order: number
+          template_id: string
+          version_number: number
+        }
+        Insert: {
+          change_kind: string
+          change_note?: string | null
+          changed_at?: string
+          changed_by?: string | null
+          changed_by_name?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          label: string
+          materials?: string
+          scope?: string
+          sort_order?: number
+          template_id: string
+          version_number: number
+        }
+        Update: {
+          change_kind?: string
+          change_note?: string | null
+          changed_at?: string
+          changed_by?: string | null
+          changed_by_name?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          label?: string
+          materials?: string
+          scope?: string
+          sort_order?: number
+          template_id?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_request_template_versions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "test_request_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       test_request_templates: {
         Row: {
           created_at: string
