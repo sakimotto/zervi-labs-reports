@@ -1868,36 +1868,524 @@ export type Database = {
           },
         ]
       }
+      standard_categories: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          is_primary: boolean
+          standard_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          standard_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean
+          standard_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "standard_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "standards_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "standard_categories_standard_id_fkey"
+            columns: ["standard_id"]
+            isOneToOne: false
+            referencedRelation: "standards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      standard_equipment_requirements: {
+        Row: {
+          calibration_requirements: string | null
+          created_at: string
+          display_order: number
+          equipment_id: string | null
+          equipment_type: string
+          id: string
+          manufacturer_examples: string | null
+          notes: string | null
+          required_specifications: string | null
+          specimen_size: string | null
+          standard_id: string
+          test_conditions: string | null
+        }
+        Insert: {
+          calibration_requirements?: string | null
+          created_at?: string
+          display_order?: number
+          equipment_id?: string | null
+          equipment_type: string
+          id?: string
+          manufacturer_examples?: string | null
+          notes?: string | null
+          required_specifications?: string | null
+          specimen_size?: string | null
+          standard_id: string
+          test_conditions?: string | null
+        }
+        Update: {
+          calibration_requirements?: string | null
+          created_at?: string
+          display_order?: number
+          equipment_id?: string | null
+          equipment_type?: string
+          id?: string
+          manufacturer_examples?: string | null
+          notes?: string | null
+          required_specifications?: string | null
+          specimen_size?: string | null
+          standard_id?: string
+          test_conditions?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "standard_equipment_requirements_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "standard_equipment_requirements_standard_id_fkey"
+            columns: ["standard_id"]
+            isOneToOne: false
+            referencedRelation: "standards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      standard_parameters: {
+        Row: {
+          created_at: string
+          description: string | null
+          display_order: number
+          id: string
+          measurement_method: string | null
+          measurement_uncertainty: string | null
+          notes: string | null
+          parameter_name: string
+          rating_scale: string | null
+          standard_id: string
+          typical_range_max: number | null
+          typical_range_min: number | null
+          unit: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          measurement_method?: string | null
+          measurement_uncertainty?: string | null
+          notes?: string | null
+          parameter_name: string
+          rating_scale?: string | null
+          standard_id: string
+          typical_range_max?: number | null
+          typical_range_min?: number | null
+          unit?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          id?: string
+          measurement_method?: string | null
+          measurement_uncertainty?: string | null
+          notes?: string | null
+          parameter_name?: string
+          rating_scale?: string | null
+          standard_id?: string
+          typical_range_max?: number | null
+          typical_range_min?: number | null
+          unit?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "standard_parameters_standard_id_fkey"
+            columns: ["standard_id"]
+            isOneToOne: false
+            referencedRelation: "standards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      standard_references: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          relationship_type: string
+          source_standard_id: string
+          target_standard_id: string | null
+          target_text: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          relationship_type: string
+          source_standard_id: string
+          target_standard_id?: string | null
+          target_text?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          relationship_type?: string
+          source_standard_id?: string
+          target_standard_id?: string | null
+          target_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "standard_references_source_standard_id_fkey"
+            columns: ["source_standard_id"]
+            isOneToOne: false
+            referencedRelation: "standards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "standard_references_target_standard_id_fkey"
+            columns: ["target_standard_id"]
+            isOneToOne: false
+            referencedRelation: "standards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      standard_revisions: {
+        Row: {
+          change_summary: string | null
+          created_at: string
+          document_url: string | null
+          effective_date: string | null
+          id: string
+          notes: string | null
+          revision_label: string
+          revision_type: string | null
+          revision_year: number | null
+          standard_id: string
+          withdrawn_date: string | null
+        }
+        Insert: {
+          change_summary?: string | null
+          created_at?: string
+          document_url?: string | null
+          effective_date?: string | null
+          id?: string
+          notes?: string | null
+          revision_label: string
+          revision_type?: string | null
+          revision_year?: number | null
+          standard_id: string
+          withdrawn_date?: string | null
+        }
+        Update: {
+          change_summary?: string | null
+          created_at?: string
+          document_url?: string | null
+          effective_date?: string | null
+          id?: string
+          notes?: string | null
+          revision_label?: string
+          revision_type?: string | null
+          revision_year?: number | null
+          standard_id?: string
+          withdrawn_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "standard_revisions_standard_id_fkey"
+            columns: ["standard_id"]
+            isOneToOne: false
+            referencedRelation: "standards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      standard_wiki_revisions: {
+        Row: {
+          content_md: string
+          created_at: string
+          edit_summary: string | null
+          edited_by: string | null
+          edited_by_name: string | null
+          id: string
+          standard_id: string
+        }
+        Insert: {
+          content_md: string
+          created_at?: string
+          edit_summary?: string | null
+          edited_by?: string | null
+          edited_by_name?: string | null
+          id?: string
+          standard_id: string
+        }
+        Update: {
+          content_md?: string
+          created_at?: string
+          edit_summary?: string | null
+          edited_by?: string | null
+          edited_by_name?: string | null
+          id?: string
+          standard_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "standard_wiki_revisions_standard_id_fkey"
+            columns: ["standard_id"]
+            isOneToOne: false
+            referencedRelation: "standards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       standards: {
         Row: {
           code: string
           created_at: string
+          document_type: string | null
           document_url: string | null
+          first_published_year: number | null
+          full_designation: string | null
           id: string
           is_active: boolean
+          language: string | null
+          last_verified_date: string | null
+          latest_revision_year: number | null
+          normative_references: string | null
           organization: string
+          organization_id: string | null
+          revision_suffix: string | null
+          scope_description: string | null
+          source_attribution: string | null
+          status: string
+          summary: string | null
+          superseded_by_id: string | null
           title: string | null
+          updated_at: string
           version: string | null
+          wiki_notes_md: string | null
+          withdrawal_date: string | null
         }
         Insert: {
           code: string
           created_at?: string
+          document_type?: string | null
           document_url?: string | null
+          first_published_year?: number | null
+          full_designation?: string | null
           id?: string
           is_active?: boolean
+          language?: string | null
+          last_verified_date?: string | null
+          latest_revision_year?: number | null
+          normative_references?: string | null
           organization?: string
+          organization_id?: string | null
+          revision_suffix?: string | null
+          scope_description?: string | null
+          source_attribution?: string | null
+          status?: string
+          summary?: string | null
+          superseded_by_id?: string | null
           title?: string | null
+          updated_at?: string
           version?: string | null
+          wiki_notes_md?: string | null
+          withdrawal_date?: string | null
         }
         Update: {
           code?: string
           created_at?: string
+          document_type?: string | null
           document_url?: string | null
+          first_published_year?: number | null
+          full_designation?: string | null
           id?: string
           is_active?: boolean
+          language?: string | null
+          last_verified_date?: string | null
+          latest_revision_year?: number | null
+          normative_references?: string | null
           organization?: string
+          organization_id?: string | null
+          revision_suffix?: string | null
+          scope_description?: string | null
+          source_attribution?: string | null
+          status?: string
+          summary?: string | null
+          superseded_by_id?: string | null
           title?: string | null
+          updated_at?: string
           version?: string | null
+          wiki_notes_md?: string | null
+          withdrawal_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "standards_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "standards_organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "standards_superseded_by_id_fkey"
+            columns: ["superseded_by_id"]
+            isOneToOne: false
+            referencedRelation: "standards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      standards_audit: {
+        Row: {
+          action: string
+          changed_by: string | null
+          changed_by_name: string | null
+          created_at: string
+          details: Json | null
+          id: string
+          standard_id: string
+        }
+        Insert: {
+          action: string
+          changed_by?: string | null
+          changed_by_name?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          standard_id: string
+        }
+        Update: {
+          action?: string
+          changed_by?: string | null
+          changed_by_name?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          standard_id?: string
+        }
+        Relationships: []
+      }
+      standards_categories: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          display_order: number
+          ics_code: string | null
+          id: string
+          is_active: boolean
+          name: string
+          parent_id: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          ics_code?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          parent_id?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          ics_code?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          parent_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "standards_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "standards_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      standards_organizations: {
+        Row: {
+          abbreviation: string | null
+          api_endpoint: string | null
+          code: string
+          country_origin: string | null
+          created_at: string
+          full_name: string
+          id: string
+          is_active: boolean
+          notes: string | null
+          numbering_convention: string | null
+          publication_frequency: string | null
+          secretariat_history: string | null
+          subcommittees: string | null
+          subscription_access_details: string | null
+          technical_committee: string | null
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          abbreviation?: string | null
+          api_endpoint?: string | null
+          code: string
+          country_origin?: string | null
+          created_at?: string
+          full_name: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          numbering_convention?: string | null
+          publication_frequency?: string | null
+          secretariat_history?: string | null
+          subcommittees?: string | null
+          subscription_access_details?: string | null
+          technical_committee?: string | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          abbreviation?: string | null
+          api_endpoint?: string | null
+          code?: string
+          country_origin?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          numbering_convention?: string | null
+          publication_frequency?: string | null
+          secretariat_history?: string | null
+          subcommittees?: string | null
+          subscription_access_details?: string | null
+          technical_committee?: string | null
+          updated_at?: string
+          website_url?: string | null
         }
         Relationships: []
       }
