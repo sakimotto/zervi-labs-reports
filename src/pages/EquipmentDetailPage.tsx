@@ -160,6 +160,10 @@ export default function EquipmentDetailPage() {
           </div>
         </div>
         <div className="flex gap-2">
+          <AskAIButton
+            context={{ type: 'equipment', id: eq.id, label: eq.name }}
+            actions={getEquipmentAIActions(eq.name)}
+          />
           <Button size="sm" variant="outline" onClick={openEdit}><Pencil className="h-3 w-3 mr-1" /> Edit</Button>
           <Button size="sm" variant="outline" onClick={() => setConfirmDelete(true)} className="text-destructive">
             <Trash2 className="h-3 w-3 mr-1" /> Delete
