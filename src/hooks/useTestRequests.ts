@@ -147,7 +147,57 @@ export function useRequestSamples(requestId: string | null) {
   });
 }
 
-// ---- Methods linked to a request -------------------------------------------------
+// Tasks linked to a test request
+export function useRequestTasks(requestId: string | null) {
+  return useQuery({
+    queryKey: ['request_tasks', requestId],
+    enabled: !!requestId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('id, task_number, title, status, priority, due_date, type')
+        .eq('test_request_id', requestId!)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+// Test reports linked to a test request
+export function useRequestReports(requestId: string | null) {
+  return useQuery({
+    queryKey: ['request_reports', requestId],
+    enabled: !!requestId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('test_reports')
+        .select('id, report_number, title, status, issued_date, overall_judgment')
+        .eq('test_request_id', requestId!)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+// Audit history for a request
+export function useRequestAudit(requestId: string | null) {
+  return useQuery({
+    queryKey: ['request_audit', requestId],
+    enabled: !!requestId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('test_request_audit')
+        .select('*')
+        .eq('request_id', requestId!)
+        .order('created_at', { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      return data;
+    },
+  });
+}
 export function useRequestMethods(requestId: string | null) {
   return useQuery({
     queryKey: ['request_methods', requestId],
