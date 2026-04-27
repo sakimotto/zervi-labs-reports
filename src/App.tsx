@@ -24,6 +24,8 @@ import MaterialDetailPage from "./pages/MaterialDetailPage";
 import StandardsPage from "./pages/StandardsPage";
 import StandardDetailPage from "./pages/StandardDetailPage";
 import CopilotPage from "./pages/CopilotPage";
+import TasksPage from "./pages/TasksPage";
+import PlanningPage from "./pages/PlanningPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -60,6 +62,8 @@ const App = () => (
                       <Route path="/customers" element={<CustomersPage />} />
                       <Route path="/customers/:id" element={<CustomerDetailPage />} />
                       <Route path="/sops" element={<SOPsPage />} />
+                      <Route path="/tasks" element={<TasksPage />} />
+                      <Route path="/planning" element={<PlanningPage />} />
                       <Route path="/copilot" element={<CopilotPage />} />
                       <Route path="*" element={<NotFound />} />
                     </Routes>

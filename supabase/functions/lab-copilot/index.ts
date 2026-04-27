@@ -380,6 +380,76 @@ const TOOLS = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "list_tasks",
+      description: "List open lab tasks. Optional filters by status, type (lab_work/triage/calibration/maintenance/manual), priority, team slug, due_before (YYYY-MM-DD).",
+      parameters: {
+        type: "object",
+        properties: {
+          status: { type: "string", description: "todo | in_progress | blocked | done | cancelled" },
+          type: { type: "string" },
+          priority: { type: "string" },
+          team_slug: { type: "string" },
+          due_before: { type: "string" },
+          limit: { type: "number" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "draft_task",
+      description: "Draft a task for the user to approve. Returns the task spec without inserting. Pass title, description, type, priority, team_slug, due_date, and optional sample_id/test_request_id/equipment_id link.",
+      parameters: {
+        type: "object",
+        required: ["title"],
+        properties: {
+          title: { type: "string" },
+          description: { type: "string" },
+          type: { type: "string", description: "manual | lab_work | triage | calibration | maintenance | ai_suggested" },
+          priority: { type: "string", description: "Low | Normal | High | Urgent" },
+          team_slug: { type: "string", description: "front-office | physical | chemistry | safety | metrology" },
+          due_date: { type: "string", description: "YYYY-MM-DD" },
+          sample_id: { type: "string" },
+          test_request_id: { type: "string" },
+          equipment_id: { type: "string" },
+          rationale: { type: "string", description: "Why this task is being suggested" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "plan_my_week",
+      description: "Build a weekly plan from current open tasks, planned samples, and upcoming calibrations. Returns a structured day-by-day plan and flagged risks.",
+      parameters: {
+        type: "object",
+        properties: {
+          team_slug: { type: "string", description: "Limit to a single team" },
+          start_date: { type: "string", description: "Optional ISO date for week start (defaults to today)" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_calendar_events",
+      description: "List calendar events in a date range. Useful to assess load before scheduling.",
+      parameters: {
+        type: "object",
+        properties: {
+          from: { type: "string", description: "YYYY-MM-DD" },
+          to: { type: "string", description: "YYYY-MM-DD" },
+          kind: { type: "string", description: "test_job | request_due | calibration | manual | meeting" },
+        },
+      },
+    },
+  },
 ];
 
 // ============================================================================
@@ -593,6 +663,68 @@ async function runTool(supabase: any, name: string, args: any): Promise<any> {
           customerHistory = data;
         }
         return { instruction: "Recommend the best 1-3 test programs for this scenario. Justify each pick.", available_programs: programs.data, material, customer_history: customerHistory, intended_use: args.intended_use };
+      }
+      case "list_tasks": {
+        let q = supabase.from("tasks").select("id, task_number, title, type, status, priority, due_date, planned_date, ai_suggested, assignee_team_id, sample_id, test_request_id, equipment_id, lab_teams!tasks_assignee_team_id_fkey(name, slug)").limit(args.limit ?? 50);
+        if (args.status) q = q.eq("status", args.status);
+        else q = q.in("status", ["todo", "in_progress", "blocked"]);
+        if (args.type) q = q.eq("type", args.type);
+        if (args.priority) q = q.eq("priority", args.priority);
+        if (args.due_before) q = q.lte("due_date", args.due_before);
+        if (args.team_slug) {
+          const { data: team } = await supabase.from("lab_teams").select("id").eq("slug", args.team_slug).maybeSingle();
+          if (team?.id) q = q.eq("assignee_team_id", team.id);
+        }
+        const { data, error } = await q.order("priority", { ascending: false }).order("due_date", { ascending: true, nullsFirst: false });
+        if (error) throw error;
+        return { count: data?.length ?? 0, tasks: data };
+      }
+      case "draft_task": {
+        // Resolve team slug -> id for display only; do not insert.
+        let team = null;
+        if (args.team_slug) {
+          const { data } = await supabase.from("lab_teams").select("id, name, slug").eq("slug", args.team_slug).maybeSingle();
+          team = data;
+        }
+        return {
+          instruction: "Present this as a DRAFT task for the user to approve. Do not claim the task was created.",
+          draft: {
+            title: args.title,
+            description: args.description ?? null,
+            type: args.type ?? "ai_suggested",
+            priority: args.priority ?? "Normal",
+            due_date: args.due_date ?? null,
+            sample_id: args.sample_id ?? null,
+            test_request_id: args.test_request_id ?? null,
+            equipment_id: args.equipment_id ?? null,
+            ai_suggested: true,
+            ai_rationale: args.rationale ?? null,
+            assignee_team: team,
+          },
+        };
+      }
+      case "list_calendar_events": {
+        let q = supabase.from("calendar_events").select("id, title, kind, starts_at, ends_at, all_day, sample_id, test_request_id, equipment_id, source").order("starts_at", { ascending: true }).limit(100);
+        if (args.from) q = q.gte("starts_at", new Date(args.from).toISOString());
+        if (args.to) q = q.lte("starts_at", new Date(args.to + "T23:59:59").toISOString());
+        if (args.kind) q = q.eq("kind", args.kind);
+        const { data, error } = await q;
+        if (error) throw error;
+        return { count: data?.length ?? 0, events: data };
+      }
+      case "plan_my_week": {
+        const start = args.start_date ? new Date(args.start_date) : new Date();
+        const end = new Date(start); end.setDate(end.getDate() + 7);
+        const tasksRes = await runTool(supabase, "list_tasks", { team_slug: args.team_slug, due_before: end.toISOString().slice(0, 10) });
+        const eventsRes = await runTool(supabase, "list_calendar_events", { from: start.toISOString().slice(0, 10), to: end.toISOString().slice(0, 10) });
+        const overdueRes = await runTool(supabase, "list_tasks", { team_slug: args.team_slug, due_before: start.toISOString().slice(0, 10) });
+        return {
+          instruction: "Build a structured day-by-day plan (Mon..Sun). Group by day. Surface OVERDUE first, then top priorities, then suggested order. End with 2-3 risks.",
+          window: { from: start.toISOString().slice(0, 10), to: end.toISOString().slice(0, 10) },
+          overdue_tasks: overdueRes.tasks ?? [],
+          open_tasks: tasksRes.tasks ?? [],
+          calendar_events: eventsRes.events ?? [],
+        };
       }
       default:
         return { error: `Unknown tool: ${name}` };
