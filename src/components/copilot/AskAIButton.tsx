@@ -23,7 +23,14 @@ export type AskAIAction = {
 };
 
 export type AskAIContext = {
-  type: "sample" | "test_request" | "test_report" | "customer" | "supplier" | "material";
+  type:
+    | "sample"
+    | "test_request"
+    | "test_report"
+    | "customer"
+    | "supplier"
+    | "material"
+    | "equipment";
   id: string;
   label?: string;
 };
