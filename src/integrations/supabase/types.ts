@@ -393,20 +393,24 @@ export type Database = {
           created_at: string
           created_by: string | null
           currency: string | null
-          customer_id: string
+          customer_id: string | null
           description: string | null
           due_date: string | null
           estimated_cost: number | null
           id: string
+          internal_department: string | null
           materials_description: string | null
           notes: string | null
           po_number: string | null
           priority: string
           reported_at: string | null
           request_number: string
+          request_type: string
           requested_date: string
           scope: string | null
           status: string
+          supplier_id: string | null
+          test_program_id: string | null
           updated_at: string
         }
         Insert: {
@@ -418,20 +422,24 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           currency?: string | null
-          customer_id: string
+          customer_id?: string | null
           description?: string | null
           due_date?: string | null
           estimated_cost?: number | null
           id?: string
+          internal_department?: string | null
           materials_description?: string | null
           notes?: string | null
           po_number?: string | null
           priority?: string
           reported_at?: string | null
           request_number: string
+          request_type?: string
           requested_date?: string
           scope?: string | null
           status?: string
+          supplier_id?: string | null
+          test_program_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -443,20 +451,24 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           currency?: string | null
-          customer_id?: string
+          customer_id?: string | null
           description?: string | null
           due_date?: string | null
           estimated_cost?: number | null
           id?: string
+          internal_department?: string | null
           materials_description?: string | null
           notes?: string | null
           po_number?: string | null
           priority?: string
           reported_at?: string | null
           request_number?: string
+          request_type?: string
           requested_date?: string
           scope?: string | null
           status?: string
+          supplier_id?: string | null
+          test_program_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -465,6 +477,20 @@ export type Database = {
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_test_requests_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_test_requests_test_program_id_fkey"
+            columns: ["test_program_id"]
+            isOneToOne: false
+            referencedRelation: "test_programs"
             referencedColumns: ["id"]
           },
         ]
@@ -3169,6 +3195,102 @@ export type Database = {
             columns: ["test_request_id"]
             isOneToOne: false
             referencedRelation: "customer_test_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_request_materials: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          material_id: string
+          notes: string | null
+          quantity: string | null
+          request_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          material_id: string
+          notes?: string | null
+          quantity?: string | null
+          request_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          material_id?: string
+          notes?: string | null
+          quantity?: string | null
+          request_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_request_materials_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_request_materials_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "customer_test_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_request_methods: {
+        Row: {
+          created_at: string
+          direction: string | null
+          display_order: number
+          id: string
+          notes: string | null
+          request_id: string
+          test_item_id: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          direction?: string | null
+          display_order?: number
+          id?: string
+          notes?: string | null
+          request_id: string
+          test_item_id: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          direction?: string | null
+          display_order?: number
+          id?: string
+          notes?: string | null
+          request_id?: string
+          test_item_id?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_request_methods_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "customer_test_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_request_methods_test_item_id_fkey"
+            columns: ["test_item_id"]
+            isOneToOne: false
+            referencedRelation: "test_items"
             referencedColumns: ["id"]
           },
         ]
