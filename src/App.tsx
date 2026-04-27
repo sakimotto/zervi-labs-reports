@@ -35,6 +35,7 @@ const TasksPage = lazy(() => import("./pages/TasksPage"));
 const PlanningPage = lazy(() => import("./pages/PlanningPage"));
 const RequestTemplatesAdminPage = lazy(() => import("./pages/RequestTemplatesAdminPage"));
 const TestRequestsPage = lazy(() => import("./pages/TestRequestsPage"));
+const TestRequestDetailPage = lazy(() => import("./pages/TestRequestDetailPage"));
 
 const queryClient = new QueryClient();
 
