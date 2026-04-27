@@ -327,6 +327,7 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
               oemSpecs={oemSpecs}
               onSupplierChange={handleSupplierChange}
               onOemSpecChange={handleOemSpecChange}
+              onMaterialChange={handleMaterialChange}
             />
           )}
           {step === 2 && <Step2 form={form} set={set} />}
@@ -502,6 +503,7 @@ function Step1({
   oemSpecs,
   onSupplierChange,
   onOemSpecChange,
+  onMaterialChange,
 }: {
   form: FormState;
   set: <K extends keyof FormState>(k: K, v: FormState[K]) => void;
@@ -510,6 +512,7 @@ function Step1({
   oemSpecs: any[];
   onSupplierChange: (id: string) => void;
   onOemSpecChange: (id: string) => void;
+  onMaterialChange: (id: string) => void;
 }) {
   return (
     <>
