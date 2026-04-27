@@ -3,6 +3,8 @@ import { useTestPrograms, useCreateTestProgram, useUpdateTestProgram, useDeleteT
 import { useTestItems } from '@/hooks/useTestData';
 import { Plus, Trash2, Pencil, Loader2, ChevronDown, ChevronRight, Check, GripVertical } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/layout/PageHeader';
 
@@ -285,9 +287,11 @@ function EditProgramMetaDialog({ program, onClose, onSave, isPending }: {
   }, [program]);
   if (!program) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
-      <div className="bg-card rounded-lg shadow-lg p-4 max-w-lg w-full m-4" onClick={e => e.stopPropagation()}>
-        <h2 className="text-sm font-semibold mb-3">Edit Program Metadata</h2>
+    <Dialog open={!!program} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Edit Program Metadata</DialogTitle>
+        </DialogHeader>
         <div className="grid grid-cols-2 gap-3">
           <FormField label="Name *" value={form.name} onChange={v => setForm(f => ({ ...f, name: v }))} />
           <FormField label="Material Type" value={form.material_type} onChange={v => setForm(f => ({ ...f, material_type: v }))} />
@@ -296,21 +300,24 @@ function EditProgramMetaDialog({ program, onClose, onSave, isPending }: {
           <FormField label="Report Header" value={form.report_header_notes} onChange={v => setForm(f => ({ ...f, report_header_notes: v }))} />
           <FormField label="Report Footer" value={form.report_footer_notes} onChange={v => setForm(f => ({ ...f, report_footer_notes: v }))} />
         </div>
-        <div className="flex gap-2 pt-3">
-          <button onClick={() => onSave(program.id, {
-            name: form.name,
-            description: form.description || null,
-            material_type: form.material_type || null,
-            report_title: form.report_title || null,
-            report_header_notes: form.report_header_notes || null,
-            report_footer_notes: form.report_footer_notes || null,
-          })} disabled={!form.name.trim() || isPending}
-            className="h-8 px-3 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50">
-            Save Changes
-          </button>
-          <button onClick={onClose} className="h-8 px-3 text-xs font-medium text-muted-foreground hover:bg-muted rounded-md">Cancel</button>
-        </div>
-      </div>
-    </div>
+        <DialogFooter>
+          <Button variant="ghost" size="sm" onClick={onClose}>Cancel</Button>
+          <Button
+            size="sm"
+            onClick={() => onSave(program.id, {
+              name: form.name,
+              description: form.description || null,
+              material_type: form.material_type || null,
+              report_title: form.report_title || null,
+              report_header_notes: form.report_header_notes || null,
+              report_footer_notes: form.report_footer_notes || null,
+            })}
+            disabled={!form.name.trim() || isPending}
+          >
+            {isPending ? 'Saving…' : 'Save Changes'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -700,15 +700,15 @@ const fmtVal = (v: unknown): string => {
 
 function ActionIcon({ action }: { action: string }) {
   const map: Record<string, { icon: React.ReactNode; cls: string }> = {
-    created: { icon: <FilePlus2 className="h-3.5 w-3.5" />, cls: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' },
-    updated: { icon: <Pencil className="h-3.5 w-3.5" />, cls: 'bg-blue-500/10 text-blue-600 dark:text-blue-400' },
+    created: { icon: <FilePlus2 className="h-3.5 w-3.5" />, cls: 'bg-success-soft text-success' },
+    updated: { icon: <Pencil className="h-3.5 w-3.5" />, cls: 'bg-info-soft text-info' },
     deleted: { icon: <Trash className="h-3.5 w-3.5" />, cls: 'bg-destructive/10 text-destructive' },
-    version_created: { icon: <Layers className="h-3.5 w-3.5" />, cls: 'bg-amber-500/10 text-amber-600 dark:text-amber-400' },
-    version_approved: { icon: <BadgeCheck className="h-3.5 w-3.5" />, cls: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' },
+    version_created: { icon: <Layers className="h-3.5 w-3.5" />, cls: 'bg-warning-soft text-warning' },
+    version_approved: { icon: <BadgeCheck className="h-3.5 w-3.5" />, cls: 'bg-success-soft text-success' },
     version_superseded: { icon: <Layers className="h-3.5 w-3.5" />, cls: 'bg-muted text-muted-foreground' },
-    certification_added: { icon: <FileCheck2 className="h-3.5 w-3.5" />, cls: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' },
+    certification_added: { icon: <FileCheck2 className="h-3.5 w-3.5" />, cls: 'bg-success-soft text-success' },
     certification_removed: { icon: <X className="h-3.5 w-3.5" />, cls: 'bg-destructive/10 text-destructive' },
-    supplier_linked: { icon: <Link2 className="h-3.5 w-3.5" />, cls: 'bg-blue-500/10 text-blue-600 dark:text-blue-400' },
+    supplier_linked: { icon: <Link2 className="h-3.5 w-3.5" />, cls: 'bg-info-soft text-info' },
     supplier_unlinked: { icon: <Link2Off className="h-3.5 w-3.5" />, cls: 'bg-destructive/10 text-destructive' },
   };
   const def = map[action] ?? { icon: <Activity className="h-3.5 w-3.5" />, cls: 'bg-muted text-muted-foreground' };

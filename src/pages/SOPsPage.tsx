@@ -3,6 +3,8 @@ import { useSOPs, useCreateSOP, useUpdateSOP, useDeleteSOP, useSOPVersions, useC
 import { useTestItems } from '@/hooks/useTestData';
 import { Search, Plus, Trash2, Pencil, Eye, Clock, FileText, Loader2, ChevronDown, ChevronRight } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/layout/PageHeader';
 
@@ -315,11 +317,12 @@ function EditSOPDialog({ sop, testItems, onClose, onSave, isPending }: {
       status: sop.status || 'Draft',
     });
   }, [sop]);
-  if (!sop) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
-      <div className="bg-card rounded-lg shadow-lg p-4 max-w-md w-full m-4" onClick={e => e.stopPropagation()}>
-        <h2 className="text-sm font-semibold mb-3">Edit SOP</h2>
+    <Dialog open={!!sop} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Edit SOP</DialogTitle>
+        </DialogHeader>
         <div className="space-y-3">
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Title *</label>
@@ -341,19 +344,22 @@ function EditSOPDialog({ sop, testItems, onClose, onSave, isPending }: {
               {SOP_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
-          <div className="flex gap-2 pt-2">
-            <button onClick={() => onSave(sop.id, {
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" size="sm" onClick={onClose}>Cancel</Button>
+          <Button
+            size="sm"
+            onClick={() => onSave(sop.id, {
               title: form.title,
               test_item_id: form.test_item_id ? parseInt(form.test_item_id) : null,
               status: form.status,
-            })} disabled={!form.title.trim() || isPending}
-              className="h-8 px-3 text-xs font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50">
-              Save Changes
-            </button>
-            <button onClick={onClose} className="h-8 px-3 text-xs font-medium text-muted-foreground hover:bg-muted rounded-md">Cancel</button>
-          </div>
-        </div>
-      </div>
-    </div>
+            })}
+            disabled={!form.title.trim() || isPending}
+          >
+            {isPending ? 'Saving…' : 'Save Changes'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
