@@ -60,10 +60,18 @@ export function TaskFormDialog({ open, onOpenChange, task, defaults }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {form.ai_suggested && <Sparkles className="h-4 w-4 text-primary" />}
-            {task ? `Edit ${task.task_number}` : 'New task'}
-          </DialogTitle>
+          <div className="flex items-start justify-between gap-3">
+            <DialogTitle className="flex items-center gap-2">
+              {form.ai_suggested && <Sparkles className="h-4 w-4 text-primary" />}
+              {task ? `Edit ${task.task_number}` : 'New task'}
+            </DialogTitle>
+            {task && (
+              <AskAIButton
+                context={{ type: 'task', id: task.id, label: task.title }}
+                actions={getTaskAIActions(task.title)}
+              />
+            )}
+          </div>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
