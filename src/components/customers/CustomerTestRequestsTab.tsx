@@ -8,6 +8,7 @@ import {
   CalendarClock,
   ExternalLink,
   Search,
+  Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,7 @@ import {
   type DbTestRequest,
 } from '@/hooks/useTestRequests';
 import { TestRequestFormDialog } from './TestRequestFormDialog';
+import { CreateSamplesFromRequestDialog } from './CreateSamplesFromRequestDialog';
 import { RequestStatusBadge, PriorityBadge } from './TestRequestBadges';
 import { AskAIButton, getTestRequestAIActions } from '@/components/copilot/AskAIButton';
 
@@ -44,6 +46,7 @@ export function CustomerTestRequestsTab({ customerId }: Props) {
   const [search, setSearch] = useState('');
   const [openForm, setOpenForm] = useState(false);
   const [editing, setEditing] = useState<DbTestRequest | null>(null);
+  const [generatingFor, setGeneratingFor] = useState<DbTestRequest | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const del = useDeleteTestRequest();
   const navigate = useNavigate();
@@ -179,6 +182,15 @@ export function CustomerTestRequestsTab({ customerId }: Props) {
                       <Button
                         size="sm"
                         variant="ghost"
+                        title="Generate samples from this request"
+                        onClick={() => setGeneratingFor(r)}
+                        disabled={['Cancelled', 'Reported'].includes(r.status)}
+                      >
+                        <Sparkles className="h-3.5 w-3.5 text-primary" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
                         onClick={() => {
                           setEditing(r);
                           setOpenForm(true);
@@ -204,6 +216,14 @@ export function CustomerTestRequestsTab({ customerId }: Props) {
         customerId={customerId}
         request={editing}
       />
+
+      {generatingFor && (
+        <CreateSamplesFromRequestDialog
+          open={!!generatingFor}
+          onOpenChange={(o) => !o && setGeneratingFor(null)}
+          request={generatingFor}
+        />
+      )}
 
       <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
         <AlertDialogContent>
