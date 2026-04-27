@@ -148,12 +148,22 @@
     --ring: 222 84% 62%;
 
     --shadow-xs: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
-    --shadow-card: 0 1px 0 0 hsl(0 0% 0% / 0.3), 0 1px 3px -1px hsl(0 0% 0% / 0.4);
-    --shadow-elevated: 0 4px 12px -2px hsl(0 0% 0% / 0.5), 0 2px 4px -2px hsl(0 0% 0% / 0.3);
-    --shadow-popover: 0 12px 32px -8px hsl(0 0% 0% / 0.6);
+    --shadow-card:
+      0 0 0 1px hsl(222 30% 22% / 0.6),
+      0 1px 3px -1px hsl(0 0% 0% / 0.4),
+      0 4px 10px -4px hsl(0 0% 0% / 0.4);
+    --shadow-elevated:
+      0 0 0 1px hsl(222 30% 28% / 0.6),
+      0 8px 20px -4px hsl(0 0% 0% / 0.55);
+    --shadow-popover: 0 16px 40px -10px hsl(0 0% 0% / 0.7);
     --shadow-focus: 0 0 0 3px hsl(var(--primary) / 0.4);
+    --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.4), 0 8px 24px -6px hsl(var(--primary) / 0.45);
 
-    --gradient-surface: linear-gradient(180deg, hsl(222 47% 7%), hsl(222 47% 5%));
+    --gradient-surface:
+      radial-gradient(ellipse 70% 50% at 0% 0%, hsl(222 70% 14% / 0.6), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 100% 100%, hsl(199 70% 12% / 0.5), transparent 55%),
+      linear-gradient(180deg, hsl(222 47% 7%), hsl(222 47% 5%));
+    --gradient-card: linear-gradient(180deg, hsl(222 40% 12%), hsl(222 40% 10%));
 
     --sidebar-background: 222 50% 5%;
     --sidebar-foreground: 215 25% 80%;
