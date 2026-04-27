@@ -144,6 +144,7 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
         ? { test_program_id: (mat as any).default_test_program_id }
         : {}),
       ...(mat.material_type ? { fabric_type: mat.material_type } : {}),
+      ...(mat.material_code ? { sku: mat.material_code, is_temp_sku: false } : {}),
     }));
     toast.success(`Auto-filled from “${mat.name}”`, {
       description: 'Composition, color, and test program populated.',
