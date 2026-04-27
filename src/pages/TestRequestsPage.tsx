@@ -243,8 +243,8 @@ export default function TestRequestsPage() {
                     </td>
                     <td className="px-4 py-2.5 font-mono text-xs">{r.po_number ?? '—'}</td>
                     <td className="px-4 py-2.5 text-right">
-                      <Button asChild size="sm" variant="ghost" title="Open customer">
-                        <Link to={`/customers/${r.customer_id}`}>
+                      <Button asChild size="sm" variant="ghost" title="Open request">
+                        <Link to={`/test-requests/${r.id}`}>
                           <ExternalLink className="h-3.5 w-3.5" />
                         </Link>
                       </Button>
