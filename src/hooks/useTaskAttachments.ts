@@ -4,6 +4,26 @@ import { toast } from 'sonner';
 
 export type OcrStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'skipped';
 
+export type OcrLanguage =
+  | 'auto' | 'en' | 'ja' | 'zh' | 'ko' | 'de' | 'fr' | 'es' | 'it' | 'pt' | 'ar' | 'ru' | 'tr' | 'hi';
+
+export const OCR_LANGUAGE_OPTIONS: { value: OcrLanguage; label: string; hint?: string }[] = [
+  { value: 'auto', label: 'Auto-detect', hint: 'Let AI detect language' },
+  { value: 'en', label: 'English' },
+  { value: 'ja', label: 'Japanese · 日本語' },
+  { value: 'zh', label: 'Chinese · 中文' },
+  { value: 'ko', label: 'Korean · 한국어' },
+  { value: 'de', label: 'German · Deutsch' },
+  { value: 'fr', label: 'French · Français' },
+  { value: 'es', label: 'Spanish · Español' },
+  { value: 'it', label: 'Italian · Italiano' },
+  { value: 'pt', label: 'Portuguese · Português' },
+  { value: 'ar', label: 'Arabic · العربية' },
+  { value: 'ru', label: 'Russian · Русский' },
+  { value: 'tr', label: 'Turkish · Türkçe' },
+  { value: 'hi', label: 'Hindi · हिन्दी' },
+];
+
 export interface TaskAttachment {
   id: string;
   task_id: string;
@@ -18,6 +38,7 @@ export interface TaskAttachment {
   ocr_status: OcrStatus;
   ocr_error: string | null;
   ocr_completed_at: string | null;
+  ocr_language: OcrLanguage;
 }
 
 const BUCKET = 'task-attachments';
