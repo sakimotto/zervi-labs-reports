@@ -387,6 +387,7 @@ export type Database = {
         Row: {
           actual_cost: number | null
           assigned_to: string | null
+          batch_number: string | null
           completed_at: string | null
           contact_email: string | null
           contact_person: string | null
@@ -394,6 +395,8 @@ export type Database = {
           created_by: string | null
           currency: string | null
           customer_id: string | null
+          customer_reference: string | null
+          delivery_note_number: string | null
           description: string | null
           due_date: string | null
           estimated_cost: number | null
@@ -407,7 +410,9 @@ export type Database = {
           request_number: string
           request_type: string
           requested_date: string
+          sales_order_number: string | null
           scope: string | null
+          sku: string | null
           status: string
           supplier_id: string | null
           test_program_id: string | null
@@ -416,6 +421,7 @@ export type Database = {
         Insert: {
           actual_cost?: number | null
           assigned_to?: string | null
+          batch_number?: string | null
           completed_at?: string | null
           contact_email?: string | null
           contact_person?: string | null
@@ -423,6 +429,8 @@ export type Database = {
           created_by?: string | null
           currency?: string | null
           customer_id?: string | null
+          customer_reference?: string | null
+          delivery_note_number?: string | null
           description?: string | null
           due_date?: string | null
           estimated_cost?: number | null
@@ -436,7 +444,9 @@ export type Database = {
           request_number: string
           request_type?: string
           requested_date?: string
+          sales_order_number?: string | null
           scope?: string | null
+          sku?: string | null
           status?: string
           supplier_id?: string | null
           test_program_id?: string | null
@@ -445,6 +455,7 @@ export type Database = {
         Update: {
           actual_cost?: number | null
           assigned_to?: string | null
+          batch_number?: string | null
           completed_at?: string | null
           contact_email?: string | null
           contact_person?: string | null
@@ -452,6 +463,8 @@ export type Database = {
           created_by?: string | null
           currency?: string | null
           customer_id?: string | null
+          customer_reference?: string | null
+          delivery_note_number?: string | null
           description?: string | null
           due_date?: string | null
           estimated_cost?: number | null
@@ -465,7 +478,9 @@ export type Database = {
           request_number?: string
           request_type?: string
           requested_date?: string
+          sales_order_number?: string | null
           scope?: string | null
+          sku?: string | null
           status?: string
           supplier_id?: string | null
           test_program_id?: string | null
@@ -3239,6 +3254,7 @@ export type Database = {
       }
       test_request_materials: {
         Row: {
+          batch_number: string | null
           created_at: string
           display_order: number
           id: string
@@ -3246,9 +3262,11 @@ export type Database = {
           notes: string | null
           quantity: string | null
           request_id: string
+          sku_override: string | null
           updated_at: string
         }
         Insert: {
+          batch_number?: string | null
           created_at?: string
           display_order?: number
           id?: string
@@ -3256,9 +3274,11 @@ export type Database = {
           notes?: string | null
           quantity?: string | null
           request_id: string
+          sku_override?: string | null
           updated_at?: string
         }
         Update: {
+          batch_number?: string | null
           created_at?: string
           display_order?: number
           id?: string
@@ -3266,6 +3286,7 @@ export type Database = {
           notes?: string | null
           quantity?: string | null
           request_id?: string
+          sku_override?: string | null
           updated_at?: string
         }
         Relationships: [
