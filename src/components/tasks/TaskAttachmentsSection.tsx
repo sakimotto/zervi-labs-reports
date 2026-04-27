@@ -4,12 +4,25 @@ import {
   useUploadTaskAttachment,
   useDeleteTaskAttachment,
   useRetryAttachmentOcr,
+  useUpdateAttachmentLanguage,
   downloadTaskAttachment,
+  OCR_LANGUAGE_OPTIONS,
   type TaskAttachment,
   type OcrStatus,
+  type OcrLanguage,
 } from '@/hooks/useTaskAttachments';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+} from '@/components/ui/dropdown-menu';
 import {
   Paperclip,
   Upload,
@@ -28,6 +41,7 @@ import {
   RefreshCw,
   ScanText,
   Copy,
+  Languages,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow, parseISO } from 'date-fns';
