@@ -320,6 +320,39 @@ export default function CustomersPage() {
         }}
         customer={editing}
       />
+
+      <AlertDialog
+        open={!!confirmTarget}
+        onOpenChange={(o) => {
+          if (!o) setConfirmTarget(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this customer?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmTarget ? (
+                <>
+                  Customer <span className="font-semibold">{confirmTarget.name}</span> will be
+                  permanently removed. This action cannot be undone.
+                </>
+              ) : (
+                'This customer will be permanently removed.'
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteCustomer.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={deleteCustomer.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteCustomer.isPending ? 'Deleting…' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
