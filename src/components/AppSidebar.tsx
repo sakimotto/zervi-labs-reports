@@ -37,6 +37,7 @@ const mainNav = [
   { title: 'Tasks', url: '/tasks', icon: CheckSquare },
   { title: 'Planning', url: '/planning', icon: CalendarRange },
   { title: 'Tests', url: '/tests', icon: FlaskConical },
+  { title: 'Test Requests', url: '/test-requests', icon: ClipboardList },
   { title: 'Test Programs', url: '/test-programs', icon: ClipboardList },
   { title: 'Test Methods', url: '/test-methods', icon: TestTubes },
   { title: 'SOPs', url: '/sops', icon: BookOpen },
