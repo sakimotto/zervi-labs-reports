@@ -405,6 +405,13 @@ export function TaskFormDialog({ open, onOpenChange, task, defaults }: Props) {
                           count={comments.length}
                         />
                         <TabBtn
+                          active={activeTab === 'attachments'}
+                          onClick={() => setActiveTab('attachments')}
+                          icon={Paperclip}
+                          label="Attachments"
+                          count={attachments.length}
+                        />
+                        <TabBtn
                           active={activeTab === 'activity'}
                           onClick={() => setActiveTab('activity')}
                           icon={Activity}
@@ -412,6 +419,11 @@ export function TaskFormDialog({ open, onOpenChange, task, defaults }: Props) {
                           count={activity.length}
                         />
                       </div>
+
+                      {activeTab === 'attachments' && (
+                        <TaskAttachmentsSection taskId={task.id} />
+                      )}
+
 
                       {activeTab === 'comments' && (
                         <div className="space-y-3">
