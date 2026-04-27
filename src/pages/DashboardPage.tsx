@@ -94,7 +94,7 @@ export default function DashboardPage() {
             empty="No new requests"
           >
             {newRequests.map((r: any) => (
-              <Link key={r.id} to={`/customers/${r.customer_id}`} className="block p-2 rounded hover:bg-muted/60 text-sm">
+              <Link key={r.id} to={`/customers/${r.customer_id}`} className="block p-2 rounded hover-tint transition-colors text-sm">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-xs font-medium">{r.request_number}</span>
                   <StatusBadge status={r.priority || 'Normal'} type="priority" />
@@ -115,7 +115,7 @@ export default function DashboardPage() {
             empty="All samples received"
           >
             {awaitingSamples.map(s => (
-              <Link key={s.id} to={`/tests/${s.id}`} className="block p-2 rounded hover:bg-muted/60 text-sm">
+              <Link key={s.id} to={`/tests/${s.id}`} className="block p-2 rounded hover-tint transition-colors text-sm">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-xs font-medium">{s.sample_id}</span>
                   <StatusBadge status={s.priority || 'Normal'} type="priority" />
@@ -133,7 +133,7 @@ export default function DashboardPage() {
             empty="No planned tests"
           >
             {plannedSoon.map(s => (
-              <Link key={s.id} to={`/tests/${s.id}`} className="block p-2 rounded hover:bg-muted/60 text-sm">
+              <Link key={s.id} to={`/tests/${s.id}`} className="block p-2 rounded hover-tint transition-colors text-sm">
                 <div className="flex items-center justify-between">
                   <span className="font-mono text-xs font-medium">{s.sample_id}</span>
                   <span className="text-[10px] text-muted-foreground">{s.test_date && format(parseISO(s.test_date), 'MMM d')}</span>
@@ -153,7 +153,7 @@ export default function DashboardPage() {
             {myUrgentTasks.map(t => {
               const overdue = t.due_date && isBefore(parseISO(t.due_date), today);
               return (
-                <Link key={t.id} to="/tasks" className="block p-2 rounded hover:bg-muted/60 text-sm">
+                <Link key={t.id} to="/tasks" className="block p-2 rounded hover-tint transition-colors text-sm">
                   <div className="flex items-center justify-between gap-1">
                     <span className="text-xs font-medium truncate flex items-center gap-1">
                       {t.ai_suggested && <Sparkles className="h-3 w-3 text-primary shrink-0" />}
