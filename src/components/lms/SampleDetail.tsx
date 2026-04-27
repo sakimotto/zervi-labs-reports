@@ -10,7 +10,9 @@ import { SpecBar } from './SpecBar';
 import { PrintableReport } from './PrintableReport';
 import { DeleteSampleDialog } from './DeleteSampleDialog';
 import { AskAIButton, getSampleAIActions } from '@/components/copilot/AskAIButton';
-import { ArrowLeft, FlaskConical, Save, Loader2, Printer, Pencil, Trash2, X, ChevronRight } from 'lucide-react';
+import { ArrowLeft, FlaskConical, Save, Loader2, Printer, Pencil, Trash2, X, ChevronRight, ClipboardList } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useTestRequest } from '@/hooks/useTestRequests';
 import { toast } from 'sonner';
 
 interface SampleDetailProps {
@@ -32,6 +34,7 @@ const STATUS_ACTION_LABELS: Record<string, string> = {
 
 export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
   const { data: sample, isLoading: sampleLoading } = useSample(sampleId);
+  const { data: linkedRequest } = useTestRequest((sample as any)?.test_request_id ?? null);
   const { data: allTestItems = [] } = useTestItems();
   const { data: requirements = [] } = useTestRequirements(sample?.oem_brand || undefined);
   const { data: dbResults = [] } = useTestResults(sampleId);
@@ -264,6 +267,16 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
           <StatusBadge status={sample.status || 'Pending'} />
           {sample.overall_judgment && sample.overall_judgment !== 'Pending' && (
             <JudgmentDot judgment={sample.overall_judgment} showLabel />
+          )}
+          {linkedRequest && (
+            <Link
+              to={`/test-requests/${(linkedRequest as any).id}`}
+              className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider border border-primary/30 bg-primary-soft/60 text-primary hover:bg-primary-soft transition-colors"
+              title="From test request"
+            >
+              <ClipboardList className="h-3 w-3" />
+              {(linkedRequest as any).request_number}
+            </Link>
           )}
         </div>
         <div className="flex items-center gap-2">

@@ -3199,6 +3199,44 @@ export type Database = {
           },
         ]
       }
+      test_request_audit: {
+        Row: {
+          action: string
+          changed_by: string | null
+          changed_by_name: string | null
+          created_at: string
+          details: Json | null
+          id: string
+          request_id: string
+        }
+        Insert: {
+          action: string
+          changed_by?: string | null
+          changed_by_name?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          request_id: string
+        }
+        Update: {
+          action?: string
+          changed_by?: string | null
+          changed_by_name?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          request_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_request_audit_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "customer_test_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       test_request_materials: {
         Row: {
           created_at: string
