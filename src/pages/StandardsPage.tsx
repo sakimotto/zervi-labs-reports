@@ -166,7 +166,7 @@ function StandardsTab() {
               </div>
               <Input placeholder="Title" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
               <div className="grid grid-cols-2 gap-2">
-                <Select value={form.organization_id} onValueChange={v => setForm(f => ({ ...f, organization_id: v }))}>
+                <Select value={form.organization_id || undefined} onValueChange={v => setForm(f => ({ ...f, organization_id: v }))}>
                   <SelectTrigger><SelectValue placeholder="Organization" /></SelectTrigger>
                   <SelectContent>
                     {orgs.map(o => <SelectItem key={o.id} value={o.id}>{o.code} — {o.full_name}</SelectItem>)}
