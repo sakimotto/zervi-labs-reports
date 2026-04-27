@@ -71,9 +71,15 @@ export default function PlanningPage() {
         title="Planning Calendar"
         description="Live schedule of test jobs, request deadlines, calibrations, and team events."
         actions={
-          <Button onClick={() => { setDefaultDate(new Date()); setEditing(null); setOpen(true); }} className="gap-1.5">
-            <Plus className="h-4 w-4" /> Add event
-          </Button>
+          <div className="flex items-center gap-2">
+            <AskAIButton
+              context={{ type: 'planning', id: format(cursor, 'yyyy-MM'), label: format(cursor, 'MMMM yyyy') }}
+              actions={getPlanningAIActions(format(cursor, 'MMMM yyyy'))}
+            />
+            <Button onClick={() => { setDefaultDate(new Date()); setEditing(null); setOpen(true); }} className="gap-1.5">
+              <Plus className="h-4 w-4" /> Add event
+            </Button>
+          </div>
         }
       />
 
