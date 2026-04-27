@@ -9,67 +9,84 @@
     --font-sans: 'IBM Plex Sans', -apple-system, sans-serif;
     --font-mono: 'IBM Plex Mono', monospace;
 
-    /* Surfaces: tinted canvas + crisp cards for clear hierarchy */
-    --background: 215 28% 95%;
-    --foreground: 222 47% 11%;
+    /* Surfaces: cooler, deeper canvas so white cards pop with clear separation */
+    --background: 215 32% 91%;
+    --foreground: 222 47% 10%;
 
-    --surface: 210 25% 97%;
-    --surface-foreground: 222 47% 11%;
+    --surface: 215 28% 94%;
+    --surface-foreground: 222 47% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
-    --card-muted: 210 30% 98%;
+    --card-foreground: 222 47% 10%;
+    --card-muted: 215 30% 97%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 222 47% 10%;
 
     /* Brand: industrial cobalt, slightly richer */
     --primary: 222 84% 48%;
     --primary-foreground: 0 0% 100%;
-    --primary-soft: 222 84% 96%;
+    --primary-soft: 222 84% 95%;
     --primary-glow: 222 90% 60%;
 
-    --secondary: 215 20% 91%;
+    --secondary: 215 22% 88%;
     --secondary-foreground: 222 47% 11%;
 
-    --muted: 215 25% 93%;
-    --muted-foreground: 215 16% 42%;
+    --muted: 215 25% 90%;
+    --muted-foreground: 215 16% 38%;
 
-    --accent: 222 84% 96%;
-    --accent-foreground: 222 84% 30%;
+    --accent: 222 84% 95%;
+    --accent-foreground: 222 84% 28%;
 
     --destructive: 0 78% 55%;
     --destructive-foreground: 0 0% 100%;
 
     --success: 152 64% 36%;
     --success-foreground: 0 0% 100%;
-    --success-soft: 152 60% 94%;
+    --success-soft: 152 60% 93%;
 
     --warning: 32 96% 48%;
     --warning-foreground: 0 0% 100%;
-    --warning-soft: 38 95% 94%;
+    --warning-soft: 38 95% 92%;
 
     --info: 199 90% 45%;
     --info-foreground: 0 0% 100%;
-    --info-soft: 199 90% 95%;
+    --info-soft: 199 90% 94%;
 
-    --border: 215 20% 87%;
-    --border-strong: 215 20% 78%;
-    --input: 215 20% 87%;
+    --border: 215 22% 82%;
+    --border-strong: 215 22% 72%;
+    --input: 215 22% 82%;
     --ring: 222 84% 48%;
 
     --radius: 8px;
 
-    /* Elevation system */
-    --shadow-xs: 0 1px 2px 0 hsl(222 47% 11% / 0.04);
-    --shadow-card: 0 1px 0 0 hsl(222 47% 11% / 0.04), 0 1px 3px -1px hsl(222 47% 11% / 0.06);
-    --shadow-elevated: 0 4px 12px -2px hsl(222 47% 11% / 0.08), 0 2px 4px -2px hsl(222 47% 11% / 0.04);
-    --shadow-popover: 0 12px 32px -8px hsl(222 47% 11% / 0.18), 0 4px 8px -4px hsl(222 47% 11% / 0.08);
-    --shadow-focus: 0 0 0 3px hsl(var(--primary) / 0.18);
+    /* Elevation system — richer, slightly cobalt-tinted shadows for depth */
+    --shadow-xs: 0 1px 2px 0 hsl(222 47% 11% / 0.05);
+    --shadow-card:
+      0 0 0 1px hsl(215 22% 80% / 0.5),
+      0 1px 2px -1px hsl(222 47% 11% / 0.06),
+      0 2px 6px -2px hsl(222 47% 11% / 0.08);
+    --shadow-elevated:
+      0 0 0 1px hsl(215 22% 75% / 0.6),
+      0 6px 16px -4px hsl(222 47% 11% / 0.12),
+      0 3px 6px -3px hsl(222 47% 11% / 0.08);
+    --shadow-popover:
+      0 0 0 1px hsl(215 22% 70% / 0.5),
+      0 16px 40px -12px hsl(222 47% 11% / 0.22),
+      0 6px 12px -6px hsl(222 47% 11% / 0.1);
+    --shadow-focus: 0 0 0 3px hsl(var(--primary) / 0.22);
+    --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.25), 0 8px 24px -6px hsl(var(--primary) / 0.28);
 
-    /* Gradients */
-    --gradient-surface: linear-gradient(180deg, hsl(215 28% 96%), hsl(215 28% 94%));
+    /* Gradients — subtle cobalt-tinted canvas with corner halos */
+    --gradient-surface:
+      radial-gradient(ellipse 80% 50% at 0% 0%, hsl(222 60% 88% / 0.55), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 100% 100%, hsl(199 60% 88% / 0.4), transparent 55%),
+      linear-gradient(180deg, hsl(215 32% 92%), hsl(215 30% 89%));
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(215 30% 99%));
+
+    /* Motion */
+    --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 
     /* Sidebar — darker industrial frame */
     --sidebar-background: 222 47% 9%;
