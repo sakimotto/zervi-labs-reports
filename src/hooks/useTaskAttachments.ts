@@ -68,13 +68,44 @@ export function useUploadTaskAttachment() {
         .select()
         .single();
       if (error) throw error;
+
+      // Fire-and-forget OCR. Don't block UI; user sees status badge.
+      supabase.functions
+        .invoke('ocr-attachment', { body: { attachment_id: data.id } })
+        .then(() => qc.invalidateQueries({ queryKey: ['task_attachments', taskId] }))
+        .catch((err) => console.warn('OCR invoke failed', err));
+
       return data;
     },
     onSuccess: (_d, vars) => {
       qc.invalidateQueries({ queryKey: ['task_attachments', vars.taskId] });
-      toast.success('Attachment uploaded');
+      toast.success('Attachment uploaded — extracting text…');
     },
     onError: (e: any) => toast.error(e.message || 'Upload failed'),
+  });
+}
+
+export function useRetryAttachmentOcr() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (att: TaskAttachment) => {
+      await supabase
+        .from('task_attachments')
+        .update({ ocr_status: 'processing', ocr_error: null })
+        .eq('id', att.id);
+      qc.invalidateQueries({ queryKey: ['task_attachments', att.task_id] });
+
+      const { error } = await supabase.functions.invoke('ocr-attachment', {
+        body: { attachment_id: att.id },
+      });
+      if (error) throw error;
+      return att;
+    },
+    onSuccess: (att) => {
+      qc.invalidateQueries({ queryKey: ['task_attachments', att.task_id] });
+      toast.success('Text extracted');
+    },
+    onError: (e: any) => toast.error(e.message || 'OCR failed'),
   });
 }
 
