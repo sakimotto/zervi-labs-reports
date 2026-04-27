@@ -224,7 +224,8 @@ export function TaskAttachmentsSection({ taskId }: { taskId: string }) {
                 expanded={expanded.has(a.id)}
                 onToggleExpand={() => toggleExpand(a.id)}
                 onDownload={() => downloadTaskAttachment(a)}
-                onRetry={() => retryMut.mutate(a)}
+                onRetry={(language) => retryMut.mutate({ att: a, language })}
+                onChangeLanguage={(language) => langMut.mutate({ att: a, language })}
                 onDelete={() => {
                   if (confirm(`Remove ${a.file_name}?`)) deleteMut.mutate(a);
                 }}
