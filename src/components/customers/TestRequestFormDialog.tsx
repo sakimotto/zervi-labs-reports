@@ -487,7 +487,7 @@ export function TestRequestFormDialog({ open, onOpenChange, customerId, request 
                       error={errors.scope?.message}
                     >
                       <FormTextarea
-                        rows={2}
+                        rows={6}
                         maxLength={2000}
                         {...register('scope')}
                         error={!!errors.scope}
