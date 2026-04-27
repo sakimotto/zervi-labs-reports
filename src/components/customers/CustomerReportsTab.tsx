@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import {
   FileBadge,
   Plus,
@@ -262,9 +263,19 @@ export function CustomerReportsTab({ customerId, customerEmail, customerName }: 
                   </td>
                   <td className="px-4 py-2.5 text-xs">
                     {r.customer_test_requests?.request_number ? (
-                      <span className="font-mono">{r.customer_test_requests.request_number}</span>
+                      <Link
+                        to={`/test-requests/${r.test_request_id}`}
+                        className="font-mono text-primary hover:underline"
+                      >
+                        {r.customer_test_requests.request_number}
+                      </Link>
                     ) : r.samples?.sample_id ? (
-                      <span className="font-mono">{r.samples.sample_id}</span>
+                      <Link
+                        to={`/tests/${r.sample_id}`}
+                        className="font-mono text-primary hover:underline"
+                      >
+                        {r.samples.sample_id}
+                      </Link>
                     ) : (
                       <span className="text-muted-foreground">—</span>
                     )}
