@@ -53,6 +53,7 @@ export default function CustomersPage() {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<DbCustomer | null>(null);
+  const [confirmTarget, setConfirmTarget] = useState<DbCustomer | null>(null);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
