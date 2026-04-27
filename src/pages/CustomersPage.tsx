@@ -25,6 +25,16 @@ import {
 import { PageHeader, PageBody } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 import { DataTable, RowActions, type Column } from '@/components/data/DataTable';
 import { FilterBar } from '@/components/data/FilterBar';
