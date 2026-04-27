@@ -219,7 +219,7 @@ export default function CustomersPage() {
             size="icon"
             variant="ghost"
             className="h-7 w-7 text-destructive hover:text-destructive"
-            onClick={() => handleDelete(c)}
+            onClick={() => setConfirmTarget(c)}
             title="Delete"
           >
             <Trash2 className="h-3.5 w-3.5" />
