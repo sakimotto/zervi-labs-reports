@@ -47,6 +47,9 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { AskAIButton, getTaskAIActions } from '@/components/copilot/AskAIButton';
+import { Paperclip } from 'lucide-react';
+import { TaskAttachmentsSection } from './TaskAttachmentsSection';
+import { useTaskAttachments } from '@/hooks/useTaskAttachments';
 import { cn } from '@/lib/utils';
 import { format, formatDistanceToNow, parseISO } from 'date-fns';
 import { toast } from 'sonner';
@@ -101,7 +104,8 @@ export function TaskFormDialog({ open, onOpenChange, task, defaults }: Props) {
     priority: 'Normal',
   });
   const [commentText, setCommentText] = useState('');
-  const [activeTab, setActiveTab] = useState<'comments' | 'activity'>('comments');
+  const [activeTab, setActiveTab] = useState<'comments' | 'attachments' | 'activity'>('comments');
+  const { data: attachments = [] } = useTaskAttachments(task?.id);
 
   useEffect(() => {
     if (open) {
@@ -401,6 +405,13 @@ export function TaskFormDialog({ open, onOpenChange, task, defaults }: Props) {
                           count={comments.length}
                         />
                         <TabBtn
+                          active={activeTab === 'attachments'}
+                          onClick={() => setActiveTab('attachments')}
+                          icon={Paperclip}
+                          label="Attachments"
+                          count={attachments.length}
+                        />
+                        <TabBtn
                           active={activeTab === 'activity'}
                           onClick={() => setActiveTab('activity')}
                           icon={Activity}
@@ -408,6 +419,11 @@ export function TaskFormDialog({ open, onOpenChange, task, defaults }: Props) {
                           count={activity.length}
                         />
                       </div>
+
+                      {activeTab === 'attachments' && (
+                        <TaskAttachmentsSection taskId={task.id} />
+                      )}
+
 
                       {activeTab === 'comments' && (
                         <div className="space-y-3">
