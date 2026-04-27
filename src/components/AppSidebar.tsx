@@ -122,6 +122,7 @@ export function AppSidebar() {
         {renderGroup('Main', mainNav)}
         {renderGroup('Lab Resources', labNav)}
         {renderGroup('Directory', directoryNav)}
+        {isAdmin && renderGroup('Admin', adminNav)}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border p-2">
