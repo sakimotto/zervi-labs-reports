@@ -117,24 +117,43 @@ export function useUploadTaskAttachment() {
 export function useRetryAttachmentOcr() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (att: TaskAttachment) => {
+    mutationFn: async ({ att, language }: { att: TaskAttachment; language?: OcrLanguage }) => {
+      const lang = language || att.ocr_language || 'auto';
       await supabase
         .from('task_attachments')
-        .update({ ocr_status: 'processing', ocr_error: null })
+        .update({ ocr_status: 'processing', ocr_error: null, ocr_language: lang })
         .eq('id', att.id);
       qc.invalidateQueries({ queryKey: ['task_attachments', att.task_id] });
 
       const { error } = await supabase.functions.invoke('ocr-attachment', {
-        body: { attachment_id: att.id },
+        body: { attachment_id: att.id, language: lang },
       });
       if (error) throw error;
       return att;
     },
     onSuccess: (att) => {
       qc.invalidateQueries({ queryKey: ['task_attachments', att.task_id] });
-      toast.success('Text extracted');
+      toast.success('Text re-extracted');
     },
     onError: (e: any) => toast.error(e.message || 'OCR failed'),
+  });
+}
+
+export function useUpdateAttachmentLanguage() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ att, language }: { att: TaskAttachment; language: OcrLanguage }) => {
+      const { error } = await supabase
+        .from('task_attachments')
+        .update({ ocr_language: language })
+        .eq('id', att.id);
+      if (error) throw error;
+      return { att, language };
+    },
+    onSuccess: ({ att }) => {
+      qc.invalidateQueries({ queryKey: ['task_attachments', att.task_id] });
+    },
+    onError: (e: any) => toast.error(e.message),
   });
 }
 
