@@ -15,6 +15,7 @@ import {
   createMethodVersion,
 } from '@/hooks/useMethodDetail';
 import { useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const CATEGORIES = ['Physical', 'Mechanical', 'Durability', 'Chemical', 'Safety', 'Visual', 'Other'];
 const STATUSES = ['Draft', 'Active', 'Archived'];
@@ -402,7 +403,6 @@ export default function TestMethodDetailPage() {
 // ─── small helpers ──────────────────────────────────────────────────────────
 
 async function updateRow(table: string, id: string, testItemId: number, patch: any) {
-  const { supabase } = await import('@/integrations/supabase/client');
   const { error } = await (supabase.from(table as any) as any).update(patch).eq('id', id);
   if (error) toast.error(error.message);
 }
@@ -412,7 +412,6 @@ async function reorderStep(steps: any[] | undefined, step: any, dir: number, tes
   const idx = steps.findIndex((s) => s.id === step.id);
   const swap = steps[idx + dir];
   if (!swap) return;
-  const { supabase } = await import('@/integrations/supabase/client');
   await supabase.from('method_procedure_steps').update({ step_number: swap.step_number }).eq('id', step.id);
   await supabase.from('method_procedure_steps').update({ step_number: step.step_number }).eq('id', swap.id);
   qc.invalidateQueries({ queryKey: ['method_procedure_steps', testItemId] });
