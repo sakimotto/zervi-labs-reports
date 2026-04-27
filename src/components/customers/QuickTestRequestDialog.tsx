@@ -89,6 +89,18 @@ const schema = z
         message: 'Department is required for internal requests',
       });
     }
+    // Smart conditional: incoming goods needs PO or delivery note for traceability
+    if (
+      data.request_type === 'incoming_goods' &&
+      !data.po_number?.trim() &&
+      !data.delivery_note_number?.trim()
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['delivery_note_number'],
+        message: 'Incoming goods need a PO or delivery note number',
+      });
+    }
   });
 
 type Values = z.infer<typeof schema>;
