@@ -17,6 +17,7 @@ import {
 import { ChevronLeft, ChevronRight, Plus, FlaskConical, Cpu, ClipboardList, Calendar as CalIcon, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
+import { AskAIButton, getPlanningAIActions } from '@/components/copilot/AskAIButton';
 
 const KIND_META: Record<EventKind, { label: string; color: string; icon: any }> = {
   test_job:    { label: 'Test job',     color: '#3B82F6', icon: FlaskConical },
@@ -70,9 +71,15 @@ export default function PlanningPage() {
         title="Planning Calendar"
         description="Live schedule of test jobs, request deadlines, calibrations, and team events."
         actions={
-          <Button onClick={() => { setDefaultDate(new Date()); setEditing(null); setOpen(true); }} className="gap-1.5">
-            <Plus className="h-4 w-4" /> Add event
-          </Button>
+          <div className="flex items-center gap-2">
+            <AskAIButton
+              context={{ type: 'planning', id: format(cursor, 'yyyy-MM'), label: format(cursor, 'MMMM yyyy') }}
+              actions={getPlanningAIActions(format(cursor, 'MMMM yyyy'))}
+            />
+            <Button onClick={() => { setDefaultDate(new Date()); setEditing(null); setOpen(true); }} className="gap-1.5">
+              <Plus className="h-4 w-4" /> Add event
+            </Button>
+          </div>
         }
       />
 
