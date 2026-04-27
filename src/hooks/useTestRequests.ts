@@ -130,7 +130,41 @@ export function useDeleteTestRequest() {
   });
 }
 
-// Samples linked to a test request
+// Test requests originating from a specific supplier (supplier sample workflow)
+export function useSupplierTestRequests(supplierId: string | null) {
+  return useQuery({
+    queryKey: ['supplier_test_requests', supplierId],
+    enabled: !!supplierId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('customer_test_requests')
+        .select('*')
+        .eq('supplier_id', supplierId!)
+        .order('requested_date', { ascending: false });
+      if (error) throw error;
+      return data as DbTestRequest[];
+    },
+  });
+}
+
+// Test requests that cite a given material (via the request_materials join)
+export function useMaterialTestRequests(materialId: string | null) {
+  return useQuery({
+    queryKey: ['material_test_requests', materialId],
+    enabled: !!materialId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('test_request_materials')
+        .select('request_id, customer_test_requests(*)')
+        .eq('material_id', materialId!);
+      if (error) throw error;
+      return (data ?? [])
+        .map((row: any) => row.customer_test_requests)
+        .filter(Boolean) as DbTestRequest[];
+    },
+  });
+}
+
 export function useRequestSamples(requestId: string | null) {
   return useQuery({
     queryKey: ['request_samples', requestId],
