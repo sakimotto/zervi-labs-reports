@@ -182,6 +182,15 @@ export function CustomerTestRequestsTab({ customerId }: Props) {
                       <Button
                         size="sm"
                         variant="ghost"
+                        title="Generate samples from this request"
+                        onClick={() => setGeneratingFor(r)}
+                        disabled={['Cancelled', 'Reported'].includes(r.status)}
+                      >
+                        <Sparkles className="h-3.5 w-3.5 text-primary" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
                         onClick={() => {
                           setEditing(r);
                           setOpenForm(true);
