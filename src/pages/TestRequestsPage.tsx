@@ -201,19 +201,27 @@ export default function TestRequestsPage() {
                     key={r.id}
                     className={`border-b border-border/60 last:border-b-0 hover:bg-primary-soft/40 ${i % 2 === 1 ? 'bg-card-muted' : ''}`}
                   >
-                    <td className="px-4 py-2.5 font-mono text-xs">{r.request_number}</td>
-                    <td className="px-4 py-2.5">
-                      <Link
-                        to={`/customers/${r.customer_id}`}
-                        className="text-primary hover:underline inline-flex items-center gap-1"
-                      >
-                        {r.customers?.name ?? '—'}
-                        {r.customers?.customer_code && (
-                          <span className="text-[10px] font-mono text-muted-foreground">
-                            ({r.customers.customer_code})
-                          </span>
-                        )}
+                    <td className="px-4 py-2.5 font-mono text-xs">
+                      <Link to={`/test-requests/${r.id}`} className="text-primary hover:underline">
+                        {r.request_number}
                       </Link>
+                    </td>
+                    <td className="px-4 py-2.5">
+                      {r.customers ? (
+                        <Link
+                          to={`/customers/${r.customer_id}`}
+                          className="text-primary hover:underline inline-flex items-center gap-1"
+                        >
+                          {r.customers?.name ?? '—'}
+                          {r.customers?.customer_code && (
+                            <span className="text-[10px] font-mono text-muted-foreground">
+                              ({r.customers.customer_code})
+                            </span>
+                          )}
+                        </Link>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">— internal / non-customer</span>
+                      )}
                     </td>
                     <td className="px-4 py-2.5 max-w-[28ch] truncate" title={r.description ?? ''}>
                       {r.description ?? <span className="text-muted-foreground">—</span>}
