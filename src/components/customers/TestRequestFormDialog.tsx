@@ -228,8 +228,30 @@ export function TestRequestFormDialog({ open, onOpenChange, customerId, request 
     defaultValues: blank(),
     mode: 'onBlur',
   });
-  const { register, control, handleSubmit, reset, trigger, formState } = form;
+  const { register, control, handleSubmit, reset, trigger, getValues, setValue, formState } = form;
   const errors = formState.errors;
+
+  const applyTemplate = (id: string) => {
+    const tpl = SCOPE_TEMPLATES.find((t) => t.id === id);
+    if (!tpl) return;
+    const current = getValues();
+    const mergeText = (existing: string | undefined, addition: string) => {
+      const trimmed = (existing ?? '').trim();
+      if (!trimmed) return addition;
+      // Avoid double-applying the exact same template.
+      if (trimmed === addition.trim()) return trimmed;
+      return `${trimmed}\n\n${addition}`;
+    };
+    setValue('scope', mergeText(current.scope, tpl.scope), {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    setValue('materials_description', mergeText(current.materials_description, tpl.materials), {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    toast.success(`Applied template: ${tpl.label}`);
+  };
 
   useEffect(() => {
     if (!open) return;
