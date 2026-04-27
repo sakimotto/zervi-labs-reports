@@ -380,6 +380,76 @@ const TOOLS = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "list_tasks",
+      description: "List open lab tasks. Optional filters by status, type (lab_work/triage/calibration/maintenance/manual), priority, team slug, due_before (YYYY-MM-DD).",
+      parameters: {
+        type: "object",
+        properties: {
+          status: { type: "string", description: "todo | in_progress | blocked | done | cancelled" },
+          type: { type: "string" },
+          priority: { type: "string" },
+          team_slug: { type: "string" },
+          due_before: { type: "string" },
+          limit: { type: "number" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "draft_task",
+      description: "Draft a task for the user to approve. Returns the task spec without inserting. Pass title, description, type, priority, team_slug, due_date, and optional sample_id/test_request_id/equipment_id link.",
+      parameters: {
+        type: "object",
+        required: ["title"],
+        properties: {
+          title: { type: "string" },
+          description: { type: "string" },
+          type: { type: "string", description: "manual | lab_work | triage | calibration | maintenance | ai_suggested" },
+          priority: { type: "string", description: "Low | Normal | High | Urgent" },
+          team_slug: { type: "string", description: "front-office | physical | chemistry | safety | metrology" },
+          due_date: { type: "string", description: "YYYY-MM-DD" },
+          sample_id: { type: "string" },
+          test_request_id: { type: "string" },
+          equipment_id: { type: "string" },
+          rationale: { type: "string", description: "Why this task is being suggested" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "plan_my_week",
+      description: "Build a weekly plan from current open tasks, planned samples, and upcoming calibrations. Returns a structured day-by-day plan and flagged risks.",
+      parameters: {
+        type: "object",
+        properties: {
+          team_slug: { type: "string", description: "Limit to a single team" },
+          start_date: { type: "string", description: "Optional ISO date for week start (defaults to today)" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_calendar_events",
+      description: "List calendar events in a date range. Useful to assess load before scheduling.",
+      parameters: {
+        type: "object",
+        properties: {
+          from: { type: "string", description: "YYYY-MM-DD" },
+          to: { type: "string", description: "YYYY-MM-DD" },
+          kind: { type: "string", description: "test_job | request_due | calibration | manual | meeting" },
+        },
+      },
+    },
+  },
 ];
 
 // ============================================================================
