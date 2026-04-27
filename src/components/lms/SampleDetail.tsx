@@ -34,6 +34,7 @@ const STATUS_ACTION_LABELS: Record<string, string> = {
 
 export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
   const { data: sample, isLoading: sampleLoading } = useSample(sampleId);
+  const { data: linkedRequest } = useTestRequest((sample as any)?.test_request_id ?? null);
   const { data: allTestItems = [] } = useTestItems();
   const { data: requirements = [] } = useTestRequirements(sample?.oem_brand || undefined);
   const { data: dbResults = [] } = useTestResults(sampleId);
