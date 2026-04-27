@@ -19,6 +19,7 @@ const SamplesPage = lazy(() => import("./pages/SamplesPage"));
 const TestMethodsPage = lazy(() => import("./pages/TestMethodsPage"));
 const TestMethodDetailPage = lazy(() => import("./pages/TestMethodDetailPage"));
 const TestProgramsPage = lazy(() => import("./pages/TestProgramsPage"));
+const TestProgramDetailPage = lazy(() => import("./pages/TestProgramDetailPage"));
 const SuppliersPage = lazy(() => import("./pages/SuppliersPage"));
 const SupplierDetailPage = lazy(() => import("./pages/SupplierDetailPage"));
 const CustomersPage = lazy(() => import("./pages/CustomersPage"));
@@ -67,6 +68,7 @@ const App = () => (
                         <Route path="/tests" element={<SamplesPage />} />
                         <Route path="/tests/:id" element={<SamplesPage />} />
                         <Route path="/test-programs" element={<TestProgramsPage />} />
+                        <Route path="/test-programs/:id" element={<TestProgramDetailPage />} />
                         <Route path="/test-methods" element={<TestMethodsPage />} />
                         <Route path="/test-methods/:id" element={<TestMethodDetailPage />} />
                         <Route path="/equipment" element={<EquipmentPage />} />
