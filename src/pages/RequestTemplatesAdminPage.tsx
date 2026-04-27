@@ -13,9 +13,11 @@ import {
   ArrowDown,
   Eye,
   EyeOff,
+  History,
   ShieldAlert,
   Loader2,
 } from 'lucide-react';
+import { TemplateHistorySheet } from '@/components/admin/TemplateHistorySheet';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
