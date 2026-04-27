@@ -431,12 +431,62 @@ export function QuickTestRequestDialog({
             </FormGrid>
           </FormSection>
 
-          {/* Step 3 — Logistics */}
-          <FormSection title="3. Logistics" description="Tracking, dates, priority" bare>
+          {/* Step 3 — Traceability (always visible, smart emphasis per origin) */}
+          <FormSection
+            title="3. Traceability & references"
+            description="Material identity and originating business document. Leave blank if not applicable."
+            bare
+          >
             <FormGrid cols={2}>
-              <FormField label="PO number" error={errors.po_number?.message}>
+              <FormField
+                label="SKU / Part No."
+                error={errors.sku?.message}
+                hint="Internal SKU. Auto-fills from a linked catalog material."
+              >
+                <FormInput {...register('sku')} error={!!errors.sku} maxLength={100} placeholder="e.g. ZV-PVC-1042" />
+              </FormField>
+              <FormField
+                label="Batch number"
+                error={errors.batch_number?.message}
+                hint="Default batch — overridable per sample."
+              >
+                <FormInput {...register('batch_number')} error={!!errors.batch_number} maxLength={100} placeholder="e.g. B-2026-0418" />
+              </FormField>
+              <FormField
+                label={requestType === 'incoming_goods' ? 'PO number *' : 'PO number'}
+                error={errors.po_number?.message}
+                hint={requestType === 'incoming_goods' ? 'PO or delivery note required for incoming goods' : undefined}
+              >
                 <FormInput {...register('po_number')} error={!!errors.po_number} maxLength={100} />
               </FormField>
+              <FormField
+                label="Sales order"
+                error={errors.sales_order_number?.message}
+                hint={requestType === 'customer' ? 'Useful for pre-shipment testing' : undefined}
+              >
+                <FormInput {...register('sales_order_number')} error={!!errors.sales_order_number} maxLength={100} />
+              </FormField>
+              <FormField
+                label={requestType === 'incoming_goods' ? 'Delivery note / GRN *' : 'Delivery note / GRN'}
+                error={errors.delivery_note_number?.message}
+                hint={requestType === 'incoming_goods' ? 'PO or delivery note required for incoming goods' : undefined}
+              >
+                <FormInput {...register('delivery_note_number')} error={!!errors.delivery_note_number} maxLength={100} />
+              </FormField>
+              <FormField
+                label={requestType === 'customer' ? 'Customer reference' : 'External reference'}
+                error={errors.customer_reference?.message}
+                hint="Their PO or internal ref"
+              >
+                <FormInput {...register('customer_reference')} error={!!errors.customer_reference} maxLength={100} />
+              </FormField>
+            </FormGrid>
+          </FormSection>
+
+          {/* Step 4 — Logistics */}
+          <FormSection title="4. Logistics" description="Dates and priority" bare>
+            <FormGrid cols={2}>
+
               <FormField label="Requested date" error={errors.requested_date?.message}>
                 <FormInput type="date" {...register('requested_date')} error={!!errors.requested_date} />
               </FormField>
