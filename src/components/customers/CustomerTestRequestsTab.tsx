@@ -32,6 +32,7 @@ import {
   type DbTestRequest,
 } from '@/hooks/useTestRequests';
 import { TestRequestFormDialog } from './TestRequestFormDialog';
+import { CreateSamplesFromRequestDialog } from './CreateSamplesFromRequestDialog';
 import { RequestStatusBadge, PriorityBadge } from './TestRequestBadges';
 import { AskAIButton, getTestRequestAIActions } from '@/components/copilot/AskAIButton';
 
