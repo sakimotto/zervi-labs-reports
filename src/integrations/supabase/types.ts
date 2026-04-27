@@ -1816,6 +1816,245 @@ export type Database = {
         }
         Relationships: []
       }
+      program_approvals: {
+        Row: {
+          action: Database["public"]["Enums"]["program_approval_action"]
+          actor_name: string | null
+          actor_user_id: string | null
+          comments: string | null
+          created_at: string
+          id: string
+          program_id: string
+          signature: string | null
+          version_number: number
+        }
+        Insert: {
+          action: Database["public"]["Enums"]["program_approval_action"]
+          actor_name?: string | null
+          actor_user_id?: string | null
+          comments?: string | null
+          created_at?: string
+          id?: string
+          program_id: string
+          signature?: string | null
+          version_number: number
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["program_approval_action"]
+          actor_name?: string | null
+          actor_user_id?: string | null
+          comments?: string | null
+          created_at?: string
+          id?: string
+          program_id?: string
+          signature?: string | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_approvals_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "test_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      program_audit: {
+        Row: {
+          action: string
+          changed_by: string | null
+          changed_by_name: string | null
+          created_at: string
+          details: Json | null
+          id: string
+          program_id: string
+        }
+        Insert: {
+          action: string
+          changed_by?: string | null
+          changed_by_name?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          program_id: string
+        }
+        Update: {
+          action?: string
+          changed_by?: string | null
+          changed_by_name?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          program_id?: string
+        }
+        Relationships: []
+      }
+      program_material_type_tags: {
+        Row: {
+          created_at: string
+          id: string
+          material_type: string
+          program_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          material_type: string
+          program_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          material_type?: string
+          program_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_material_type_tags_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "test_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      program_sku_patterns: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          match_type: Database["public"]["Enums"]["program_sku_match_type"]
+          pattern: string
+          priority: number
+          program_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          match_type?: Database["public"]["Enums"]["program_sku_match_type"]
+          pattern: string
+          priority?: number
+          program_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          match_type?: Database["public"]["Enums"]["program_sku_match_type"]
+          pattern?: string
+          priority?: number
+          program_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_sku_patterns_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "test_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      program_supplier_links: {
+        Row: {
+          created_at: string
+          id: string
+          is_preferred: boolean
+          notes: string | null
+          program_id: string
+          supplier_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_preferred?: boolean
+          notes?: string | null
+          program_id: string
+          supplier_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_preferred?: boolean
+          notes?: string | null
+          program_id?: string
+          supplier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_supplier_links_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "test_programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_supplier_links_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      program_versions: {
+        Row: {
+          approval_signature: string | null
+          approved_at: string | null
+          approved_by: string | null
+          approved_by_name: string | null
+          change_notes: string | null
+          created_at: string
+          created_by: string | null
+          created_by_name: string | null
+          id: string
+          program_id: string
+          snapshot: Json
+          status: Database["public"]["Enums"]["program_status"]
+          version_number: number
+        }
+        Insert: {
+          approval_signature?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          approved_by_name?: string | null
+          change_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          created_by_name?: string | null
+          id?: string
+          program_id: string
+          snapshot: Json
+          status: Database["public"]["Enums"]["program_status"]
+          version_number: number
+        }
+        Update: {
+          approval_signature?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          approved_by_name?: string | null
+          change_notes?: string | null
+          created_at?: string
+          created_by?: string | null
+          created_by_name?: string | null
+          id?: string
+          program_id?: string
+          snapshot?: Json
+          status?: Database["public"]["Enums"]["program_status"]
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_versions_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "test_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sample_test_items: {
         Row: {
           display_order: number | null
@@ -3075,52 +3314,118 @@ export type Database = {
       }
       test_programs: {
         Row: {
+          approval_signature: string | null
+          approved_at: string | null
+          approver_name: string | null
+          approver_user_id: string | null
+          category: string | null
           created_at: string | null
           description: string | null
+          effective_from: string | null
+          effective_until: string | null
           id: string
+          intended_use: string | null
           is_active: boolean | null
+          is_locked: boolean
           material_type: string | null
           name: string
           oem_specification_id: string | null
+          owner_team_id: string | null
+          parent_program_id: string | null
+          program_code: string | null
+          purpose: string | null
           report_columns: Json | null
           report_footer_notes: string | null
           report_header_notes: string | null
           report_title: string | null
+          requested_by: string | null
+          requested_by_name: string | null
+          scope_notes: string | null
+          share_token: string | null
           show_signatures: boolean | null
           signature_roles: Json | null
+          status: Database["public"]["Enums"]["program_status"]
+          submitted_at: string | null
+          superseded_by_id: string | null
+          tags: string[] | null
           updated_at: string | null
+          version_number: number
         }
         Insert: {
+          approval_signature?: string | null
+          approved_at?: string | null
+          approver_name?: string | null
+          approver_user_id?: string | null
+          category?: string | null
           created_at?: string | null
           description?: string | null
+          effective_from?: string | null
+          effective_until?: string | null
           id?: string
+          intended_use?: string | null
           is_active?: boolean | null
+          is_locked?: boolean
           material_type?: string | null
           name: string
           oem_specification_id?: string | null
+          owner_team_id?: string | null
+          parent_program_id?: string | null
+          program_code?: string | null
+          purpose?: string | null
           report_columns?: Json | null
           report_footer_notes?: string | null
           report_header_notes?: string | null
           report_title?: string | null
+          requested_by?: string | null
+          requested_by_name?: string | null
+          scope_notes?: string | null
+          share_token?: string | null
           show_signatures?: boolean | null
           signature_roles?: Json | null
+          status?: Database["public"]["Enums"]["program_status"]
+          submitted_at?: string | null
+          superseded_by_id?: string | null
+          tags?: string[] | null
           updated_at?: string | null
+          version_number?: number
         }
         Update: {
+          approval_signature?: string | null
+          approved_at?: string | null
+          approver_name?: string | null
+          approver_user_id?: string | null
+          category?: string | null
           created_at?: string | null
           description?: string | null
+          effective_from?: string | null
+          effective_until?: string | null
           id?: string
+          intended_use?: string | null
           is_active?: boolean | null
+          is_locked?: boolean
           material_type?: string | null
           name?: string
           oem_specification_id?: string | null
+          owner_team_id?: string | null
+          parent_program_id?: string | null
+          program_code?: string | null
+          purpose?: string | null
           report_columns?: Json | null
           report_footer_notes?: string | null
           report_header_notes?: string | null
           report_title?: string | null
+          requested_by?: string | null
+          requested_by_name?: string | null
+          scope_notes?: string | null
+          share_token?: string | null
           show_signatures?: boolean | null
           signature_roles?: Json | null
+          status?: Database["public"]["Enums"]["program_status"]
+          submitted_at?: string | null
+          superseded_by_id?: string | null
+          tags?: string[] | null
           updated_at?: string | null
+          version_number?: number
         }
         Relationships: [
           {
@@ -3128,6 +3433,27 @@ export type Database = {
             columns: ["oem_specification_id"]
             isOneToOne: false
             referencedRelation: "oem_specifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_programs_owner_team_id_fkey"
+            columns: ["owner_team_id"]
+            isOneToOne: false
+            referencedRelation: "lab_teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_programs_parent_program_id_fkey"
+            columns: ["parent_program_id"]
+            isOneToOne: false
+            referencedRelation: "test_programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_programs_superseded_by_id_fkey"
+            columns: ["superseded_by_id"]
+            isOneToOne: false
+            referencedRelation: "test_programs"
             referencedColumns: ["id"]
           },
         ]
@@ -3685,12 +4011,45 @@ export type Database = {
         }
         Returns: boolean
       }
+      match_programs_for_intake: {
+        Args: {
+          _material_id?: string
+          _material_type?: string
+          _sku?: string
+          _supplier_id?: string
+        }
+        Returns: {
+          match_reasons: string[]
+          match_score: number
+          program_code: string
+          program_id: string
+          program_name: string
+        }[]
+      }
+      snapshot_program_version: {
+        Args: { _change_notes?: string; _program_id: string }
+        Returns: string
+      }
     }
     Enums: {
-      app_role: "admin" | "lab_tech" | "viewer"
+      app_role: "admin" | "lab_tech" | "viewer" | "lab_manager" | "approver"
       base_type: "Solvent" | "Water-Based"
       judgment: "OK" | "NG" | "Pending"
       priority_level: "Normal" | "Urgent" | "Critical"
+      program_approval_action:
+        | "submitted"
+        | "approved"
+        | "rejected"
+        | "withdrawn"
+        | "revised"
+      program_sku_match_type: "exact" | "prefix" | "glob" | "regex"
+      program_status:
+        | "Draft"
+        | "In Review"
+        | "Approved"
+        | "Active"
+        | "Superseded"
+        | "Archived"
       sample_status: "Pending" | "In Progress" | "Completed" | "Approved"
     }
     CompositeTypes: {
@@ -3819,10 +4178,26 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "lab_tech", "viewer"],
+      app_role: ["admin", "lab_tech", "viewer", "lab_manager", "approver"],
       base_type: ["Solvent", "Water-Based"],
       judgment: ["OK", "NG", "Pending"],
       priority_level: ["Normal", "Urgent", "Critical"],
+      program_approval_action: [
+        "submitted",
+        "approved",
+        "rejected",
+        "withdrawn",
+        "revised",
+      ],
+      program_sku_match_type: ["exact", "prefix", "glob", "regex"],
+      program_status: [
+        "Draft",
+        "In Review",
+        "Approved",
+        "Active",
+        "Superseded",
+        "Archived",
+      ],
       sample_status: ["Pending", "In Progress", "Completed", "Approved"],
     },
   },
