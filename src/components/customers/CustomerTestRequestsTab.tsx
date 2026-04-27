@@ -217,6 +217,14 @@ export function CustomerTestRequestsTab({ customerId }: Props) {
         request={editing}
       />
 
+      {generatingFor && (
+        <CreateSamplesFromRequestDialog
+          open={!!generatingFor}
+          onOpenChange={(o) => !o && setGeneratingFor(null)}
+          request={generatingFor}
+        />
+      )}
+
       <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
