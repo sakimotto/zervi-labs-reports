@@ -40,6 +40,7 @@ import { ArrowLeft, Plus, X, Check, Save, Trash2, FileCheck2, History, Layers, F
 import { toast } from 'sonner';
 import type { DbMaterialUpdate } from '@/hooks/useMaterials';
 import { materialUpdateSchema, friendlyMaterialError } from '@/lib/validation/material';
+import { AskAIButton, getMaterialAIActions } from '@/components/copilot/AskAIButton';
 
 const STRUCTURES = ['Woven', 'Knit', 'Nonwoven', 'Coated', 'Laminated', 'Composite', 'Film', 'Foam', 'Other'];
 const STATUSES = ['Active', 'Draft', 'Archived', 'Obsolete'];
@@ -110,6 +111,10 @@ export default function MaterialDetailPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <AskAIButton
+            context={{ type: 'material', id: material.id, label: material.name }}
+            actions={getMaterialAIActions(material.name)}
+          />
           {dirty && (
             <Button size="sm" onClick={handleSave} disabled={updateMaterial.isPending}>
               <Save className="h-4 w-4 mr-1" /> Save Changes

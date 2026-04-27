@@ -32,6 +32,7 @@ import { CustomerFormDialog } from '@/components/customers/CustomerFormDialog';
 import { CustomerTestRequestsTab } from '@/components/customers/CustomerTestRequestsTab';
 import { CustomerReportsTab } from '@/components/customers/CustomerReportsTab';
 import { EmptyState } from '@/components/data/EmptyState';
+import { AskAIButton, getCustomerAIActions } from '@/components/copilot/AskAIButton';
 
 export default function CustomerDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -104,9 +105,15 @@ export default function CustomerDetailPage() {
           </div>
         }
         actions={
-          <Button size="sm" variant="outline" onClick={() => setEditOpen(true)}>
-            <Pencil className="h-4 w-4 mr-1" /> Edit
-          </Button>
+          <div className="flex items-center gap-2">
+            <AskAIButton
+              context={{ type: 'customer', id: customer.id, label: customer.name }}
+              actions={getCustomerAIActions(customer.name)}
+            />
+            <Button size="sm" variant="outline" onClick={() => setEditOpen(true)}>
+              <Pencil className="h-4 w-4 mr-1" /> Edit
+            </Button>
+          </div>
         }
       />
 
