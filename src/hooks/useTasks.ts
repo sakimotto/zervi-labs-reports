@@ -157,7 +157,8 @@ export function useUpdateTask() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, patch }: { id: string; patch: Partial<Task> }) => {
-      const { data, error } = await supabase.from('tasks').update(patch).eq('id', id).select().single();
+      const { team, sample, test_request, equipment, ...clean } = patch as any;
+      const { data, error } = await supabase.from('tasks').update(clean).eq('id', id).select().single();
       if (error) throw error;
       return data;
     },

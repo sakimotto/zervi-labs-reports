@@ -92,7 +92,8 @@ export function useUpdateEvent() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, patch }: { id: string; patch: Partial<CalendarEvent> }) => {
-      const { data, error } = await supabase.from('calendar_events').update(patch).eq('id', id).select().single();
+      const { team, sample, ...clean } = patch as any;
+      const { data, error } = await supabase.from('calendar_events').update(clean).eq('id', id).select().single();
       if (error) throw error;
       return data;
     },
