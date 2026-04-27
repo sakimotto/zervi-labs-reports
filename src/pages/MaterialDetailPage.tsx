@@ -40,6 +40,7 @@ import { ArrowLeft, Plus, X, Check, Save, Trash2, FileCheck2, History, Layers, F
 import { toast } from 'sonner';
 import type { DbMaterialUpdate } from '@/hooks/useMaterials';
 import { materialUpdateSchema, friendlyMaterialError } from '@/lib/validation/material';
+import { AskAIButton, getMaterialAIActions } from '@/components/copilot/AskAIButton';
 
 const STRUCTURES = ['Woven', 'Knit', 'Nonwoven', 'Coated', 'Laminated', 'Composite', 'Film', 'Foam', 'Other'];
 const STATUSES = ['Active', 'Draft', 'Archived', 'Obsolete'];
