@@ -8,6 +8,7 @@ import {
   CalendarClock,
   ExternalLink,
   Search,
+  Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
