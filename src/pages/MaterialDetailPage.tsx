@@ -111,6 +111,10 @@ export default function MaterialDetailPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <AskAIButton
+            context={{ type: 'material', id: material.id, label: material.name }}
+            actions={getMaterialAIActions(material.name)}
+          />
           {dirty && (
             <Button size="sm" onClick={handleSave} disabled={updateMaterial.isPending}>
               <Save className="h-4 w-4 mr-1" /> Save Changes
