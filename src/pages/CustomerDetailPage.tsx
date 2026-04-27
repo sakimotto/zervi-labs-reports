@@ -32,6 +32,7 @@ import { CustomerFormDialog } from '@/components/customers/CustomerFormDialog';
 import { CustomerTestRequestsTab } from '@/components/customers/CustomerTestRequestsTab';
 import { CustomerReportsTab } from '@/components/customers/CustomerReportsTab';
 import { EmptyState } from '@/components/data/EmptyState';
+import { AskAIButton, getCustomerAIActions } from '@/components/copilot/AskAIButton';
 
 export default function CustomerDetailPage() {
   const { id } = useParams<{ id: string }>();
