@@ -215,12 +215,17 @@ export default function TestRequestDetailPage() {
         </div>
       </Card>
 
+      <RequestKpiStrip requestId={r.id} requestedDate={r.requested_date} dueDate={r.due_date} />
+
       <Tabs defaultValue="overview" className="space-y-3">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="methods">Methods</TabsTrigger>
           <TabsTrigger value="materials">Materials</TabsTrigger>
           <TabsTrigger value="samples">Samples</TabsTrigger>
+          <TabsTrigger value="tasks">Tasks</TabsTrigger>
+          <TabsTrigger value="reports">Reports</TabsTrigger>
+          <TabsTrigger value="history">History</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-3">
@@ -237,6 +242,18 @@ export default function TestRequestDetailPage() {
 
         <TabsContent value="samples" className="space-y-3">
           <SamplesTab requestId={r.id} onCreate={() => setCreateSamplesOpen(true)} />
+        </TabsContent>
+
+        <TabsContent value="tasks" className="space-y-3">
+          <TasksTab requestId={r.id} />
+        </TabsContent>
+
+        <TabsContent value="reports" className="space-y-3">
+          <ReportsTab requestId={r.id} />
+        </TabsContent>
+
+        <TabsContent value="history" className="space-y-3">
+          <HistoryTab requestId={r.id} />
         </TabsContent>
       </Tabs>
 
