@@ -85,7 +85,7 @@ export default function TestProgramDetailPage() {
   return (
     <div className="flex flex-col">
       <div className="px-6 pt-4">
-        <Breadcrumbs items={[{ label: 'Test Programs', to: '/test-programs' }, { label: program.name }]} />
+        <Breadcrumbs />
       </div>
 
       <PageHeader
