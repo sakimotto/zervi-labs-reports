@@ -268,6 +268,16 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
           {sample.overall_judgment && sample.overall_judgment !== 'Pending' && (
             <JudgmentDot judgment={sample.overall_judgment} showLabel />
           )}
+          {linkedRequest && (
+            <Link
+              to={`/test-requests/${(linkedRequest as any).id}`}
+              className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider border border-primary/30 bg-primary-soft/60 text-primary hover:bg-primary-soft transition-colors"
+              title="From test request"
+            >
+              <ClipboardList className="h-3 w-3" />
+              {(linkedRequest as any).request_number}
+            </Link>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <AskAIButton
