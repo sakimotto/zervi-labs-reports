@@ -104,7 +104,8 @@ export function TaskFormDialog({ open, onOpenChange, task, defaults }: Props) {
     priority: 'Normal',
   });
   const [commentText, setCommentText] = useState('');
-  const [activeTab, setActiveTab] = useState<'comments' | 'activity'>('comments');
+  const [activeTab, setActiveTab] = useState<'comments' | 'attachments' | 'activity'>('comments');
+  const { data: attachments = [] } = useTaskAttachments(task?.id);
 
   useEffect(() => {
     if (open) {
