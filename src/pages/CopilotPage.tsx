@@ -172,7 +172,7 @@ export default function CopilotPage() {
   const Icon = mode.icon;
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] -m-6 bg-background">
+    <div className="flex h-[calc(100vh-3.5rem)] -mx-6 -mb-6 bg-background">
       <ConversationSidebar
         conversations={conversations}
         activeId={activeId}
