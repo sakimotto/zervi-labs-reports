@@ -142,8 +142,8 @@ export function useTransitionProgramStatus() {
         updates.approval_signature = params.signature ?? userEmail;
       }
 
-      const { error: updErr } = await supabase
-        .from('test_programs')
+      const { error: updErr } = await (supabase
+        .from('test_programs') as any)
         .update(updates)
         .eq('id', params.programId);
       if (updErr) throw updErr;
