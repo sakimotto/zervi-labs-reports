@@ -46,6 +46,7 @@ export function CustomerTestRequestsTab({ customerId }: Props) {
   const [search, setSearch] = useState('');
   const [openForm, setOpenForm] = useState(false);
   const [editing, setEditing] = useState<DbTestRequest | null>(null);
+  const [generatingFor, setGeneratingFor] = useState<DbTestRequest | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const del = useDeleteTestRequest();
   const navigate = useNavigate();
