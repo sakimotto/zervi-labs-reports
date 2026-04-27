@@ -91,11 +91,12 @@ export default function CustomersPage() {
     setDialogOpen(true);
   };
 
-  const handleDelete = async (c: DbCustomer) => {
-    if (!confirm(`Delete customer "${c.name}"? This cannot be undone.`)) return;
+  const confirmDelete = async () => {
+    if (!confirmTarget) return;
     try {
-      await deleteCustomer.mutateAsync(c.id);
+      await deleteCustomer.mutateAsync(confirmTarget.id);
       toast.success('Customer deleted');
+      setConfirmTarget(null);
     } catch (e: any) {
       toast.error(e.message ?? 'Failed to delete');
     }
