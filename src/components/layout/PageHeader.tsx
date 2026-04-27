@@ -28,7 +28,7 @@ export function PageHeader({
   return (
     <header
       className={cn(
-        'border-b border-border/70 bg-card/60 backdrop-blur-sm',
+        'border-b border-border bg-glass sticky top-0 z-20',
         'px-6 py-5',
         className,
       )}
