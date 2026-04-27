@@ -604,6 +604,34 @@ function Step1({
               placeholder="e.g. LOT-2024-0421"
             />
           </FormField>
+
+          <FormField
+            label="SKU / Part No."
+            hint="Search the catalog or toggle Override for a temporary SKU (e.g. new supplier sample)."
+            span="full"
+          >
+            <SkuPicker
+              value={form.sku}
+              isTemp={form.is_temp_sku}
+              materialId={form.material_id}
+              onChange={(v, isTemp, materialId) => {
+                if (materialId) {
+                  // Picking from catalog also links the material (and auto-fills via existing handler)
+                  setForm((prev) => ({ ...prev, sku: v, is_temp_sku: false }));
+                  if (materialId !== form.material_id) {
+                    // delegate to existing handler for full auto-fill
+                    setTimeout(() => {
+                      const mat = (window as any).__noop;
+                      // call into outer scope via prop would be cleaner; use direct state
+                    }, 0);
+                  }
+                  set('material_id', materialId);
+                } else {
+                  setForm((prev) => ({ ...prev, sku: v, is_temp_sku: isTemp }));
+                }
+              }}
+            />
+          </FormField>
         </FormGrid>
       </FormSection>
 
