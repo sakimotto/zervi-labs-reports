@@ -331,7 +331,12 @@ function OverviewTab({ request }: { request: any }) {
           Traceability & references
         </h3>
         <dl className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 text-sm">
-          <TraceCell label="SKU / Part No." value={request.sku} mono />
+          <TraceCell
+            label="SKU / Part No."
+            value={request.sku}
+            mono
+            badge={(request as any).is_temp_sku ? 'TEMP' : undefined}
+          />
           <TraceCell label="Batch number" value={request.batch_number} mono />
           <TraceCell label="PO number" value={request.po_number} mono />
           <TraceCell label="Sales order" value={request.sales_order_number} mono />
@@ -343,12 +348,17 @@ function OverviewTab({ request }: { request: any }) {
   );
 }
 
-function TraceCell({ label, value, mono }: { label: string; value?: string | null; mono?: boolean }) {
+function TraceCell({ label, value, mono, badge }: { label: string; value?: string | null; mono?: boolean; badge?: string }) {
   return (
     <div className="flex flex-col">
       <dt className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{label}</dt>
-      <dd className={mono ? 'font-mono text-xs' : 'text-sm'}>
+      <dd className={mono ? 'font-mono text-xs flex items-center gap-1.5' : 'text-sm flex items-center gap-1.5'}>
         {value && value.length > 0 ? value : <span className="text-muted-foreground">—</span>}
+        {badge && value && (
+          <span className="px-1.5 py-0 rounded text-[9px] font-semibold bg-warning-soft text-warning border border-warning/30">
+            {badge}
+          </span>
+        )}
       </dd>
     </div>
   );

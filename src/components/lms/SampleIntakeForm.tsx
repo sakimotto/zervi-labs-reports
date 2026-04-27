@@ -33,6 +33,7 @@ import {
   FormInput,
   StepIndicator,
 } from '@/components/form/FormPrimitives';
+import { SkuPicker } from '@/components/form/SkuPicker';
 
 interface SampleIntakeFormProps {
   onBack: () => void;
@@ -57,6 +58,8 @@ type FormState = {
   fabric_type: string;
   base_type: typeof BASE_TYPES[number];
   batch_number: string;
+  sku: string;
+  is_temp_sku: boolean;
   supplier_id: string;
   supplier_name: string;
   application: string;
@@ -90,6 +93,8 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
     fabric_type: 'PVC',
     base_type: 'Solvent',
     batch_number: '',
+    sku: '',
+    is_temp_sku: false,
     supplier_id: '',
     supplier_name: '',
     application: '',
@@ -139,6 +144,7 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
         ? { test_program_id: (mat as any).default_test_program_id }
         : {}),
       ...(mat.material_type ? { fabric_type: mat.material_type } : {}),
+      ...(mat.material_code ? { sku: mat.material_code, is_temp_sku: false } : {}),
     }));
     toast.success(`Auto-filled from “${mat.name}”`, {
       description: 'Composition, color, and test program populated.',
@@ -321,6 +327,7 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
               oemSpecs={oemSpecs}
               onSupplierChange={handleSupplierChange}
               onOemSpecChange={handleOemSpecChange}
+              onMaterialChange={handleMaterialChange}
             />
           )}
           {step === 2 && <Step2 form={form} set={set} />}
@@ -496,6 +503,7 @@ function Step1({
   oemSpecs,
   onSupplierChange,
   onOemSpecChange,
+  onMaterialChange,
 }: {
   form: FormState;
   set: <K extends keyof FormState>(k: K, v: FormState[K]) => void;
@@ -504,6 +512,7 @@ function Step1({
   oemSpecs: any[];
   onSupplierChange: (id: string) => void;
   onOemSpecChange: (id: string) => void;
+  onMaterialChange: (id: string) => void;
 }) {
   return (
     <>
@@ -596,6 +605,31 @@ function Step1({
               value={form.batch_number}
               onChange={(e) => set('batch_number', e.target.value)}
               placeholder="e.g. LOT-2024-0421"
+            />
+          </FormField>
+
+          <FormField
+            label="SKU / Part No."
+            hint="Search the catalog or toggle Override for a temporary SKU (e.g. new supplier sample)."
+            span="full"
+          >
+            <SkuPicker
+              value={form.sku}
+              isTemp={form.is_temp_sku}
+              materialId={form.material_id}
+              onChange={(v, isTemp, materialId) => {
+                if (materialId && materialId !== form.material_id) {
+                  // Picking a catalog material auto-fills composition/color/program
+                  onMaterialChange(materialId);
+                  // SkuPicker also passed the SKU — set it explicitly in case material_code is empty
+                  set('sku', v);
+                  set('is_temp_sku', false);
+                } else {
+                  set('sku', v);
+                  set('is_temp_sku', isTemp);
+                  if (!isTemp && !materialId) set('material_id', '');
+                }
+              }}
             />
           </FormField>
         </FormGrid>

@@ -402,6 +402,7 @@ export type Database = {
           estimated_cost: number | null
           id: string
           internal_department: string | null
+          is_temp_sku: boolean
           materials_description: string | null
           notes: string | null
           po_number: string | null
@@ -436,6 +437,7 @@ export type Database = {
           estimated_cost?: number | null
           id?: string
           internal_department?: string | null
+          is_temp_sku?: boolean
           materials_description?: string | null
           notes?: string | null
           po_number?: string | null
@@ -470,6 +472,7 @@ export type Database = {
           estimated_cost?: number | null
           id?: string
           internal_department?: string | null
+          is_temp_sku?: boolean
           materials_description?: string | null
           notes?: string | null
           po_number?: string | null
@@ -1863,6 +1866,7 @@ export type Database = {
           customer_id: string | null
           fabric_type: string | null
           id: string
+          is_temp_sku: boolean
           material_id: string | null
           oem_brand: string | null
           oem_specification_id: string | null
@@ -1872,6 +1876,7 @@ export type Database = {
           received_date: string | null
           requested_by: string | null
           sample_id: string
+          sku: string | null
           standard_requirement: string | null
           status: Database["public"]["Enums"]["sample_status"] | null
           supplier_id: string | null
@@ -1893,6 +1898,7 @@ export type Database = {
           customer_id?: string | null
           fabric_type?: string | null
           id?: string
+          is_temp_sku?: boolean
           material_id?: string | null
           oem_brand?: string | null
           oem_specification_id?: string | null
@@ -1902,6 +1908,7 @@ export type Database = {
           received_date?: string | null
           requested_by?: string | null
           sample_id: string
+          sku?: string | null
           standard_requirement?: string | null
           status?: Database["public"]["Enums"]["sample_status"] | null
           supplier_id?: string | null
@@ -1923,6 +1930,7 @@ export type Database = {
           customer_id?: string | null
           fabric_type?: string | null
           id?: string
+          is_temp_sku?: boolean
           material_id?: string | null
           oem_brand?: string | null
           oem_specification_id?: string | null
@@ -1932,6 +1940,7 @@ export type Database = {
           received_date?: string | null
           requested_by?: string | null
           sample_id?: string
+          sku?: string | null
           standard_requirement?: string | null
           status?: Database["public"]["Enums"]["sample_status"] | null
           supplier_id?: string | null

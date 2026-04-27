@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { FormField, FormGrid, FormInput, FormTextarea, FormSection } from '@/components/form/FormPrimitives';
+import { SkuPicker } from '@/components/form/SkuPicker';
 import { cn } from '@/lib/utils';
 import { useCustomers } from '@/hooks/useCustomers';
 import { useSuppliers } from '@/hooks/useSuppliers';
@@ -56,6 +57,7 @@ const schema = z
       .max(2000, 'Must be 2000 characters or less'),
     po_number: z.string().trim().max(100).optional(),
     sku: z.string().trim().max(100).optional(),
+    is_temp_sku: z.boolean().default(false),
     batch_number: z.string().trim().max(100).optional(),
     sales_order_number: z.string().trim().max(100).optional(),
     delivery_note_number: z.string().trim().max(100).optional(),
@@ -101,6 +103,13 @@ const schema = z
         message: 'Incoming goods need a PO or delivery note number',
       });
     }
+    if (data.is_temp_sku && data.sku?.trim() && !/^TMP-/i.test(data.sku.trim())) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['sku'],
+        message: 'Temporary SKUs must start with TMP-',
+      });
+    }
   });
 
 type Values = z.infer<typeof schema>;
@@ -114,6 +123,7 @@ const defaults = (): Values => ({
   description: '',
   po_number: '',
   sku: '',
+  is_temp_sku: false,
   batch_number: '',
   sales_order_number: '',
   delivery_note_number: '',
@@ -210,6 +220,7 @@ export function QuickTestRequestDialog({
       description: data.description.trim(),
       po_number: data.po_number?.trim() || null,
       sku: data.sku?.trim() || null,
+      is_temp_sku: data.is_temp_sku || false,
       batch_number: data.batch_number?.trim() || null,
       sales_order_number: data.sales_order_number?.trim() || null,
       delivery_note_number: data.delivery_note_number?.trim() || null,
@@ -441,9 +452,24 @@ export function QuickTestRequestDialog({
               <FormField
                 label="SKU / Part No."
                 error={errors.sku?.message}
-                hint="Internal SKU. Auto-fills from a linked catalog material."
+                hint="Search the catalog, or toggle Override for a temporary SKU."
+                span="full"
               >
-                <FormInput {...register('sku')} error={!!errors.sku} maxLength={100} placeholder="e.g. ZV-PVC-1042" />
+                <Controller
+                  control={control}
+                  name="sku"
+                  render={({ field }) => (
+                    <SkuPicker
+                      value={field.value || ''}
+                      isTemp={watch('is_temp_sku') || false}
+                      onChange={(v, isTemp) => {
+                        field.onChange(v);
+                        setValue('is_temp_sku', isTemp, { shouldDirty: true });
+                      }}
+                      error={!!errors.sku}
+                    />
+                  )}
+                />
               </FormField>
               <FormField
                 label="Batch number"
