@@ -76,9 +76,20 @@ export default function TasksPage() {
         title="Tasks"
         description="Plan, assign, and track every job on the lab floor — from request triage to calibration."
         actions={
-          <Button onClick={() => { setEditing(null); setOpen(true); }} className="gap-1.5">
-            <Plus className="h-4 w-4" /> New task
-          </Button>
+          <div className="flex items-center gap-2">
+            <AskAIButton
+              context={{ type: 'planning', id: 'tasks-board', label: 'tasks board' }}
+              actions={getPlanningAIActions(format(new Date(), 'MMMM yyyy'))}
+              primaryAction={{
+                label: 'Plan my week',
+                emoji: '📅',
+                prompt: 'Build a prioritised plan for the next 7 days. Pull from open tasks, request due dates, scheduled test jobs, and equipment calibrations. Group by day, flag overloaded days, and highlight the top 3 critical items.',
+              }}
+            />
+            <Button onClick={() => { setEditing(null); setOpen(true); }} className="gap-1.5">
+              <Plus className="h-4 w-4" /> New task
+            </Button>
+          </div>
         }
       />
 
