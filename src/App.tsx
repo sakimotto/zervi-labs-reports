@@ -22,6 +22,7 @@ import EquipmentDetailPage from "./pages/EquipmentDetailPage";
 import MaterialsPage from "./pages/MaterialsPage";
 import MaterialDetailPage from "./pages/MaterialDetailPage";
 import StandardsPage from "./pages/StandardsPage";
+import StandardDetailPage from "./pages/StandardDetailPage";
 import CopilotPage from "./pages/CopilotPage";
 import NotFound from "./pages/NotFound";
 
@@ -53,6 +54,7 @@ const App = () => (
                       <Route path="/materials" element={<MaterialsPage />} />
                       <Route path="/materials/:id" element={<MaterialDetailPage />} />
                       <Route path="/standards" element={<StandardsPage />} />
+                      <Route path="/standards/:id" element={<StandardDetailPage />} />
                       <Route path="/suppliers" element={<SuppliersPage />} />
                       <Route path="/suppliers/:id" element={<SupplierDetailPage />} />
                       <Route path="/customers" element={<CustomersPage />} />
