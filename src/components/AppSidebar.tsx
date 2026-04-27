@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useLocation } from 'react-router-dom';
+import { useIsAdmin } from '@/hooks/useUserRole';
 import {
   Sidebar,
   SidebarContent,
@@ -52,11 +53,16 @@ const directoryNav = [
   { title: 'Customers', url: '/customers', icon: Users },
 ];
 
+const adminNav = [
+  { title: 'Request Templates', url: '/admin/request-templates', icon: Sparkles },
+];
+
 export function AppSidebar() {
   const { state, toggleSidebar } = useSidebar();
   const collapsed = state === 'collapsed';
   const location = useLocation();
   const currentPath = location.pathname;
+  const isAdmin = useIsAdmin();
 
   const isActive = (path: string) =>
     path === '/' ? currentPath === '/' : currentPath.startsWith(path);
@@ -115,6 +121,7 @@ export function AppSidebar() {
         {renderGroup('Main', mainNav)}
         {renderGroup('Lab Resources', labNav)}
         {renderGroup('Directory', directoryNav)}
+        {isAdmin && renderGroup('Admin', adminNav)}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border p-2">

@@ -32,6 +32,7 @@ import {
   useCreateTestRequest,
   useUpdateTestRequest,
 } from '@/hooks/useTestRequests';
+import { useActiveTestRequestTemplates } from '@/hooks/useTestRequestTemplates';
 
 /* ----------------------------- Schema ------------------------------------- */
 
@@ -154,60 +155,10 @@ const STEPS = [
   },
 ];
 
-/* ----------------------------- Scope templates ---------------------------- */
-// Common request blueprints — pre-fills scope + materials so PMs can launch
-// a request in seconds and edit from there.
-const SCOPE_TEMPLATES: Array<{
-  id: string;
-  label: string;
-  description: string;
-  scope: string;
-  materials: string;
-}> = [
-  {
-    id: 'automotive-interior',
-    label: 'Automotive interior fabric',
-    description: 'OEM trim/seating qualification suite',
-    scope:
-      'Tensile strength (ISO 13934-1, warp & weft)\nTear strength (ISO 13937-2)\nAbrasion resistance — Martindale 50,000 cycles (ISO 12947-2)\nColor fastness to light (ISO 105-B02, grade ≥ 4)\nColor fastness to rubbing — dry & wet (ISO 105-X12)\nFlammability — horizontal burn (FMVSS 302, ≤ 100 mm/min)\nFogging (DIN 75201-B, reflectometer)',
-    materials:
-      '1× roll, ~2 linear meters, full width\nInclude TDS and supplier batch / lot number',
-  },
-  {
-    id: 'apparel-woven',
-    label: 'Apparel — woven fabric',
-    description: 'Standard garment-grade qualification',
-    scope:
-      'Composition / fiber content (ISO 1833)\nMass per unit area (ISO 3801)\nDimensional change after washing (ISO 6330 + ISO 5077, 3 cycles)\nColor fastness to washing (ISO 105-C06)\nColor fastness to rubbing (ISO 105-X12)\nPilling — Martindale (ISO 12945-2, 2,000 rubs)\nTensile strength (ISO 13934-1)',
-    materials:
-      '1.5 m × full width, unwashed\nCare label and composition declaration',
-  },
-  {
-    id: 'pu-coating',
-    label: 'PU-coated / synthetic leather',
-    description: 'Coated-fabric durability & adhesion',
-    scope:
-      'Coating adhesion (ISO 2411)\nFlex resistance — Bally flex 50,000 cycles (ISO 5402-1)\nAbrasion (Martindale 25,000 cycles, ISO 12947-2)\nHydrolysis resistance (ISO 1419, 70 °C / 95% RH, 3 weeks)\nColor fastness to light (ISO 105-B02)\nVOC / fogging (VDA 278 or DIN 75201)',
-    materials: '1× A4 panel + 0.5 m roll\nDeclare base substrate & coating chemistry',
-  },
-  {
-    id: 'incoming-inspection',
-    label: 'Incoming raw material check',
-    description: 'Quick conformity vs. supplier spec',
-    scope:
-      'Visual inspection vs. reference swatch\nMass per unit area (ISO 3801)\nWidth & length verification\nColor difference ΔE vs. master (CIE Lab, D65/10°)\nCheck batch certificate values',
-    materials: '1× sample piece (min 0.5 m × full width)\nSupplier CoA / batch certificate',
-  },
-  {
-    id: 'failure-investigation',
-    label: 'Failure investigation',
-    description: 'Root-cause analysis on a returned part',
-    scope:
-      'Visual & microscopic examination of failure area\nFiber identification (FTIR / burn test)\nComparison vs. original spec\nMechanical retest of affected property\nWritten root-cause report with photos',
-    materials:
-      'Failed part + reference (unused) sample if available\nField history / conditions of failure',
-  },
-];
+/* ----------------------------- Scope templates ----------------------------
+ * Quick-fill blueprints are loaded from the `test_request_templates` table
+ * and managed at /admin/request-templates. The form just consumes them.
+ * -------------------------------------------------------------------------- */
 
 interface Props {
   open: boolean;
@@ -230,9 +181,10 @@ export function TestRequestFormDialog({ open, onOpenChange, customerId, request 
   });
   const { register, control, handleSubmit, reset, trigger, getValues, setValue, formState } = form;
   const errors = formState.errors;
+  const { data: templates = [] } = useActiveTestRequestTemplates();
 
   const applyTemplate = (id: string) => {
-    const tpl = SCOPE_TEMPLATES.find((t) => t.id === id);
+    const tpl = templates.find((t) => t.id === id);
     if (!tpl) return;
     const current = getValues();
     const mergeText = (existing: string | undefined, addition: string) => {
@@ -466,16 +418,24 @@ export function TestRequestFormDialog({ open, onOpenChange, customerId, request 
                           <SelectValue placeholder="Choose a request template…" />
                         </SelectTrigger>
                         <SelectContent>
-                          {SCOPE_TEMPLATES.map((t) => (
-                            <SelectItem key={t.id} value={t.id}>
-                              <div className="flex flex-col">
-                                <span className="font-medium">{t.label}</span>
-                                <span className="text-xs text-muted-foreground">
-                                  {t.description}
-                                </span>
-                              </div>
-                            </SelectItem>
-                          ))}
+                          {templates.length === 0 ? (
+                            <div className="px-2 py-3 text-xs text-muted-foreground">
+                              No templates yet — create some at /admin/request-templates
+                            </div>
+                          ) : (
+                            templates.map((t) => (
+                              <SelectItem key={t.id} value={t.id}>
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{t.label}</span>
+                                  {t.description && (
+                                    <span className="text-xs text-muted-foreground">
+                                      {t.description}
+                                    </span>
+                                  )}
+                                </div>
+                              </SelectItem>
+                            ))
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
