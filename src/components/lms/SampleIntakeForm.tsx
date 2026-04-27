@@ -33,6 +33,7 @@ import {
   FormInput,
   StepIndicator,
 } from '@/components/form/FormPrimitives';
+import { SkuPicker } from '@/components/form/SkuPicker';
 
 interface SampleIntakeFormProps {
   onBack: () => void;
@@ -57,6 +58,8 @@ type FormState = {
   fabric_type: string;
   base_type: typeof BASE_TYPES[number];
   batch_number: string;
+  sku: string;
+  is_temp_sku: boolean;
   supplier_id: string;
   supplier_name: string;
   application: string;
@@ -90,6 +93,8 @@ export function SampleIntakeForm({ onBack, onCreated }: SampleIntakeFormProps) {
     fabric_type: 'PVC',
     base_type: 'Solvent',
     batch_number: '',
+    sku: '',
+    is_temp_sku: false,
     supplier_id: '',
     supplier_name: '',
     application: '',
