@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { FormField, FormGrid, FormInput, FormTextarea, FormSection } from '@/components/form/FormPrimitives';
+import { SkuPicker } from '@/components/form/SkuPicker';
 import { cn } from '@/lib/utils';
 import { useCustomers } from '@/hooks/useCustomers';
 import { useSuppliers } from '@/hooks/useSuppliers';
@@ -451,9 +452,24 @@ export function QuickTestRequestDialog({
               <FormField
                 label="SKU / Part No."
                 error={errors.sku?.message}
-                hint="Internal SKU. Auto-fills from a linked catalog material."
+                hint="Search the catalog, or toggle Override for a temporary SKU."
+                span="full"
               >
-                <FormInput {...register('sku')} error={!!errors.sku} maxLength={100} placeholder="e.g. ZV-PVC-1042" />
+                <Controller
+                  control={control}
+                  name="sku"
+                  render={({ field }) => (
+                    <SkuPicker
+                      value={field.value || ''}
+                      isTemp={watch('is_temp_sku') || false}
+                      onChange={(v, isTemp) => {
+                        field.onChange(v);
+                        setValue('is_temp_sku', isTemp, { shouldDirty: true });
+                      }}
+                      error={!!errors.sku}
+                    />
+                  )}
+                />
               </FormField>
               <FormField
                 label="Batch number"
