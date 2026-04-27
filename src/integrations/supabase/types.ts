@@ -2697,6 +2697,10 @@ export type Database = {
           file_size: number
           id: string
           mime_type: string | null
+          ocr_completed_at: string | null
+          ocr_error: string | null
+          ocr_status: string
+          ocr_text: string | null
           storage_path: string
           task_id: string
           uploaded_by: string | null
@@ -2708,6 +2712,10 @@ export type Database = {
           file_size?: number
           id?: string
           mime_type?: string | null
+          ocr_completed_at?: string | null
+          ocr_error?: string | null
+          ocr_status?: string
+          ocr_text?: string | null
           storage_path: string
           task_id: string
           uploaded_by?: string | null
@@ -2719,6 +2727,10 @@ export type Database = {
           file_size?: number
           id?: string
           mime_type?: string | null
+          ocr_completed_at?: string | null
+          ocr_error?: string | null
+          ocr_status?: string
+          ocr_text?: string | null
           storage_path?: string
           task_id?: string
           uploaded_by?: string | null
