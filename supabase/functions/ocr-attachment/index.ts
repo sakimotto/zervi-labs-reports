@@ -29,7 +29,7 @@ serve(async (req) => {
   const admin = createClient(SUPABASE_URL, SERVICE_ROLE);
 
   try {
-    const { attachment_id } = await req.json();
+    const { attachment_id, language: requestedLanguage } = await req.json();
     if (!attachment_id) {
       return new Response(JSON.stringify({ error: "attachment_id required" }), {
         status: 400,
@@ -45,6 +45,34 @@ serve(async (req) => {
       .eq("id", attachment_id)
       .maybeSingle();
     if (attErr || !att) throw new Error(attErr?.message || "Attachment not found");
+
+    // Resolve language: explicit param > stored attachment value > 'auto'
+    const language: string = (requestedLanguage || att.ocr_language || "auto").toLowerCase();
+    const LANGUAGE_NAMES: Record<string, string> = {
+      auto: "auto-detect",
+      en: "English",
+      ja: "Japanese (日本語)",
+      zh: "Chinese (中文)",
+      ko: "Korean (한국어)",
+      de: "German (Deutsch)",
+      fr: "French (Français)",
+      es: "Spanish (Español)",
+      it: "Italian (Italiano)",
+      pt: "Portuguese (Português)",
+      ar: "Arabic (العربية)",
+      ru: "Russian (Русский)",
+      tr: "Turkish (Türkçe)",
+      hi: "Hindi (हिन्दी)",
+    };
+    const languageName = LANGUAGE_NAMES[language] || language;
+
+    // If a new language was requested, persist it
+    if (requestedLanguage && requestedLanguage !== att.ocr_language) {
+      await admin
+        .from("task_attachments")
+        .update({ ocr_language: language })
+        .eq("id", attachment_id);
+    }
 
     const mime = (att.mime_type || "").toLowerCase();
     const isImage = SUPPORTED_IMAGE.includes(mime) || mime.startsWith("image/");
@@ -85,10 +113,16 @@ serve(async (req) => {
     const base64 = bytesToBase64(new Uint8Array(arrayBuf));
     const dataUrl = `data:${mime};base64,${base64}`;
 
+    const languageInstruction =
+      language === "auto"
+        ? "Detect the document language automatically and transcribe text in its original script."
+        : `The document is primarily in ${languageName}. Optimize recognition for this language and preserve native characters, diacritics, and punctuation exactly.`;
+
     const systemPrompt =
       "You are an OCR engine. Extract ALL visible text from the provided document or image. " +
       "Preserve line breaks and reading order. Include numbers, labels, table cell contents, headings. " +
-      "Do NOT add commentary, explanations, or markdown formatting. " +
+      languageInstruction + " " +
+      "Do NOT translate. Do NOT add commentary, explanations, or markdown formatting. " +
       "Output ONLY the extracted text. If nothing readable is found, respond with exactly: [NO_TEXT_FOUND]";
 
     const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
