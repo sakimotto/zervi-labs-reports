@@ -219,14 +219,55 @@
   .shadow-card { box-shadow: var(--shadow-card); }
   .shadow-elevated { box-shadow: var(--shadow-elevated); }
   .shadow-popover { box-shadow: var(--shadow-popover); }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
 
   .bg-gradient-surface { background-image: var(--gradient-surface); }
   .bg-gradient-primary { background-image: var(--gradient-primary); }
+  .bg-gradient-card { background-image: var(--gradient-card); }
 
   /* Surface tokens */
   .bg-surface { background-color: hsl(var(--surface)); }
   .bg-card-muted { background-color: hsl(var(--card-muted)); }
   .border-strong { border-color: hsl(var(--border-strong)); }
+
+  /* Glassy translucent panel — for chrome/headers */
+  .bg-glass {
+    background-color: hsl(var(--card) / 0.72);
+    backdrop-filter: saturate(140%) blur(10px);
+    -webkit-backdrop-filter: saturate(140%) blur(10px);
+  }
+  .bg-glass-muted {
+    background-color: hsl(var(--card) / 0.55);
+    backdrop-filter: saturate(140%) blur(8px);
+    -webkit-backdrop-filter: saturate(140%) blur(8px);
+  }
+
+  /* Hover lift — smooth elevation + tiny translate */
+  .hover-lift {
+    transition:
+      transform 220ms var(--ease-out-soft),
+      box-shadow 220ms var(--ease-out-soft),
+      border-color 220ms var(--ease-out-soft),
+      background-color 220ms var(--ease-out-soft);
+    will-change: transform;
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-elevated);
+    border-color: hsl(var(--border-strong));
+  }
+
+  /* Subtle interactive surface tint on hover */
+  .hover-tint:hover {
+    background-color: hsl(var(--accent) / 0.6);
+  }
+
+  /* Top accent bar (1px gradient) for category cards */
+  .accent-top-primary { box-shadow: inset 0 2px 0 0 hsl(var(--primary)); }
+  .accent-top-warning { box-shadow: inset 0 2px 0 0 hsl(var(--warning)); }
+  .accent-top-success { box-shadow: inset 0 2px 0 0 hsl(var(--success)); }
+  .accent-top-destructive { box-shadow: inset 0 2px 0 0 hsl(var(--destructive)); }
+  .accent-top-info { box-shadow: inset 0 2px 0 0 hsl(var(--info)); }
 
   .disabled-stripe {
     opacity: 0.4;
