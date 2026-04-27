@@ -11,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Plus, Search, AlertTriangle, Calendar as CalendarIcon, Clock, Sparkles, Trash2, FlaskConical, ClipboardList, Cpu, Wrench } from 'lucide-react';
 import { format, isBefore, parseISO, startOfDay } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { AskAIButton, getPlanningAIActions } from '@/components/copilot/AskAIButton';
 
 const COLUMNS: { status: TaskStatus; label: string; tone: string }[] = [
   { status: 'todo', label: 'To do', tone: 'bg-muted/50' },
