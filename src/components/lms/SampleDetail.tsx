@@ -10,7 +10,9 @@ import { SpecBar } from './SpecBar';
 import { PrintableReport } from './PrintableReport';
 import { DeleteSampleDialog } from './DeleteSampleDialog';
 import { AskAIButton, getSampleAIActions } from '@/components/copilot/AskAIButton';
-import { ArrowLeft, FlaskConical, Save, Loader2, Printer, Pencil, Trash2, X, ChevronRight } from 'lucide-react';
+import { ArrowLeft, FlaskConical, Save, Loader2, Printer, Pencil, Trash2, X, ChevronRight, ClipboardList } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useTestRequest } from '@/hooks/useTestRequests';
 import { toast } from 'sonner';
 
 interface SampleDetailProps {
