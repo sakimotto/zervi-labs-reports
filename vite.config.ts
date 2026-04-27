@@ -3,6 +3,23 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
+// Manual chunking strategy — group large vendor libs for better long-term caching.
+function manualChunks(id: string): string | undefined {
+  if (!id.includes("node_modules")) return undefined;
+  if (id.includes("react-router-dom") || id.includes("/react-dom/") || id.includes("/react/"))
+    return "react-vendor";
+  if (id.includes("@radix-ui")) return "radix-ui";
+  if (id.includes("recharts") || id.includes("d3-")) return "charts";
+  if (id.includes("react-markdown") || id.includes("remark") || id.includes("micromark"))
+    return "markdown";
+  if (id.includes("@tanstack/react-query")) return "query";
+  if (id.includes("@supabase")) return "supabase";
+  if (id.includes("react-hook-form") || id.includes("@hookform") || id.includes("/zod/"))
+    return "forms";
+  if (id.includes("date-fns") || id.includes("react-day-picker")) return "calendar";
+  return undefined;
+}
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }: { mode: string }) => ({
   server: {
@@ -22,35 +39,7 @@ export default defineConfig(({ mode }: { mode: string }) => ({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Group huge libraries into their own chunks for better caching
-          "react-vendor": ["react", "react-dom", "react-router-dom"],
-          "radix-ui": [
-            "@radix-ui/react-dialog",
-            "@radix-ui/react-dropdown-menu",
-            "@radix-ui/react-popover",
-            "@radix-ui/react-select",
-            "@radix-ui/react-tabs",
-            "@radix-ui/react-tooltip",
-            "@radix-ui/react-accordion",
-            "@radix-ui/react-alert-dialog",
-            "@radix-ui/react-avatar",
-            "@radix-ui/react-checkbox",
-            "@radix-ui/react-label",
-            "@radix-ui/react-navigation-menu",
-            "@radix-ui/react-scroll-area",
-            "@radix-ui/react-separator",
-            "@radix-ui/react-slot",
-            "@radix-ui/react-switch",
-            "@radix-ui/react-toast",
-          ],
-          charts: ["recharts"],
-          markdown: ["react-markdown", "remark-gfm"],
-          query: ["@tanstack/react-query"],
-          supabase: ["@supabase/supabase-js"],
-          forms: ["react-hook-form", "@hookform/resolvers", "zod"],
-          calendar: ["date-fns", "react-day-picker"],
-        },
+        manualChunks,
       },
     },
   },
