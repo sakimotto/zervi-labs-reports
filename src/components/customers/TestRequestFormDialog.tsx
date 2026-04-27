@@ -452,6 +452,34 @@ export function TestRequestFormDialog({ open, onOpenChange, customerId, request 
             {step === 2 && (
               <>
                 <FormSection title="Scope & materials" icon={Beaker} bare>
+                  <div className="mb-3 flex flex-wrap items-center gap-2 rounded-md border border-dashed border-border bg-muted/40 px-3 py-2">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    <span className="text-xs font-medium text-foreground">
+                      Quick-fill from template
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      Appends to existing text
+                    </span>
+                    <div className="ml-auto w-full sm:w-72">
+                      <Select value="" onValueChange={(v) => v && applyTemplate(v)}>
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue placeholder="Choose a request template…" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {SCOPE_TEMPLATES.map((t) => (
+                            <SelectItem key={t.id} value={t.id}>
+                              <div className="flex flex-col">
+                                <span className="font-medium">{t.label}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  {t.description}
+                                </span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                   <FormGrid cols={1}>
                     <FormField
                       label="Test scope"
