@@ -209,6 +209,7 @@ const SCOPE_TEMPLATES: Array<{
   },
 ];
 
+interface Props {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   customerId: string;
