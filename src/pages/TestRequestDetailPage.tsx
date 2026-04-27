@@ -326,6 +326,30 @@ function OverviewTab({ request }: { request: any }) {
           <div className="flex justify-between"><dt className="text-muted-foreground">Quote</dt><dd>{request.quoted_price ? `${request.currency ?? ''} ${request.quoted_price}` : '—'}</dd></div>
         </dl>
       </Card>
+      <Card className="p-4 shadow-card lg:col-span-2">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+          Traceability & references
+        </h3>
+        <dl className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 text-sm">
+          <TraceCell label="SKU / Part No." value={request.sku} mono />
+          <TraceCell label="Batch number" value={request.batch_number} mono />
+          <TraceCell label="PO number" value={request.po_number} mono />
+          <TraceCell label="Sales order" value={request.sales_order_number} mono />
+          <TraceCell label="Delivery note / GRN" value={request.delivery_note_number} mono />
+          <TraceCell label="Customer / external ref" value={request.customer_reference} mono />
+        </dl>
+      </Card>
+    </div>
+  );
+}
+
+function TraceCell({ label, value, mono }: { label: string; value?: string | null; mono?: boolean }) {
+  return (
+    <div className="flex flex-col">
+      <dt className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{label}</dt>
+      <dd className={mono ? 'font-mono text-xs' : 'text-sm'}>
+        {value && value.length > 0 ? value : <span className="text-muted-foreground">—</span>}
+      </dd>
     </div>
   );
 }
