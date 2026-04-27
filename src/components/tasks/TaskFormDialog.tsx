@@ -47,6 +47,9 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { AskAIButton, getTaskAIActions } from '@/components/copilot/AskAIButton';
+import { Paperclip } from 'lucide-react';
+import { TaskAttachmentsSection } from './TaskAttachmentsSection';
+import { useTaskAttachments } from '@/hooks/useTaskAttachments';
 import { cn } from '@/lib/utils';
 import { format, formatDistanceToNow, parseISO } from 'date-fns';
 import { toast } from 'sonner';
