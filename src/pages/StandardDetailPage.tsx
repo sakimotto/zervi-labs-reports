@@ -163,8 +163,8 @@ function MetadataEditor({ standard, orgs, onSave, isPending }: { standard: any; 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
           <label className="text-xs font-medium">Organization</label>
-          <Select value={form.organization_id} onValueChange={v => setForm(f => ({ ...f, organization_id: v }))}>
-            <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+          <Select value={form.organization_id || undefined} onValueChange={v => setForm(f => ({ ...f, organization_id: v }))}>
+            <SelectTrigger><SelectValue placeholder="Select organization" /></SelectTrigger>
             <SelectContent>
               {orgs.map(o => <SelectItem key={o.id} value={o.id}>{o.code} — {o.full_name}</SelectItem>)}
             </SelectContent>
