@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useCreateTask, useUpdateTask, useLabTeams, type Task, type TaskPriority, type TaskType, type TaskStatus } from '@/hooks/useTasks';
 import { useSamples } from '@/hooks/useSamples';
-import { useTestRequests } from '@/hooks/useTestRequests';
+import { useAllTestRequests as useTestRequests } from '@/hooks/useTestRequests';
 import { useEquipment } from '@/hooks/useEquipment';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
