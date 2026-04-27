@@ -25,6 +25,16 @@ import {
 import { PageHeader, PageBody } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 import { DataTable, RowActions, type Column } from '@/components/data/DataTable';
 import { FilterBar } from '@/components/data/FilterBar';
@@ -43,6 +53,7 @@ export default function CustomersPage() {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<DbCustomer | null>(null);
+  const [confirmTarget, setConfirmTarget] = useState<DbCustomer | null>(null);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -80,11 +91,12 @@ export default function CustomersPage() {
     setDialogOpen(true);
   };
 
-  const handleDelete = async (c: DbCustomer) => {
-    if (!confirm(`Delete customer "${c.name}"? This cannot be undone.`)) return;
+  const confirmDelete = async () => {
+    if (!confirmTarget) return;
     try {
-      await deleteCustomer.mutateAsync(c.id);
+      await deleteCustomer.mutateAsync(confirmTarget.id);
       toast.success('Customer deleted');
+      setConfirmTarget(null);
     } catch (e: any) {
       toast.error(e.message ?? 'Failed to delete');
     }
@@ -207,7 +219,7 @@ export default function CustomersPage() {
             size="icon"
             variant="ghost"
             className="h-7 w-7 text-destructive hover:text-destructive"
-            onClick={() => handleDelete(c)}
+            onClick={() => setConfirmTarget(c)}
             title="Delete"
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -308,6 +320,39 @@ export default function CustomersPage() {
         }}
         customer={editing}
       />
+
+      <AlertDialog
+        open={!!confirmTarget}
+        onOpenChange={(o) => {
+          if (!o) setConfirmTarget(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this customer?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {confirmTarget ? (
+                <>
+                  Customer <span className="font-semibold">{confirmTarget.name}</span> will be
+                  permanently removed. This action cannot be undone.
+                </>
+              ) : (
+                'This customer will be permanently removed.'
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteCustomer.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={deleteCustomer.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteCustomer.isPending ? 'Deleting…' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
