@@ -155,7 +155,14 @@ export function CustomerTestRequestsTab({ customerId }: Props) {
                     key={r.id}
                     className={`border-b border-border/60 last:border-b-0 hover:bg-primary-soft/40 ${i % 2 === 1 ? 'bg-card-muted' : ''}`}
                   >
-                    <td className="px-4 py-2.5 font-mono text-xs">{r.request_number}</td>
+                    <td className="px-4 py-2.5 font-mono text-xs">
+                      <button
+                        onClick={() => navigate(`/test-requests/${r.id}`)}
+                        className="text-primary hover:underline"
+                      >
+                        {r.request_number}
+                      </button>
+                    </td>
                     <td className="px-4 py-2.5 max-w-[28ch] truncate" title={r.description ?? ''}>
                       {r.description}
                     </td>
