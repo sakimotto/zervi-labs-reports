@@ -2699,6 +2699,7 @@ export type Database = {
           mime_type: string | null
           ocr_completed_at: string | null
           ocr_error: string | null
+          ocr_language: string
           ocr_status: string
           ocr_text: string | null
           storage_path: string
@@ -2714,6 +2715,7 @@ export type Database = {
           mime_type?: string | null
           ocr_completed_at?: string | null
           ocr_error?: string | null
+          ocr_language?: string
           ocr_status?: string
           ocr_text?: string | null
           storage_path: string
@@ -2729,6 +2731,7 @@ export type Database = {
           mime_type?: string | null
           ocr_completed_at?: string | null
           ocr_error?: string | null
+          ocr_language?: string
           ocr_status?: string
           ocr_text?: string | null
           storage_path?: string
