@@ -294,6 +294,7 @@ function AttachmentRow({
   onToggleExpand,
   onDownload,
   onRetry,
+  onChangeLanguage,
   onDelete,
 }: {
   att: TaskAttachment;
@@ -301,7 +302,8 @@ function AttachmentRow({
   expanded: boolean;
   onToggleExpand: () => void;
   onDownload: () => void;
-  onRetry: () => void;
+  onRetry: (language?: OcrLanguage) => void;
+  onChangeLanguage: (language: OcrLanguage) => void;
   onDelete: () => void;
 }) {
   const Icon = fileIcon(att.mime_type, att.file_name);
@@ -309,6 +311,14 @@ function AttachmentRow({
   const showSnippet = !!query.trim() && hasText &&
     att.ocr_text!.toLowerCase().includes(query.toLowerCase()) &&
     !att.file_name.toLowerCase().includes(query.toLowerCase());
+
+  const currentLang = att.ocr_language || 'auto';
+  const currentLangOpt =
+    OCR_LANGUAGE_OPTIONS.find((o) => o.value === currentLang) || OCR_LANGUAGE_OPTIONS[0];
+  const isOcrSupported =
+    (att.mime_type || '').toLowerCase().startsWith('image/') ||
+    (att.mime_type || '').toLowerCase() === 'application/pdf';
+  const isProcessing = att.ocr_status === 'pending' || att.ocr_status === 'processing';
 
   return (
     <li className="group">
@@ -322,6 +332,15 @@ function AttachmentRow({
               {highlight(att.file_name, query)}
             </span>
             <OcrBadge status={att.ocr_status} error={att.ocr_error} />
+            {isOcrSupported && att.ocr_status !== 'skipped' && (
+              <span
+                className="hidden sm:inline-flex items-center gap-1 h-5 px-1.5 rounded text-[10px] font-medium bg-muted/60 text-muted-foreground"
+                title={`OCR language: ${currentLangOpt.label}`}
+              >
+                <Languages className="h-2.5 w-2.5" />
+                {currentLang === 'auto' ? 'Auto' : currentLang.toUpperCase()}
+              </span>
+            )}
           </div>
           <div className="text-[11px] text-muted-foreground truncate">
             {formatBytes(att.file_size)} · {att.uploaded_by_name || 'Unknown'} ·{' '}
@@ -350,9 +369,61 @@ function AttachmentRow({
               )}
             </button>
           )}
+          {isOcrSupported && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="h-7 w-7 inline-flex items-center justify-center rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                  title={`OCR language: ${currentLangOpt.label}`}
+                  disabled={isProcessing}
+                >
+                  <Languages className="h-3.5 w-3.5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-60 max-h-80 overflow-y-auto">
+                <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  OCR language
+                </DropdownMenuLabel>
+                <DropdownMenuRadioGroup
+                  value={currentLang}
+                  onValueChange={(v) => {
+                    const next = v as OcrLanguage;
+                    if (next === currentLang) return;
+                    // Persist + immediately re-run OCR with the new language
+                    onChangeLanguage(next);
+                    onRetry(next);
+                  }}
+                >
+                  {OCR_LANGUAGE_OPTIONS.map((opt) => (
+                    <DropdownMenuRadioItem
+                      key={opt.value}
+                      value={opt.value}
+                      className="text-xs"
+                    >
+                      <div className="flex flex-col">
+                        <span>{opt.label}</span>
+                        {opt.hint && (
+                          <span className="text-[10px] text-muted-foreground">{opt.hint}</span>
+                        )}
+                      </div>
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-xs"
+                  onClick={() => onRetry(currentLang)}
+                  disabled={isProcessing}
+                >
+                  <RefreshCw className="h-3 w-3 mr-2" />
+                  Re-run OCR ({currentLangOpt.label})
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
           {att.ocr_status === 'failed' && (
             <button
-              onClick={onRetry}
+              onClick={() => onRetry()}
               className="h-7 w-7 inline-flex items-center justify-center rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
               title="Retry OCR"
             >
