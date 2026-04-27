@@ -615,19 +615,16 @@ function Step1({
               isTemp={form.is_temp_sku}
               materialId={form.material_id}
               onChange={(v, isTemp, materialId) => {
-                if (materialId) {
-                  // Picking from catalog also links the material (and auto-fills via existing handler)
-                  setForm((prev) => ({ ...prev, sku: v, is_temp_sku: false }));
-                  if (materialId !== form.material_id) {
-                    // delegate to existing handler for full auto-fill
-                    setTimeout(() => {
-                      const mat = (window as any).__noop;
-                      // call into outer scope via prop would be cleaner; use direct state
-                    }, 0);
-                  }
-                  set('material_id', materialId);
+                if (materialId && materialId !== form.material_id) {
+                  // Picking a catalog material auto-fills composition/color/program
+                  onMaterialChange(materialId);
+                  // SkuPicker also passed the SKU — set it explicitly in case material_code is empty
+                  set('sku', v);
+                  set('is_temp_sku', false);
                 } else {
-                  setForm((prev) => ({ ...prev, sku: v, is_temp_sku: isTemp }));
+                  set('sku', v);
+                  set('is_temp_sku', isTemp);
+                  if (!isTemp && !materialId) set('material_id', '');
                 }
               }}
             />
