@@ -278,3 +278,112 @@ export function getReportAIActions(reportNumber: string): AskAIAction[] {
     },
   ];
 }
+
+export function getEquipmentAIActions(equipmentName: string): AskAIAction[] {
+  return [
+    {
+      label: "Diagnose calibration",
+      emoji: "🔧",
+      description: "Analyse calibration history, detect drift trends, and flag risks.",
+      prompt: `Analyse the calibration history of equipment "${equipmentName}". Detect drift trends, flag any out-of-tolerance events, identify methods at risk if calibration lapses, and rate overall calibration health.`,
+    },
+    {
+      label: "Plan maintenance",
+      emoji: "📅",
+      description: "Recommend a maintenance schedule based on usage and history.",
+      prompt: `Recommend a maintenance schedule for equipment "${equipmentName}". Base it on its maintenance history, calibration cadence, manufacturer norms for this type of equipment, and current usage. Provide a 12-month plan.`,
+    },
+    {
+      label: "Draft calibration cert",
+      emoji: "📝",
+      description: "Formal calibration certificate from the latest calibration data.",
+      prompt: `Draft a formal calibration certificate for equipment "${equipmentName}" based on its most recent calibration. Include identification, calibration date and due date, results vs tolerance, traceability, and a clear statement of conformity.`,
+      draftKind: "report",
+    },
+    {
+      label: "Risk assessment",
+      emoji: "⚠️",
+      description: "Overdue cal, methods affected, customer impact.",
+      prompt: `Run a full risk assessment on equipment "${equipmentName}". Cover: calibration overdue risk, maintenance overdue risk, list of test methods that depend on it, list of open samples/requests that would be blocked if it fails, and a risk score.`,
+    },
+    {
+      label: "Generate SOP draft",
+      emoji: "📋",
+      description: "Operating procedure draft based on equipment specs and linked methods.",
+      prompt: `Generate a draft Standard Operating Procedure for equipment "${equipmentName}". Cover: scope, safety precautions, pre-checks, step-by-step operation, post-use cleaning, calibration verification, and troubleshooting common issues.`,
+      draftKind: "report",
+    },
+  ];
+}
+
+export function getMaterialAIActions(materialName: string): AskAIAction[] {
+  return [
+    {
+      label: "Recommend test program",
+      emoji: "🧪",
+      description: "Best-fit test programs for this material's intended use.",
+      prompt: `Recommend the most appropriate test program(s) for material "${materialName}". Justify each recommendation based on the material composition, structure, intended application, and any relevant industry standards.`,
+    },
+    {
+      label: "Compare to similar",
+      emoji: "📐",
+      description: "Find peer materials and highlight spec differences.",
+      prompt: `Find materials similar to "${materialName}" in the library and produce a side-by-side comparison. Highlight where this material's spec is tighter, looser, or missing parameters compared to its peers.`,
+    },
+    {
+      label: "Performance history",
+      emoji: "📊",
+      description: "Pass/fail rates and recurring issues across all samples.",
+      prompt: `Summarise the historical test performance of material "${materialName}". Cover: total samples tested, overall pass/fail rate, breakdown by test category, recurring failure modes, and any quality trend over time.`,
+    },
+    {
+      label: "Audit spec completeness",
+      emoji: "🔍",
+      description: "Flag missing parameters vs industry norms.",
+      prompt: `Audit the specification of material "${materialName}" for completeness. Compare to industry norms for this material type, flag any missing critical parameters, and rate the overall spec quality.`,
+    },
+    {
+      label: "Draft spec sheet",
+      emoji: "✉️",
+      description: "Professional one-page spec sheet for customers.",
+      prompt: `Draft a professional one-page spec sheet for material "${materialName}" suitable for sharing with customers. Include identification, composition, key technical parameters with tolerances, certifications, and recommended test programs.`,
+      draftKind: "report",
+    },
+  ];
+}
+
+export function getCustomerAIActions(customerName: string): AskAIAction[] {
+  return [
+    {
+      label: "Health summary",
+      emoji: "📋",
+      description: "Open requests, overdue, NG rate, recent activity.",
+      prompt: `Give me a full health summary of customer "${customerName}". Cover: open test requests, overdue items, recent samples, overall NG rate, recurring quality issues, and anything that needs management attention.`,
+    },
+    {
+      label: "At-risk items",
+      emoji: "⚠️",
+      description: "Anything overdue, blocked, or at risk for this customer.",
+      prompt: `For customer "${customerName}", list every item that is overdue, blocked, or at risk. Include test requests near or past due, samples awaiting tests, and any equipment-calibration risk affecting their work. Rate severity.`,
+    },
+    {
+      label: "Quality scorecard",
+      emoji: "📊",
+      description: "Pass rates, recurring issues, broken down by material.",
+      prompt: `Build a quality scorecard for customer "${customerName}". Include: overall pass rate, pass rate by material, top 3 failure modes, trend over time, and a one-line quality verdict.`,
+    },
+    {
+      label: "Quarterly review email",
+      emoji: "✉️",
+      description: "Proactive quarterly update on all their work.",
+      prompt: `Draft a professional quarterly review email for customer "${customerName}". Cover: volume of work delivered, key results, quality trend, any issues raised, and an offer to discuss upcoming needs. Tone: confident, partnership-oriented.`,
+      draftKind: "email",
+    },
+    {
+      label: "Suggest next tests",
+      emoji: "💡",
+      description: "Based on their patterns, what tests are they missing?",
+      prompt: `Based on customer "${customerName}"'s materials, applications, and historical test patterns, suggest test programs they are NOT currently using but probably should be. Justify each suggestion with a clear quality or compliance rationale.`,
+    },
+  ];
+}
