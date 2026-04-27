@@ -35,6 +35,14 @@ export function useTaskAttachments(taskId?: string) {
       if (error) throw error;
       return (data || []) as TaskAttachment[];
     },
+    // Poll every 3s while any attachment is still processing/pending
+    refetchInterval: (query) => {
+      const data = query.state.data as TaskAttachment[] | undefined;
+      const inFlight = data?.some(
+        (a) => a.ocr_status === 'pending' || a.ocr_status === 'processing',
+      );
+      return inFlight ? 3000 : false;
+    },
   });
 }
 
