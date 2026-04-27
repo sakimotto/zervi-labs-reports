@@ -32,6 +32,7 @@ import {
   useCreateTestRequest,
   useUpdateTestRequest,
 } from '@/hooks/useTestRequests';
+import { useActiveTestRequestTemplates } from '@/hooks/useTestRequestTemplates';
 
 /* ----------------------------- Schema ------------------------------------- */
 
@@ -180,9 +181,10 @@ export function TestRequestFormDialog({ open, onOpenChange, customerId, request 
   });
   const { register, control, handleSubmit, reset, trigger, getValues, setValue, formState } = form;
   const errors = formState.errors;
+  const { data: templates = [] } = useActiveTestRequestTemplates();
 
   const applyTemplate = (id: string) => {
-    const tpl = SCOPE_TEMPLATES.find((t) => t.id === id);
+    const tpl = templates.find((t) => t.id === id);
     if (!tpl) return;
     const current = getValues();
     const mergeText = (existing: string | undefined, addition: string) => {
@@ -416,16 +418,24 @@ export function TestRequestFormDialog({ open, onOpenChange, customerId, request 
                           <SelectValue placeholder="Choose a request template…" />
                         </SelectTrigger>
                         <SelectContent>
-                          {SCOPE_TEMPLATES.map((t) => (
-                            <SelectItem key={t.id} value={t.id}>
-                              <div className="flex flex-col">
-                                <span className="font-medium">{t.label}</span>
-                                <span className="text-xs text-muted-foreground">
-                                  {t.description}
-                                </span>
-                              </div>
-                            </SelectItem>
-                          ))}
+                          {templates.length === 0 ? (
+                            <div className="px-2 py-3 text-xs text-muted-foreground">
+                              No templates yet — create some at /admin/request-templates
+                            </div>
+                          ) : (
+                            templates.map((t) => (
+                              <SelectItem key={t.id} value={t.id}>
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{t.label}</span>
+                                  {t.description && (
+                                    <span className="text-xs text-muted-foreground">
+                                      {t.description}
+                                    </span>
+                                  )}
+                                </div>
+                              </SelectItem>
+                            ))
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
