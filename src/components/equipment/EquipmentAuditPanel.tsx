@@ -21,9 +21,9 @@ const HUMAN_FIELD: Record<string, string> = {
 };
 
 function actionMeta(action: string) {
-  if (action.startsWith('cal')) return { Icon: Shield, label: action.replace(/_/g, ' '), tone: 'bg-blue-500/10 text-blue-600' };
-  if (action.startsWith('maint')) return { Icon: Wrench, label: action.replace(/_/g, ' '), tone: 'bg-amber-500/10 text-amber-600' };
-  if (action === 'created') return { Icon: Plus, label: 'created', tone: 'bg-emerald-500/10 text-emerald-600' };
+  if (action.startsWith('cal')) return { Icon: Shield, label: action.replace(/_/g, ' '), tone: 'bg-info-soft text-info' };
+  if (action.startsWith('maint')) return { Icon: Wrench, label: action.replace(/_/g, ' '), tone: 'bg-warning-soft text-warning' };
+  if (action === 'created') return { Icon: Plus, label: 'created', tone: 'bg-success-soft text-success' };
   if (action === 'deleted') return { Icon: Trash2, label: 'deleted', tone: 'bg-destructive/10 text-destructive' };
   if (action === 'updated') return { Icon: Pencil, label: 'updated', tone: 'bg-muted text-foreground' };
   return { Icon: Activity, label: action, tone: 'bg-muted text-muted-foreground' };
