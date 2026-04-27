@@ -34,6 +34,7 @@ const CopilotPage = lazy(() => import("./pages/CopilotPage"));
 const TasksPage = lazy(() => import("./pages/TasksPage"));
 const PlanningPage = lazy(() => import("./pages/PlanningPage"));
 const RequestTemplatesAdminPage = lazy(() => import("./pages/RequestTemplatesAdminPage"));
+const TestRequestsPage = lazy(() => import("./pages/TestRequestsPage"));
 
 const queryClient = new QueryClient();
 
@@ -77,6 +78,7 @@ const App = () => (
                         <Route path="/suppliers/:id" element={<SupplierDetailPage />} />
                         <Route path="/customers" element={<CustomersPage />} />
                         <Route path="/customers/:id" element={<CustomerDetailPage />} />
+                        <Route path="/test-requests" element={<TestRequestsPage />} />
                         <Route path="/sops" element={<SOPsPage />} />
                         <Route path="/tasks" element={<TasksPage />} />
                         <Route path="/planning" element={<PlanningPage />} />
