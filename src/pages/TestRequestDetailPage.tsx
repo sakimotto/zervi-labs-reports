@@ -625,3 +625,210 @@ function AddMaterialsDialog({ open, onOpenChange, requestId }: { open: boolean; 
     </Dialog>
   );
 }
+
+/* ---------------- KPI strip ---------------- */
+function RequestKpiStrip({
+  requestId,
+  requestedDate,
+  dueDate,
+}: {
+  requestId: string;
+  requestedDate: string | null;
+  dueDate: string | null;
+}) {
+  const { data: samples = [] } = useRequestSamples(requestId);
+  const { data: methods = [] } = useRequestMethods(requestId);
+  const { data: reports = [] } = useRequestReports(requestId);
+
+  const total = samples.length;
+  const approved = (samples as any[]).filter((s) => s.status === 'Approved').length;
+  const ng = (samples as any[]).filter((s) => s.overall_judgment === 'NG').length;
+
+  const daysOpen = requestedDate
+    ? Math.max(0, Math.floor((Date.now() - new Date(requestedDate).getTime()) / 86_400_000))
+    : null;
+  const daysToDue = dueDate
+    ? Math.floor((new Date(dueDate).getTime() - Date.now()) / 86_400_000)
+    : null;
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <Kpi
+        label="Samples"
+        value={total === 0 ? '0' : `${approved}/${total}`}
+        sub={total === 0 ? 'none yet' : `${Math.round((approved / total) * 100)}% approved`}
+        tone={total > 0 && approved === total ? 'success' : 'info'}
+      />
+      <Kpi label="Methods" value={methods.length} sub="linked" tone="info" />
+      <Kpi label="Reports" value={reports.length} sub="issued" tone={reports.length > 0 ? 'success' : 'muted'} />
+      <Kpi
+        label="NG findings"
+        value={ng}
+        sub={ng === 0 ? 'all OK so far' : 'samples failing'}
+        tone={ng > 0 ? 'destructive' : 'muted'}
+      />
+      <Kpi
+        label="Timing"
+        value={daysToDue == null ? `${daysOpen ?? 0}d` : `${daysToDue}d`}
+        sub={
+          daysToDue == null
+            ? 'days open'
+            : daysToDue < 0
+              ? `${Math.abs(daysToDue)}d overdue`
+              : 'days to due'
+        }
+        tone={daysToDue != null && daysToDue < 0 ? 'destructive' : 'muted'}
+      />
+    </div>
+  );
+}
+
+function Kpi({
+  label,
+  value,
+  sub,
+  tone = 'muted',
+}: {
+  label: string;
+  value: string | number;
+  sub?: string;
+  tone?: 'muted' | 'info' | 'success' | 'destructive';
+}) {
+  const toneClass =
+    tone === 'success'
+      ? 'text-success'
+      : tone === 'destructive'
+        ? 'text-destructive'
+        : tone === 'info'
+          ? 'text-info'
+          : 'text-foreground';
+  return (
+    <Card className="p-3 shadow-card">
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{label}</div>
+      <div className={`text-2xl font-bold mt-0.5 ${toneClass}`}>{value}</div>
+      {sub && <div className="text-[11px] text-muted-foreground mt-0.5">{sub}</div>}
+    </Card>
+  );
+}
+
+/* ---------------- Tasks tab ---------------- */
+function TasksTab({ requestId }: { requestId: string }) {
+  const { data = [], isLoading } = useRequestTasks(requestId);
+  if (isLoading) return <Skeleton className="h-32 w-full" />;
+  return (
+    <Card className="shadow-card overflow-hidden p-0">
+      <div className="px-4 py-2.5 border-b border-border bg-muted/40 text-sm font-semibold">
+        Tasks ({data.length})
+      </div>
+      {data.length === 0 ? (
+        <EmptyState
+          icon={ClipboardList}
+          title="No tasks linked"
+          description="Tasks created from this request will appear here."
+        />
+      ) : (
+        <table className="w-full text-sm">
+          <thead className="bg-muted/30 text-[11px] uppercase tracking-wider text-muted-foreground">
+            <tr><th className="text-left px-4 py-2">Task #</th><th className="text-left px-4 py-2">Title</th><th className="text-left px-4 py-2">Type</th><th className="text-left px-4 py-2">Status</th><th className="text-left px-4 py-2">Priority</th><th className="text-left px-4 py-2">Due</th></tr>
+          </thead>
+          <tbody>
+            {(data as any[]).map((t) => (
+              <tr key={t.id} className="border-t border-border/60 hover:bg-primary-soft/40">
+                <td className="px-4 py-2 font-mono text-xs">
+                  <Link to="/tasks" className="text-primary hover:underline">{t.task_number}</Link>
+                </td>
+                <td className="px-4 py-2">{t.title}</td>
+                <td className="px-4 py-2 text-xs text-muted-foreground">{t.type}</td>
+                <td className="px-4 py-2 text-xs">{t.status}</td>
+                <td className="px-4 py-2 text-xs">{t.priority}</td>
+                <td className="px-4 py-2 text-xs">
+                  {t.due_date ? new Date(t.due_date).toLocaleDateString() : '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </Card>
+  );
+}
+
+/* ---------------- Reports tab ---------------- */
+function ReportsTab({ requestId }: { requestId: string }) {
+  const { data = [], isLoading } = useRequestReports(requestId);
+  if (isLoading) return <Skeleton className="h-32 w-full" />;
+  return (
+    <Card className="shadow-card overflow-hidden p-0">
+      <div className="px-4 py-2.5 border-b border-border bg-muted/40 text-sm font-semibold">
+        Test Reports ({data.length})
+      </div>
+      {data.length === 0 ? (
+        <EmptyState
+          icon={FileText}
+          title="No reports yet"
+          description="Issued reports linked to this request will appear here."
+        />
+      ) : (
+        <table className="w-full text-sm">
+          <thead className="bg-muted/30 text-[11px] uppercase tracking-wider text-muted-foreground">
+            <tr><th className="text-left px-4 py-2">Report #</th><th className="text-left px-4 py-2">Title</th><th className="text-left px-4 py-2">Status</th><th className="text-left px-4 py-2">Judgment</th><th className="text-left px-4 py-2">Issued</th></tr>
+          </thead>
+          <tbody>
+            {(data as any[]).map((rep) => (
+              <tr key={rep.id} className="border-t border-border/60">
+                <td className="px-4 py-2 font-mono text-xs">{rep.report_number}</td>
+                <td className="px-4 py-2">{rep.title}</td>
+                <td className="px-4 py-2 text-xs">{rep.status}</td>
+                <td className="px-4 py-2 text-xs">{rep.overall_judgment ?? '—'}</td>
+                <td className="px-4 py-2 text-xs">
+                  {rep.issued_date ? new Date(rep.issued_date).toLocaleDateString() : '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </Card>
+  );
+}
+
+/* ---------------- History tab ---------------- */
+function HistoryTab({ requestId }: { requestId: string }) {
+  const { data = [], isLoading } = useRequestAudit(requestId);
+  if (isLoading) return <Skeleton className="h-32 w-full" />;
+  return (
+    <Card className="shadow-card overflow-hidden">
+      <div className="px-4 py-2.5 border-b border-border bg-muted/40 text-sm font-semibold">
+        Audit history ({data.length})
+      </div>
+      {data.length === 0 ? (
+        <EmptyState icon={ClipboardList} title="No history yet" description="Changes to this request will appear here." />
+      ) : (
+        <ol className="divide-y divide-border">
+          {(data as any[]).map((entry) => (
+            <li key={entry.id} className="px-4 py-3 text-sm">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-primary-soft text-primary">
+                    {entry.action.replace(/_/g, ' ')}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {entry.changed_by_name ?? 'system'}
+                  </span>
+                </div>
+                <span className="text-[11px] text-muted-foreground">
+                  {new Date(entry.created_at).toLocaleString()}
+                </span>
+              </div>
+              {entry.details && Object.keys(entry.details).length > 0 && (
+                <pre className="mt-2 text-[11px] text-muted-foreground whitespace-pre-wrap break-words font-mono bg-muted/40 rounded p-2 max-h-48 overflow-auto">
+                  {JSON.stringify(entry.details, null, 2)}
+                </pre>
+              )}
+            </li>
+          ))}
+        </ol>
+      )}
+    </Card>
+  );
+}
