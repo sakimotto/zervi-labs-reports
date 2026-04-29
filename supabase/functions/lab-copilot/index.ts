@@ -1063,7 +1063,7 @@ Deno.serve(async (req) => {
         for (const tc of msg.tool_calls) {
           const args = typeof tc.function.arguments === "string" ? JSON.parse(tc.function.arguments) : tc.function.arguments;
           const start = Date.now();
-          const result = await runTool(supabase, tc.function.name, args ?? {});
+          const result = await runTool(supabase, tc.function.name, args ?? {}, { conversation_id, user_id: user.id, user_email: user.email });
           const duration = Date.now() - start;
           toolEvents.push({ tool: tc.function.name, args, duration_ms: duration, ok: !result.error });
 
