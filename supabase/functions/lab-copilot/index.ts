@@ -638,7 +638,7 @@ const TOOLS = [
 // TOOL HANDLERS
 // ============================================================================
 
-async function runTool(supabase: any, name: string, args: any): Promise<any> {
+async function runTool(supabase: any, name: string, args: any, ctx?: { conversation_id?: string; user_id?: string; user_email?: string }): Promise<any> {
   try {
     switch (name) {
       case "search_samples": {
