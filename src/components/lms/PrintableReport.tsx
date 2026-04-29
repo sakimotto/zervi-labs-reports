@@ -193,7 +193,7 @@ export function PrintableReport({ sample, testItems, requirements, results, test
               <tbody>
                 {items.map(item => {
                   if (item.direction_required) {
-                    const dirs = item.name.includes('Flame') ? ['Warp', 'Weft'] : ['Warp', 'Filling'];
+                    const dirs = directionLabelsFor(item);
                     rowNum++;
                     return dirs.map((dir, di) => {
                       const res = getResult(item.id, dir);
@@ -243,10 +243,11 @@ export function PrintableReport({ sample, testItems, requirements, results, test
           </span>
         </div>
 
-        {/* Footer Notes */}
+        {/* Footer Notes (bilingual aware) */}
         {footerNotes && (
           <div className="mt-3 p-2 border border-gray-300 bg-gray-50 text-[9px] text-gray-700 whitespace-pre-line">
-            {footerNotes}
+            <div>{footerEn}</div>
+            {footerCn && <div className="mt-0.5">{footerCn}</div>}
           </div>
         )}
 
