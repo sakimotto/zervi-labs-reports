@@ -390,7 +390,24 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
                 <tbody>
                   {items.map(item => {
                     if (item.direction_required) {
-                      const directions = item.name.includes('Flame') ? ['Warp', 'Weft'] : ['Warp', 'Filling'];
+                      // Pick zone labels by item type (rubber vs textile)
+                      const n = (item.name || '').toLowerCase();
+                      const u = (item.unit || '').toLowerCase();
+                      const isRubber =
+                        n.includes('rubber') || n.includes('density') ||
+                        u.includes('kg/cm') || u.includes('g/cm');
+                      const isShrinkOrVulc = n.includes('shrink') || n.includes('vulcan');
+                      // Prefer directions actually present in saved results
+                      const savedDirs = Array.from(localResults.values())
+                        .filter(r => r.test_item_id === item.id && r.direction)
+                        .map(r => r.direction as string);
+                      const uniqueSaved = Array.from(new Set(savedDirs));
+                      const directions =
+                        uniqueSaved.length >= 2 ? uniqueSaved.slice(0, 2)
+                        : isShrinkOrVulc ? ['X', 'Y']
+                        : isRubber ? ['Skin', 'Middle']
+                        : item.name.includes('Flame') ? ['Warp', 'Weft']
+                        : ['Warp', 'Filling'];
                       return directions.map((dir, di) => (
                         <TestResultRow
                           key={`${item.id}-${dir}`}
