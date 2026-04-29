@@ -10,6 +10,7 @@ import {
   Ruler,
   Settings2,
   BarChart3,
+  Wand2,
   type LucideIcon,
 } from "lucide-react";
 
@@ -20,7 +21,8 @@ export type SkillModeId =
   | "backlog_sla"
   | "spec_compliance"
   | "equipment_calibration"
-  | "lab_analytics";
+  | "lab_analytics"
+  | "program_builder";
 
 export type StarterPrompt = {
   emoji: string;
