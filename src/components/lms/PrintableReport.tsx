@@ -137,11 +137,31 @@ export function PrintableReport({ sample, testItems, requirements, results, test
       {/* Printable content */}
       <div className="max-w-[210mm] mx-auto p-8 print:p-6 print:max-w-none bg-white text-black print:text-black" style={{ fontSize: '10px', lineHeight: '1.4' }}>
         {/* Header */}
-        <div className="text-center mb-4 border-b-2 border-black pb-3">
-          <h1 className="text-base font-bold tracking-wide text-black">ZERVI ASIA CO., LTD.</h1>
-          <p className="text-[10px] font-semibold text-gray-800 mt-1">{titleEn}</p>
-          {titleCn && <p className="text-[10px] font-semibold text-gray-800">{titleCn}</p>}
-        </div>
+        {(sample as any).report_source && (sample as any).report_source !== 'internal' ? (
+          <div className="text-center mb-4 border-b-2 border-black pb-3">
+            <div className="inline-block px-2 py-0.5 mb-1 text-[9px] font-bold uppercase tracking-widest bg-black text-white">
+              {(sample as any).report_source === 'supplier' ? 'Supplier-Issued Test Report' :
+               (sample as any).report_source === 'third_party' ? 'Third-Party Lab Report' :
+               'Customer-Issued Report'} — Reproduced for Reference
+            </div>
+            <h1 className="text-base font-bold tracking-wide text-black">
+              {(sample as any).external_lab_name || (sample as any).supplier_name || 'External Laboratory'}
+            </h1>
+            <p className="text-[10px] font-semibold text-gray-800 mt-1">{titleEn}</p>
+            {titleCn && <p className="text-[10px] font-semibold text-gray-800">{titleCn}</p>}
+            <p className="text-[8px] text-gray-600 mt-1">
+              On file at Zervi Asia Co., Ltd.
+              {(sample as any).external_report_number && <> · Original Report #: <span className="font-mono">{(sample as any).external_report_number}</span></>}
+              {(sample as any).external_form_number && <> · Form: <span className="font-mono">{(sample as any).external_form_number}</span></>}
+            </p>
+          </div>
+        ) : (
+          <div className="text-center mb-4 border-b-2 border-black pb-3">
+            <h1 className="text-base font-bold tracking-wide text-black">ZERVI ASIA CO., LTD.</h1>
+            <p className="text-[10px] font-semibold text-gray-800 mt-1">{titleEn}</p>
+            {titleCn && <p className="text-[10px] font-semibold text-gray-800">{titleCn}</p>}
+          </div>
+        )}
 
         {/* Header Notes */}
         {headerNotes && (
