@@ -13,7 +13,19 @@ export function SampleRow({ sample, onClick }: SampleRowProps) {
       onClick={onClick}
       className="border-b last:border-b-0 hover:bg-muted/30 cursor-pointer transition-colors h-10"
     >
-      <td className="px-3 py-2 font-mono text-xs font-medium">{sample.sample_id}</td>
+      <td className="px-3 py-2 font-mono text-xs font-medium">
+        <div className="flex items-center gap-1.5">
+          {sample.sample_id}
+          {(sample as any).report_source && (sample as any).report_source !== 'internal' && (
+            <span
+              className="px-1 py-px rounded-sm text-[9px] font-bold uppercase tracking-wider bg-warning text-warning-foreground"
+              title={`External report from ${(sample as any).external_lab_name || (sample as any).report_source}`}
+            >
+              EXT
+            </span>
+          )}
+        </div>
+      </td>
       <td className="px-3 py-2 text-sm">{sample.product_name}</td>
       <td className="px-3 py-2 text-sm text-muted-foreground">{sample.oem_brand || '—'}</td>
       <td className="px-3 py-2">
