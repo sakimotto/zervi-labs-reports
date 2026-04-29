@@ -466,6 +466,172 @@ const TOOLS = [
       },
     },
   },
+  // -------------------- Program Builder tools --------------------
+  {
+    type: "function",
+    function: {
+      name: "search_methods_in_library",
+      description:
+        "Search the test methods library by name, category, or keyword. Returns method id (integer), name, category, unit, direction_required, and any linked primary standard. Use this to find which methods to add to a draft program.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string" },
+          category: { type: "string", description: "Physical | Durability | Chemical | Safety | Appearance" },
+          limit: { type: "number", default: 50 },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "search_standards_for_material",
+      description:
+        "Find applicable standards for a given material/use case. Searches title, code, and scope_description. Returns id, code, full_designation, organization, status. Use the returned id when proposing method_standards links in a draft.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "Free text — e.g. 'tensile woven fabric', 'flammability automotive'" },
+          organization: { type: "string", description: "ISO | JIS | ASTM | VDA | FMVSS | EN" },
+          limit: { type: "number", default: 30 },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_similar_programs",
+      description:
+        "Look up existing approved test programs for the same material type / OEM to use as a template. Returns the program plus its full item list with units and directions.",
+      parameters: {
+        type: "object",
+        properties: {
+          material_type: { type: "string" },
+          oem: { type: "string", description: "OEM brand name to look for in test_requirements" },
+          limit: { type: "number", default: 5 },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "draft_test_program",
+      description:
+        "Save a fully-specified test program proposal as a draft for the user to review. The draft is NOT applied to the live database — the user reviews and approves it in the Program Draft Review modal. Returns { draft_id, summary }. Always cite a source for every threshold (from_standard / from_similar_program / inferred).",
+      parameters: {
+        type: "object",
+        required: ["program", "items"],
+        properties: {
+          program: {
+            type: "object",
+            required: ["name"],
+            properties: {
+              name: { type: "string" },
+              description: { type: "string" },
+              material_type: { type: "string" },
+              category: { type: "string" },
+              purpose: { type: "string" },
+              scope_notes: { type: "string" },
+              intended_use: { type: "string" },
+              report_title: { type: "string" },
+              report_header_notes: { type: "string" },
+              report_footer_notes: { type: "string" },
+            },
+          },
+          items: {
+            type: "array",
+            description: "Test methods (test_items rows by integer id) included in the program.",
+            items: {
+              type: "object",
+              required: ["test_item_id"],
+              properties: {
+                test_item_id: { type: "number" },
+                display_order: { type: "number" },
+                include_in_report: { type: "boolean" },
+                notes: { type: "string" },
+              },
+            },
+          },
+          requirements: {
+            type: "array",
+            description: "Acceptance thresholds. Use one row per (test_item, direction). Always populate either min_value, max_value, target_value, or requirement_text.",
+            items: {
+              type: "object",
+              required: ["test_item_id"],
+              properties: {
+                test_item_id: { type: "number" },
+                direction: { type: "string", description: "Warp | Filling | MD | CD | null" },
+                min_value: { type: "number" },
+                max_value: { type: "number" },
+                target_value: { type: "number" },
+                requirement_text: { type: "string", description: "e.g. '≥250 N' or 'No cracks'" },
+                standard_code: { type: "string" },
+                oem_brand: { type: "string" },
+                source: { type: "string", description: "from_standard | from_similar_program | inferred" },
+                rationale: { type: "string" },
+              },
+            },
+          },
+          method_standards: {
+            type: "array",
+            description: "Link each test method to its primary standard. Use standard_id from search_standards_for_material.",
+            items: {
+              type: "object",
+              required: ["test_item_id"],
+              properties: {
+                test_item_id: { type: "number" },
+                standard_id: { type: "string", description: "UUID of standards row" },
+                standard_text: { type: "string", description: "Free-text fallback if no DB record" },
+                year: { type: "string" },
+                is_primary: { type: "boolean" },
+                notes: { type: "string" },
+              },
+            },
+          },
+          sku_patterns: {
+            type: "array",
+            items: {
+              type: "object",
+              required: ["pattern"],
+              properties: {
+                pattern: { type: "string" },
+                match_type: { type: "string", description: "exact | prefix | glob | regex" },
+                priority: { type: "number" },
+                description: { type: "string" },
+              },
+            },
+          },
+          supplier_links: {
+            type: "array",
+            items: {
+              type: "object",
+              required: ["supplier_id"],
+              properties: {
+                supplier_id: { type: "string" },
+                is_preferred: { type: "boolean" },
+                notes: { type: "string" },
+              },
+            },
+          },
+          material_type_tags: {
+            type: "array",
+            items: {
+              type: "object",
+              required: ["material_type"],
+              properties: { material_type: { type: "string" } },
+            },
+          },
+          rationale_summary: {
+            type: "string",
+            description: "Short overall reasoning — why this program structure, what was the source for the bulk of the thresholds.",
+          },
+        },
+      },
+    },
+  },
 ];
 
 // ============================================================================
