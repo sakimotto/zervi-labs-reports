@@ -908,6 +908,84 @@ async function runTool(supabase: any, name: string, args: any): Promise<any> {
           calendar_events: eventsRes.events ?? [],
         };
       }
+      // -------------------- Program Builder handlers --------------------
+      case "search_methods_in_library": {
+        let q = supabase.from("test_items")
+          .select("id, name, category, unit, direction_required, multiple_samples, sample_count, method_code, method_standards(standard_id, is_primary, year, standards(code, full_designation))")
+          .eq("is_active", true)
+          .limit(args.limit ?? 50);
+        if (args.category) q = q.eq("category", args.category);
+        if (args.query) q = q.or(`name.ilike.%${args.query}%,method_code.ilike.%${args.query}%,scope.ilike.%${args.query}%`);
+        const { data, error } = await q;
+        if (error) throw error;
+        return { count: data?.length ?? 0, methods: data };
+      }
+      case "search_standards_for_material": {
+        let q = supabase.from("standards")
+          .select("id, code, full_designation, title, organization, status, scope_description, latest_revision_year")
+          .eq("is_active", true)
+          .limit(args.limit ?? 30);
+        if (args.organization) q = q.eq("organization", args.organization);
+        if (args.query) q = q.or(`code.ilike.%${args.query}%,title.ilike.%${args.query}%,full_designation.ilike.%${args.query}%,scope_description.ilike.%${args.query}%`);
+        const { data, error } = await q.order("code");
+        if (error) throw error;
+        return { count: data?.length ?? 0, standards: data };
+      }
+      case "get_similar_programs": {
+        let q = supabase.from("test_programs")
+          .select("id, program_code, name, material_type, category, status, test_program_items(test_item_id, display_order, test_items(id, name, category, unit, direction_required))")
+          .in("status", ["Approved", "Active"])
+          .limit(args.limit ?? 5);
+        if (args.material_type) q = q.ilike("material_type", `%${args.material_type}%`);
+        const { data, error } = await q.order("updated_at", { ascending: false });
+        if (error) throw error;
+        return { count: data?.length ?? 0, programs: data, note: args.oem ? `OEM filter '${args.oem}' should be cross-checked against test_requirements.oem_brand when reviewing.` : undefined };
+      }
+      case "draft_test_program": {
+        if (!args.program?.name) return { error: "program.name is required" };
+        const payload = {
+          program: args.program,
+          items: args.items ?? [],
+          requirements: args.requirements ?? [],
+          method_standards: args.method_standards ?? [],
+          sku_patterns: args.sku_patterns ?? [],
+          supplier_links: args.supplier_links ?? [],
+          material_type_tags: args.material_type_tags ?? [],
+        };
+        const rationale = {
+          summary: args.rationale_summary ?? null,
+          per_item: (args.requirements ?? []).map((r: any) => ({
+            test_item_id: r.test_item_id,
+            direction: r.direction ?? null,
+            source: r.source ?? "inferred",
+            rationale: r.rationale ?? null,
+            standard_code: r.standard_code ?? null,
+          })),
+        };
+        const { data, error } = await supabase.from("program_drafts").insert({
+          status: "draft",
+          source: "copilot",
+          conversation_id: ctx?.conversation_id ?? null,
+          created_by: ctx?.user_id ?? null,
+          created_by_name: ctx?.user_email ?? null,
+          draft_payload: payload,
+          ai_rationale: rationale,
+        }).select("id").single();
+        if (error) throw error;
+        return {
+          instruction: "Tell the user the draft is ready and the Review modal will open. Summarise counts (items, requirements, sku patterns) — do NOT dump the full JSON. Mention any thresholds left blank that need their input.",
+          draft_id: data.id,
+          summary: {
+            program_name: args.program.name,
+            item_count: payload.items.length,
+            requirement_count: payload.requirements.length,
+            sku_pattern_count: payload.sku_patterns.length,
+            method_standards_count: payload.method_standards.length,
+            supplier_link_count: payload.supplier_links.length,
+            inferred_thresholds: rationale.per_item.filter((p: any) => p.source === "inferred").length,
+          },
+        };
+      }
       default:
         return { error: `Unknown tool: ${name}` };
     }
