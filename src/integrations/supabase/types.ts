@@ -1890,6 +1890,57 @@ export type Database = {
         }
         Relationships: []
       }
+      program_drafts: {
+        Row: {
+          ai_rationale: Json | null
+          applied_at: string | null
+          applied_program_id: string | null
+          conversation_id: string | null
+          created_at: string
+          created_by: string | null
+          created_by_name: string | null
+          discard_reason: string | null
+          discarded_at: string | null
+          draft_payload: Json
+          id: string
+          source: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          ai_rationale?: Json | null
+          applied_at?: string | null
+          applied_program_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          created_by_name?: string | null
+          discard_reason?: string | null
+          discarded_at?: string | null
+          draft_payload: Json
+          id?: string
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          ai_rationale?: Json | null
+          applied_at?: string | null
+          applied_program_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          created_by_name?: string | null
+          discard_reason?: string | null
+          discarded_at?: string | null
+          draft_payload?: Json
+          id?: string
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       program_material_type_tags: {
         Row: {
           created_at: string
@@ -4027,6 +4078,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_program_draft: { Args: { _draft_id: string }; Returns: string }
       current_user_email: { Args: never; Returns: string }
       has_role: {
         Args: {
