@@ -77,6 +77,25 @@ export function PrintableReport({ sample, testItems, requirements, results, test
   const showSignatures = testProgram?.show_signatures !== false;
   const signatureRoles = (testProgram?.signature_roles as string[] | null) || ['Prepared By', 'Checked By', 'Approved By'];
 
+  // Bilingual support: "English / 中文" → render two stacked lines
+  const splitBilingual = (s?: string | null): [string, string | null] => {
+    if (!s) return ['', null];
+    const idx = s.indexOf(' / ');
+    if (idx < 0) return [s, null];
+    return [s.slice(0, idx).trim(), s.slice(idx + 3).trim()];
+  };
+  const [titleEn, titleCn] = splitBilingual(reportTitle);
+  const [footerEn, footerCn] = splitBilingual(footerNotes);
+
+  // Pick zone labels for directional methods (textile vs rubber/foam vs heat-shrink)
+  const directionLabelsFor = (item: DbTestItem): string[] => {
+    const n = item.name.toLowerCase();
+    if (n.includes('shrinkage') || n.includes('vulcaniz')) return ['X', 'Y'];
+    if (item.unit === 'kg/cm²' || item.unit === 'kg/cm' || item.unit === 'g/cm³' || n.includes('rubber')) return ['Skin', 'Middle'];
+    if (n.includes('flame')) return ['Warp', 'Weft'];
+    return ['Warp', 'Filling'];
+  };
+
   const renderCellValue = (col: string, item: DbTestItem, res: ReturnType<typeof getResult>, req: ReturnType<typeof getReq>, dir?: string, isSubRow?: boolean) => {
     switch (col) {
       case 'test_name': return isSubRow ? '' : item.name;
