@@ -306,6 +306,31 @@ export function SampleDetail({ sampleId, onBack }: SampleDetailProps) {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-4">
+        {(sample as any).report_source && (sample as any).report_source !== 'internal' && (
+          <div className="mb-4 rounded-lg border-2 border-warning/40 bg-warning-soft/40 p-3 flex items-start gap-3">
+            <div className="shrink-0 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-warning text-warning-foreground">
+              External Report
+            </div>
+            <div className="flex-1 text-xs leading-relaxed">
+              <div className="font-semibold text-foreground">
+                {(sample as any).report_source === 'supplier' ? 'Supplier-issued test report' :
+                 (sample as any).report_source === 'third_party' ? 'Third-party lab report' :
+                 'Customer-issued report'} — NOT a Zervi Asia in-house test
+              </div>
+              <div className="text-muted-foreground mt-0.5 grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-0.5">
+                {(sample as any).external_lab_name && <div><span className="font-medium text-foreground/80">Lab:</span> {(sample as any).external_lab_name}</div>}
+                {(sample as any).external_report_number && <div><span className="font-medium text-foreground/80">Report #:</span> <span className="font-mono">{(sample as any).external_report_number}</span></div>}
+                {(sample as any).external_report_date && <div><span className="font-medium text-foreground/80">Date:</span> {(sample as any).external_report_date}</div>}
+                {(sample as any).external_form_number && <div><span className="font-medium text-foreground/80">Form:</span> <span className="font-mono">{(sample as any).external_form_number}</span></div>}
+                {(sample as any).external_reviewer && <div><span className="font-medium text-foreground/80">Reviewer:</span> {(sample as any).external_reviewer}</div>}
+                {(sample as any).external_tester && <div><span className="font-medium text-foreground/80">Tester:</span> {(sample as any).external_tester}</div>}
+              </div>
+              {(sample as any).external_notes && (
+                <div className="mt-1 italic text-muted-foreground">{(sample as any).external_notes}</div>
+              )}
+            </div>
+          </div>
+        )}
         <div className="bg-card rounded-lg shadow-card p-4 mb-4">
           <div className="flex items-center justify-between mb-2">
             <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Test Information</div>

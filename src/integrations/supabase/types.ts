@@ -2103,6 +2103,13 @@ export type Database = {
           composition: string | null
           created_at: string
           customer_id: string | null
+          external_form_number: string | null
+          external_lab_name: string | null
+          external_notes: string | null
+          external_report_date: string | null
+          external_report_number: string | null
+          external_reviewer: string | null
+          external_tester: string | null
           fabric_type: string | null
           id: string
           is_temp_sku: boolean
@@ -2113,6 +2120,7 @@ export type Database = {
           priority: Database["public"]["Enums"]["priority_level"] | null
           product_name: string
           received_date: string | null
+          report_source: string
           requested_by: string | null
           sample_id: string
           sku: string | null
@@ -2135,6 +2143,13 @@ export type Database = {
           composition?: string | null
           created_at?: string
           customer_id?: string | null
+          external_form_number?: string | null
+          external_lab_name?: string | null
+          external_notes?: string | null
+          external_report_date?: string | null
+          external_report_number?: string | null
+          external_reviewer?: string | null
+          external_tester?: string | null
           fabric_type?: string | null
           id?: string
           is_temp_sku?: boolean
@@ -2145,6 +2160,7 @@ export type Database = {
           priority?: Database["public"]["Enums"]["priority_level"] | null
           product_name: string
           received_date?: string | null
+          report_source?: string
           requested_by?: string | null
           sample_id: string
           sku?: string | null
@@ -2167,6 +2183,13 @@ export type Database = {
           composition?: string | null
           created_at?: string
           customer_id?: string | null
+          external_form_number?: string | null
+          external_lab_name?: string | null
+          external_notes?: string | null
+          external_report_date?: string | null
+          external_report_number?: string | null
+          external_reviewer?: string | null
+          external_tester?: string | null
           fabric_type?: string | null
           id?: string
           is_temp_sku?: boolean
@@ -2177,6 +2200,7 @@ export type Database = {
           priority?: Database["public"]["Enums"]["priority_level"] | null
           product_name?: string
           received_date?: string | null
+          report_source?: string
           requested_by?: string | null
           sample_id?: string
           sku?: string | null
