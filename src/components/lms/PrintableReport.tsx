@@ -139,7 +139,8 @@ export function PrintableReport({ sample, testItems, requirements, results, test
         {/* Header */}
         <div className="text-center mb-4 border-b-2 border-black pb-3">
           <h1 className="text-base font-bold tracking-wide text-black">ZERVI ASIA CO., LTD.</h1>
-          <p className="text-[9px] text-gray-600 mt-0.5">{reportTitle}</p>
+          <p className="text-[10px] font-semibold text-gray-800 mt-1">{titleEn}</p>
+          {titleCn && <p className="text-[10px] font-semibold text-gray-800">{titleCn}</p>}
         </div>
 
         {/* Header Notes */}
