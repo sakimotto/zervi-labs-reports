@@ -100,6 +100,22 @@ You are now in **analytics mode**. Default behaviour:
 - Default window for trend questions: "last 30 days vs prior 30 days".
 - Call out the top 3 movers (positive or negative).
 - End every answer with one "so what" insight — not a recap.`,
+  program_builder: `
+## MODE: Program Builder
+You are now in **test program design mode**. Your job is to design a complete, audit-ready Test Program for the user — material category, OEM, use case → fully populated program with methods, directions, thresholds, standards links, and SKU auto-match rules.
+
+### Workflow (always follow this order)
+1. **Interview briefly.** Ask at most 4 short clarifying questions before drafting. Required signals: material type, OEM/customer (or "generic"), use case (e.g. seat surface / headliner / outerwear). Optional: SKU patterns, supplier(s), conditioning needs.
+2. **Search the library.** Use \`search_methods_in_library\`, \`search_standards_for_material\`, \`get_similar_programs\` to find what already exists. Never invent test items or standard IDs that aren't in the database.
+3. **Draft the program.** Once you have what you need, call \`draft_test_program\` with the FULL proposal — name, items, requirements, method↔standard links, sku patterns, supplier links, material type tags, plus per-item rationale.
+4. **Always cite sources.** For every threshold, set \`source\` to \`from_standard\` (cite the code) or \`from_similar_program\` (cite the program code) or \`inferred\` (must be reviewed). NEVER make up a numerical threshold without a source — leave it null and add a note.
+5. **Tell the user a draft is ready.** After draft_test_program returns a draft_id, briefly summarise what you proposed (counts: items, requirements, sku patterns) and tell them the Review modal will open automatically. Do NOT dump the entire JSON in the chat.
+
+### Hard rules
+- You DO NOT create the real program. Only \`apply_program_draft\` does that, and only when the human clicks Create in the Review modal.
+- If a critical signal is missing and you can't reasonably infer it, ask one focused question before drafting.
+- Prefer reusing methods that already have method_standards rows linked — they are higher quality.
+- For directional methods (where direction_required = true on the test_item), produce TWO requirement rows (Warp+Filling, or MD+CD) — never aggregate.`,
 };
 
 // ============================================================================
@@ -450,13 +466,179 @@ const TOOLS = [
       },
     },
   },
+  // -------------------- Program Builder tools --------------------
+  {
+    type: "function",
+    function: {
+      name: "search_methods_in_library",
+      description:
+        "Search the test methods library by name, category, or keyword. Returns method id (integer), name, category, unit, direction_required, and any linked primary standard. Use this to find which methods to add to a draft program.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string" },
+          category: { type: "string", description: "Physical | Durability | Chemical | Safety | Appearance" },
+          limit: { type: "number", default: 50 },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "search_standards_for_material",
+      description:
+        "Find applicable standards for a given material/use case. Searches title, code, and scope_description. Returns id, code, full_designation, organization, status. Use the returned id when proposing method_standards links in a draft.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "Free text — e.g. 'tensile woven fabric', 'flammability automotive'" },
+          organization: { type: "string", description: "ISO | JIS | ASTM | VDA | FMVSS | EN" },
+          limit: { type: "number", default: 30 },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_similar_programs",
+      description:
+        "Look up existing approved test programs for the same material type / OEM to use as a template. Returns the program plus its full item list with units and directions.",
+      parameters: {
+        type: "object",
+        properties: {
+          material_type: { type: "string" },
+          oem: { type: "string", description: "OEM brand name to look for in test_requirements" },
+          limit: { type: "number", default: 5 },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "draft_test_program",
+      description:
+        "Save a fully-specified test program proposal as a draft for the user to review. The draft is NOT applied to the live database — the user reviews and approves it in the Program Draft Review modal. Returns { draft_id, summary }. Always cite a source for every threshold (from_standard / from_similar_program / inferred).",
+      parameters: {
+        type: "object",
+        required: ["program", "items"],
+        properties: {
+          program: {
+            type: "object",
+            required: ["name"],
+            properties: {
+              name: { type: "string" },
+              description: { type: "string" },
+              material_type: { type: "string" },
+              category: { type: "string" },
+              purpose: { type: "string" },
+              scope_notes: { type: "string" },
+              intended_use: { type: "string" },
+              report_title: { type: "string" },
+              report_header_notes: { type: "string" },
+              report_footer_notes: { type: "string" },
+            },
+          },
+          items: {
+            type: "array",
+            description: "Test methods (test_items rows by integer id) included in the program.",
+            items: {
+              type: "object",
+              required: ["test_item_id"],
+              properties: {
+                test_item_id: { type: "number" },
+                display_order: { type: "number" },
+                include_in_report: { type: "boolean" },
+                notes: { type: "string" },
+              },
+            },
+          },
+          requirements: {
+            type: "array",
+            description: "Acceptance thresholds. Use one row per (test_item, direction). Always populate either min_value, max_value, target_value, or requirement_text.",
+            items: {
+              type: "object",
+              required: ["test_item_id"],
+              properties: {
+                test_item_id: { type: "number" },
+                direction: { type: "string", description: "Warp | Filling | MD | CD | null" },
+                min_value: { type: "number" },
+                max_value: { type: "number" },
+                target_value: { type: "number" },
+                requirement_text: { type: "string", description: "e.g. '≥250 N' or 'No cracks'" },
+                standard_code: { type: "string" },
+                oem_brand: { type: "string" },
+                source: { type: "string", description: "from_standard | from_similar_program | inferred" },
+                rationale: { type: "string" },
+              },
+            },
+          },
+          method_standards: {
+            type: "array",
+            description: "Link each test method to its primary standard. Use standard_id from search_standards_for_material.",
+            items: {
+              type: "object",
+              required: ["test_item_id"],
+              properties: {
+                test_item_id: { type: "number" },
+                standard_id: { type: "string", description: "UUID of standards row" },
+                standard_text: { type: "string", description: "Free-text fallback if no DB record" },
+                year: { type: "string" },
+                is_primary: { type: "boolean" },
+                notes: { type: "string" },
+              },
+            },
+          },
+          sku_patterns: {
+            type: "array",
+            items: {
+              type: "object",
+              required: ["pattern"],
+              properties: {
+                pattern: { type: "string" },
+                match_type: { type: "string", description: "exact | prefix | glob | regex" },
+                priority: { type: "number" },
+                description: { type: "string" },
+              },
+            },
+          },
+          supplier_links: {
+            type: "array",
+            items: {
+              type: "object",
+              required: ["supplier_id"],
+              properties: {
+                supplier_id: { type: "string" },
+                is_preferred: { type: "boolean" },
+                notes: { type: "string" },
+              },
+            },
+          },
+          material_type_tags: {
+            type: "array",
+            items: {
+              type: "object",
+              required: ["material_type"],
+              properties: { material_type: { type: "string" } },
+            },
+          },
+          rationale_summary: {
+            type: "string",
+            description: "Short overall reasoning — why this program structure, what was the source for the bulk of the thresholds.",
+          },
+        },
+      },
+    },
+  },
 ];
 
 // ============================================================================
 // TOOL HANDLERS
 // ============================================================================
 
-async function runTool(supabase: any, name: string, args: any): Promise<any> {
+async function runTool(supabase: any, name: string, args: any, ctx?: { conversation_id?: string; user_id?: string; user_email?: string }): Promise<any> {
   try {
     switch (name) {
       case "search_samples": {
@@ -726,6 +908,84 @@ async function runTool(supabase: any, name: string, args: any): Promise<any> {
           calendar_events: eventsRes.events ?? [],
         };
       }
+      // -------------------- Program Builder handlers --------------------
+      case "search_methods_in_library": {
+        let q = supabase.from("test_items")
+          .select("id, name, category, unit, direction_required, multiple_samples, sample_count, method_code, method_standards(standard_id, is_primary, year, standards(code, full_designation))")
+          .eq("is_active", true)
+          .limit(args.limit ?? 50);
+        if (args.category) q = q.eq("category", args.category);
+        if (args.query) q = q.or(`name.ilike.%${args.query}%,method_code.ilike.%${args.query}%,scope.ilike.%${args.query}%`);
+        const { data, error } = await q;
+        if (error) throw error;
+        return { count: data?.length ?? 0, methods: data };
+      }
+      case "search_standards_for_material": {
+        let q = supabase.from("standards")
+          .select("id, code, full_designation, title, organization, status, scope_description, latest_revision_year")
+          .eq("is_active", true)
+          .limit(args.limit ?? 30);
+        if (args.organization) q = q.eq("organization", args.organization);
+        if (args.query) q = q.or(`code.ilike.%${args.query}%,title.ilike.%${args.query}%,full_designation.ilike.%${args.query}%,scope_description.ilike.%${args.query}%`);
+        const { data, error } = await q.order("code");
+        if (error) throw error;
+        return { count: data?.length ?? 0, standards: data };
+      }
+      case "get_similar_programs": {
+        let q = supabase.from("test_programs")
+          .select("id, program_code, name, material_type, category, status, test_program_items(test_item_id, display_order, test_items(id, name, category, unit, direction_required))")
+          .in("status", ["Approved", "Active"])
+          .limit(args.limit ?? 5);
+        if (args.material_type) q = q.ilike("material_type", `%${args.material_type}%`);
+        const { data, error } = await q.order("updated_at", { ascending: false });
+        if (error) throw error;
+        return { count: data?.length ?? 0, programs: data, note: args.oem ? `OEM filter '${args.oem}' should be cross-checked against test_requirements.oem_brand when reviewing.` : undefined };
+      }
+      case "draft_test_program": {
+        if (!args.program?.name) return { error: "program.name is required" };
+        const payload = {
+          program: args.program,
+          items: args.items ?? [],
+          requirements: args.requirements ?? [],
+          method_standards: args.method_standards ?? [],
+          sku_patterns: args.sku_patterns ?? [],
+          supplier_links: args.supplier_links ?? [],
+          material_type_tags: args.material_type_tags ?? [],
+        };
+        const rationale = {
+          summary: args.rationale_summary ?? null,
+          per_item: (args.requirements ?? []).map((r: any) => ({
+            test_item_id: r.test_item_id,
+            direction: r.direction ?? null,
+            source: r.source ?? "inferred",
+            rationale: r.rationale ?? null,
+            standard_code: r.standard_code ?? null,
+          })),
+        };
+        const { data, error } = await supabase.from("program_drafts").insert({
+          status: "draft",
+          source: "copilot",
+          conversation_id: ctx?.conversation_id ?? null,
+          created_by: ctx?.user_id ?? null,
+          created_by_name: ctx?.user_email ?? null,
+          draft_payload: payload,
+          ai_rationale: rationale,
+        }).select("id").single();
+        if (error) throw error;
+        return {
+          instruction: "Tell the user the draft is ready and the Review modal will open. Summarise counts (items, requirements, sku patterns) — do NOT dump the full JSON. Mention any thresholds left blank that need their input.",
+          draft_id: data.id,
+          summary: {
+            program_name: args.program.name,
+            item_count: payload.items.length,
+            requirement_count: payload.requirements.length,
+            sku_pattern_count: payload.sku_patterns.length,
+            method_standards_count: payload.method_standards.length,
+            supplier_link_count: payload.supplier_links.length,
+            inferred_thresholds: rationale.per_item.filter((p: any) => p.source === "inferred").length,
+          },
+        };
+      }
       default:
         return { error: `Unknown tool: ${name}` };
     }
@@ -803,7 +1063,7 @@ Deno.serve(async (req) => {
         for (const tc of msg.tool_calls) {
           const args = typeof tc.function.arguments === "string" ? JSON.parse(tc.function.arguments) : tc.function.arguments;
           const start = Date.now();
-          const result = await runTool(supabase, tc.function.name, args ?? {});
+          const result = await runTool(supabase, tc.function.name, args ?? {}, { conversation_id, user_id: user.id, user_email: user.email });
           const duration = Date.now() - start;
           toolEvents.push({ tool: tc.function.name, args, duration_ms: duration, ok: !result.error });
 

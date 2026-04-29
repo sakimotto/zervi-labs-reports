@@ -10,6 +10,7 @@ import {
   Ruler,
   Settings2,
   BarChart3,
+  Wand2,
   type LucideIcon,
 } from "lucide-react";
 
@@ -20,7 +21,8 @@ export type SkillModeId =
   | "backlog_sla"
   | "spec_compliance"
   | "equipment_calibration"
-  | "lab_analytics";
+  | "lab_analytics"
+  | "program_builder";
 
 export type StarterPrompt = {
   emoji: string;
@@ -252,10 +254,42 @@ You are now in **analytics mode**. Default behaviour:
       { emoji: "👥", title: "Top 10 customers by sample volume this quarter", prompt: "Top 10 customers by sample volume this quarter, with their NG rate and on-time delivery rate." },
     ],
   },
+
+  program_builder: {
+    id: "program_builder",
+    label: "Program Builder",
+    shortLabel: "Builder",
+    icon: Wand2,
+    accentBg: "bg-primary/10",
+    accentText: "text-primary",
+    accentRing: "ring-primary/30",
+    sendBtnClass: "bg-gradient-primary",
+    description: "Design a complete Test Program from material + OEM + use case. AI drafts, you review.",
+    welcome: {
+      headline: "Program Builder Mode",
+      blurb: "Tell me the material, OEM, and use case. I'll draft a complete test program — methods, thresholds, standards links, SKU rules — and open a Review modal for you to approve.",
+    },
+    systemAddendum: `
+## MODE: Program Builder
+You are now in **test program design mode**. Workflow:
+1. Interview briefly (max 4 questions) — material type, OEM/customer, use case.
+2. Search the library: search_methods_in_library, search_standards_for_material, get_similar_programs.
+3. Call draft_test_program with the FULL proposal (items + requirements + method_standards + sku_patterns).
+4. Cite source for every threshold (from_standard / from_similar_program / inferred). Never invent numbers.
+5. After drafting, summarise counts only — the Review modal opens automatically.
+NEVER apply the program directly. Only the user can do that from the Review modal.`,
+    starters: [
+      { emoji: "🚗", title: "Build a program for Toyota seat fabric", prompt: "Build me a test program for Toyota automotive seat fabric, 2026 model year. Standard woven polyester surface material." },
+      { emoji: "🏕️", title: "Design a program for outdoor canvas", prompt: "Design a test program for heavy-duty outdoor canvas — tents and awnings. Generic spec, no specific OEM." },
+      { emoji: "🧪", title: "Program for SBR foam supplied to us", prompt: "I need a test program for SBR rubber foam we receive from suppliers. Should cover hardness, tensile, compression set, ozone aging. Use ASTM where possible." },
+      { emoji: "📋", title: "Clone an existing program for a new OEM", prompt: "Find our most-used program for woven polyester and propose a variant adapted for a generic European OEM customer." },
+    ],
+  },
 };
 
 export const SKILL_MODE_LIST: SkillMode[] = [
   SKILL_MODES.general,
+  SKILL_MODES.program_builder,
   SKILL_MODES.ng_diagnosis,
   SKILL_MODES.report_drafting,
   SKILL_MODES.backlog_sla,
